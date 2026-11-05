@@ -1,0 +1,6 @@
+{
+  "name": "PelatihKu — Athletic Coaching OS",
+  "description": "Sistem manajemen kepelatihan atletik dan kebugaran berdensitas tinggi untuk pelatih S&C, pelacakan biometrik klien, log beban, rekor PR, dan penjadwalan sesi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

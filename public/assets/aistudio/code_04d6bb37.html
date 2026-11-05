@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "secondary-container": "#ee9800", "surface": "#0c1322", "on-tertiary": "#1000a9", "secondary": "#ffb95f", "surface-bright": "#323949", "on-primary-fixed-variant": "#005236", "inverse-on-surface": "#293040", "error-container": "#93000a", "on-background": "#dce2f7", "tertiary-fixed-dim": "#c0c1ff", "on-surface-variant": "#bbcabf", "primary-fixed-dim": "#4edea3", "on-tertiary-container": "#1d17b2", "primary": "#4edea3", "secondary-fixed-dim": "#ffb95f", "surface-dim": "#0c1322", "background": "#0c1322", "surface-variant": "#2e3545", "on-secondary": "#472a00", "primary-fixed": "#6ffbbe", "on-error": "#690005", "on-tertiary-fixed-variant": "#2f2ebe", "surface-container-high": "#232a3a", "primary-container": "#10b981", "inverse-surface": "#dce2f7", "on-primary-fixed": "#002113", "tertiary-container": "#9699ff", "error": "#ffb4ab", "surface-tint": "#4edea3", "inverse-primary": "#006c49", "secondary-fixed": "#ffddb8", "on-secondary-container": "#5b3800", "on-primary-container": "#00422b", "outline-variant": "#3c4a42", "on-secondary-fixed": "#2a1700", "tertiary-fixed": "#e1e0ff", "outline": "#86948a", "on-tertiary-fixed": "#07006c", "on-secondary-fixed-variant": "#653e00", "on-surface": "#dce2f7", "surface-container-low": "#141b2b", "tertiary": "#c0c1ff", "surface-container-highest": "#2e3545", "on-error-container": "#ffdad6", "surface-container-lowest": "#070e1d", "surface-container": "#191f2f", "on-primary": "#003824" }, borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, spacing: { "margin": "1rem", "space-md": "0.75rem", "space-sm": "0.5rem", "margin-desktop": "2rem", "space-xs": "0.25rem", "gutter": "1rem", "space-xl": "2rem", "space-lg": "1.25rem", "gutter-desktop": "1.5rem" }, fontFamily: { "title-md": ["Inter"], "body-sm": ["Inter"], "body-lg": ["Inter"], "body-md": ["Inter"], "headline-lg-mobile": ["Inter"], "headline-sm": ["Inter"], "label-sm": ["Inter"], "code-sm": ["JetBrains Mono"], "display-lg": ["Inter"], "headline-md": ["Inter"], "label-md": ["Inter"], "headline-lg": ["Inter"] }, fontSize: { "title-md": ["15px", { lineHeight: "22px", letterSpacing: "-0.01em", fontWeight: "500" }], "body-sm": ["12px", { lineHeight: "18px", letterSpacing: "0em", fontWeight: "400" }], "body-lg": ["15px", { lineHeight: "24px", letterSpacing: "-0.01em", fontWeight: "400" }], "body-md": ["13px", { lineHeight: "20px", letterSpacing: "-0.005em", fontWeight: "400" }], "headline-lg-mobile": ["26px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "600" }], "headline-sm": ["18px", { lineHeight: "26px", letterSpacing: "-0.015em", fontWeight: "600" }], "label-sm": ["11px", { lineHeight: "14px", letterSpacing: "0.02em", fontWeight: "500" }], "code-sm": ["12px", { lineHeight: "16px", letterSpacing: "-0.01em", fontWeight: "400" }], "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.03em", fontWeight: "600" }], "headline-md": ["24px", { lineHeight: "32px", letterSpacing: "-0.02em", fontWeight: "600" }], "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "500" }], "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.025em", fontWeight: "600" }] } } } }</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.35)] pt-safe"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-xs"><button aria-label="Kembali" class="w-11 h-11 flex items-center justify-center rounded-xl bg-surface-container-high/60 text-on-surface hover:text-primary transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[20px]">arrow_back</span></button><h1 class="font-headline-sm text-headline-sm tracking-tight text-on-surface line-clamp-1">Detail Klien</h1></div><div class="flex items-center gap-space-xs"><button aria-label="Pencarian" class="w-11 h-11 flex items-center justify-center rounded-xl bg-surface-container-high/60 text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">search</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 ml-space-xs"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full px-margin pt-16 pb-safe bg-surface min-h-screen"><div class="flex flex-col w-full pb-10 space-y-space-md">
+<!-- 1. Header Profil Klien Ringkas & Status Ergonomis -->
+<section class="bg-surface-container rounded-xl p-space-md shadow-sm relative overflow-hidden">
+<div class="flex items-start justify-between gap-space-sm mb-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="relative shrink-0">
+<div class="w-13 h-13 rounded-full bg-surface-container-highest text-primary flex items-center justify-center font-headline-sm text-headline-sm font-semibold tracking-tight shadow-sm">
+            BS
+          </div>
+<span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-primary ring-2 ring-surface-container animate-pulse"></span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<h2 class="font-headline-sm text-headline-sm text-on-surface tracking-tight truncate">Budi Santoso</h2>
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded-full font-label-sm text-label-sm tracking-wide">Cut Phase II</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate mt-0.5">
+            29 Thn • Pria • SWE (Remote) • #KLN-2024-082
+          </p>
+</div>
+</div>
+</div>
+<!-- Target & Coach Banner -->
+<div class="bg-surface-container-low rounded-lg p-space-sm mb-space-sm">
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm mb-1">
+<span class="flex items-center gap-1 text-on-surface font-title-md text-title-md">
+<span class="material-symbols-outlined text-[16px] text-primary">flag</span>
+          Fat Loss &amp; Rekomposisi
+        </span>
+<span class="text-primary font-code-sm text-code-sm font-medium">-5.0 kg Target</span>
+</div>
+<!-- Sesi Progress Bar -->
+<div class="mt-2 space-y-1">
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Paket: <strong class="text-on-surface font-medium">16 / 24 Sesi</strong> (Sisa 8)</span>
+<span class="text-primary font-medium">Diet Kepatuhan 92%</span>
+</div>
+<div class="w-full h-2 rounded-full bg-surface-container-highest overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary-container to-primary rounded-full" style="width: 66.6%;"></div>
+</div>
+<div class="flex items-center justify-between pt-1 font-body-sm text-body-sm text-on-surface-variant">
+<span>Lead Coach: <span class="text-on-surface font-medium">Hendra Kurniawan</span></span>
+<span class="text-secondary font-code-sm text-code-sm flex items-center gap-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Aktif
+          </span>
+</div>
+</div>
+</div>
+<!-- Quick Action Thumb Bar (Min 44px height for thumb-comfort) -->
+<div class="grid grid-cols-12 gap-space-xs pt-1">
+<button class="col-span-5 h-11 bg-primary text-on-primary rounded-xl font-title-md text-title-md font-semibold flex items-center justify-center gap-1 active:scale-95 transition-transform shadow-sm">
+<span class="material-symbols-outlined text-[18px]">monitor_weight</span>
+<span>+ Timbang</span>
+</button>
+<button class="col-span-5 h-11 bg-surface-container-high hover:bg-surface-bright text-on-surface rounded-xl font-title-md text-title-md font-medium flex items-center justify-center gap-1 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[18px] text-primary">fitness_center</span>
+<span>Catat Sesi</span>
+</button>
+<a aria-label="Chat WhatsApp Coach" class="col-span-2 h-11 bg-surface-container-high hover:bg-surface-bright text-primary rounded-xl flex items-center justify-center active:scale-95 transition-transform" href="https://wa.me/">
+<span class="material-symbols-outlined text-[20px]">chat</span>
+</a>
+</div>
+</section>
+<!-- 2. Tab Navigasi Segmented Mobile Pill -->
+<nav aria-label="Navigasi Klien" class="flex items-center gap-space-xs overflow-x-auto no-scrollbar py-1">
+<button class="px-space-md h-9 shrink-0 rounded-full bg-primary text-on-primary font-label-md text-label-md font-semibold shadow-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">analytics</span>
+      Overview &amp; Metrik
+    </button>
+<button class="px-space-md h-9 shrink-0 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[16px]">trophy</span>
+      Papan PR
+    </button>
+<button class="px-space-md h-9 shrink-0 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[16px]">event_repeat</span>
+      Log Sesi (16)
+    </button>
+<button class="px-space-md h-9 shrink-0 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[16px]">photo_library</span>
+      Foto Fisik (4)
+    </button>
+</nav>
+<!-- 3. Bento Card Metrik Biometrik 2x2 Grid -->
+<section class="grid grid-cols-2 gap-space-sm">
+<!-- Berat Badan -->
+<div class="bg-surface-container p-space-md rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm mb-1">
+<span>Berat Badan</span>
+<span class="material-symbols-outlined text-[16px] text-primary">scale</span>
+</div>
+<div>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md font-semibold text-on-surface">81.1</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">kg</span>
+</div>
+<div class="flex items-center gap-1 mt-1 text-primary font-code-sm text-code-sm font-medium">
+<span class="material-symbols-outlined text-[14px]">arrow_downward</span>
+<span>-3.4 kg (-4.0%)</span>
+</div>
+</div>
+<div class="mt-2 pt-2 bg-surface-container-low/60 rounded px-1.5 py-1 text-on-surface-variant font-label-sm text-label-sm">
+        Target: <span class="text-on-surface font-medium">79.5 kg</span>
+</div>
+</div>
+<!-- Body Fat -->
+<div class="bg-surface-container p-space-md rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm mb-1">
+<span>Body Fat</span>
+<span class="material-symbols-outlined text-[16px] text-secondary">pie_chart</span>
+</div>
+<div>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md font-semibold text-on-surface">19.8</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">%</span>
+</div>
+<div class="flex items-center gap-1 mt-1 text-primary font-code-sm text-code-sm font-medium">
+<span class="material-symbols-outlined text-[14px]">arrow_downward</span>
+<span>-3.4% Fat Loss</span>
+</div>
+</div>
+<div class="mt-2 pt-2 bg-surface-container-low/60 rounded px-1.5 py-1 text-on-surface-variant font-label-sm text-label-sm">
+        Level: <span class="text-secondary font-medium">Fitness Zone</span>
+</div>
+</div>
+<!-- Massa Otot SMM -->
+<div class="bg-surface-container p-space-md rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm mb-1">
+<span>Massa Otot (SMM)</span>
+<span class="material-symbols-outlined text-[16px] text-primary">fitness_center</span>
+</div>
+<div>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md font-semibold text-on-surface">37.2</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">kg</span>
+</div>
+<div class="flex items-center gap-1 mt-1 text-primary font-code-sm text-code-sm font-medium">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span>
+<span>+0.4 kg Hypertrophy</span>
+</div>
+</div>
+<div class="mt-2 pt-2 bg-surface-container-low/60 rounded px-1.5 py-1 text-on-surface-variant font-label-sm text-label-sm">
+        Status: <span class="text-primary font-medium">Preservasi Optimal</span>
+</div>
+</div>
+<!-- Lingkar Perut -->
+<div class="bg-surface-container p-space-md rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm mb-1">
+<span>Lingkar Perut</span>
+<span class="material-symbols-outlined text-[16px] text-tertiary">straighten</span>
+</div>
+<div>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md font-semibold text-on-surface">86.5</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">cm</span>
+</div>
+<div class="flex items-center gap-1 mt-1 text-primary font-code-sm text-code-sm font-medium">
+<span class="material-symbols-outlined text-[14px]">arrow_downward</span>
+<span>-5.5 cm Reduksi</span>
+</div>
+</div>
+<div class="mt-2 pt-2 bg-surface-container-low/60 rounded px-1.5 py-1 text-on-surface-variant font-label-sm text-label-sm">
+        Visceral: <span class="text-primary font-medium">Skor 6 (Normal)</span>
+</div>
+</div>
+</section>
+<!-- 4. Grafik Tren Komposisi Tubuh (8 Minggu Mobile Optimized) -->
+<section class="bg-surface-container rounded-xl p-space-md shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<div>
+<h3 class="font-title-md text-title-md font-semibold text-on-surface">Tren Komposisi Tubuh</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">8 Minggu Siklus Cut Phase II</p>
+</div>
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm">
+<span class="flex items-center gap-1 text-primary">
+<span class="w-2 h-2 rounded-full bg-primary"></span> BB (kg)
+        </span>
+<span class="flex items-center gap-1 text-secondary">
+<span class="w-2 h-2 rounded-full bg-secondary"></span> BF (%)
+        </span>
+</div>
+</div>
+<!-- Responsive SVG Line Chart -->
+<div class="relative w-full h-44 bg-surface-container-lowest/80 rounded-lg p-2 overflow-hidden flex flex-col justify-end">
+<!-- Grid Reference Lines -->
+<div class="absolute inset-x-2 top-3 border-b border-surface-variant/40 flex justify-between text-[9px] font-code-sm text-on-surface-variant">
+<span>84.5kg / 23.5%</span>
+</div>
+<div class="absolute inset-x-2 top-1/2 border-b border-surface-variant/40 flex justify-between text-[9px] font-code-sm text-on-surface-variant">
+<span>82.8kg / 21.6%</span>
+</div>
+<div class="absolute inset-x-2 bottom-6 border-b border-surface-variant/40 flex justify-between text-[9px] font-code-sm text-on-surface-variant">
+<span>81.1kg / 19.8%</span>
+</div>
+<svg class="w-full h-28 overflow-visible" preserveaspectratio="none" viewbox="0 0 320 120">
+<!-- Area fill BB -->
+<defs>
+<lineargradient id="primaryGlow" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#4edea3" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="#4edea3" stop-opacity="0.0"></stop>
+</lineargradient>
+</defs>
+<polygon fill="url(#primaryGlow)" points="10,18 50,28 95,40 140,55 185,68 230,78 275,88 310,95 310,115 10,115"></polygon>
+<!-- Line BB (kg) -->
+<polyline fill="none" points="10,18 50,28 95,40 140,55 185,68 230,78 275,88 310,95" stroke="#4edea3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></polyline>
+<!-- Points BB -->
+<circle cx="10" cy="18" fill="#4edea3" r="3"></circle>
+<circle cx="140" cy="55" fill="#4edea3" r="3"></circle>
+<circle cx="310" cy="95" fill="#4edea3" r="4.5" stroke="#0c1322" stroke-width="2"></circle>
+<!-- Line BF (%) -->
+<polyline fill="none" points="10,24 50,38 95,50 140,62 185,74 230,86 275,98 310,105" stroke="#ffb95f" stroke-dasharray="3 3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></polyline>
+<!-- Points BF -->
+<circle cx="310" cy="105" fill="#ffb95f" r="3.5"></circle>
+</svg>
+<!-- Horizontal Week Axis -->
+<div class="flex justify-between items-center px-1 pt-1 text-[10px] font-code-sm text-on-surface-variant border-t border-surface-variant/30">
+<span>M1</span>
+<span>M2</span>
+<span>M3</span>
+<span>M4</span>
+<span>M5</span>
+<span>M6</span>
+<span>M7</span>
+<span class="text-primary font-semibold">M8 (Now)</span>
+</div>
+</div>
+<div class="mt-space-sm p-space-xs bg-surface-container-low rounded-lg flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-primary shrink-0">speed</span>
+<span>Rata-rata defisit aman: <strong class="text-on-surface font-semibold">-0.42 kg/minggu</strong> tanpa reduksi massa otot rangka.</span>
+</div>
+</section>
+<!-- 5. Kepatuhan Nutrisi 7 Hari -->
+<section class="bg-surface-container rounded-xl p-space-md shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<div>
+<h3 class="font-title-md text-title-md font-semibold text-on-surface">Kepatuhan Nutrisi 7 Hari</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Tracking Makronutrien &amp; Hidrasi</p>
+</div>
+<div class="bg-primary/10 text-primary px-2.5 py-1 rounded-full font-label-md text-label-md font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+        91.5% Disiplin
+      </div>
+</div>
+<!-- Mini Progress Macro Bars -->
+<div class="space-y-space-xs mb-space-md bg-surface-container-low p-space-sm rounded-lg">
+<!-- Kalori -->
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-1">
+<span class="text-on-surface-variant">Target Kalori Harian</span>
+<span class="font-code-sm text-code-sm text-on-surface font-medium">2,080 / 2,100 kcal</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 98%;"></div>
+</div>
+</div>
+<!-- Protein -->
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-1">
+<span class="text-on-surface-variant">Protein Target (2g/kg BB)</span>
+<span class="font-code-sm text-code-sm text-on-surface font-medium">155 / 160 g</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 96%;"></div>
+</div>
+</div>
+<!-- Air Putih -->
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-1">
+<span class="text-on-surface-variant">Hidrasi Air Putih</span>
+<span class="font-code-sm text-code-sm text-primary font-medium">3.2 / 3.0 L (Tercapai)</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-container rounded-full" style="width: 100%;"></div>
+</div>
+</div>
+</div>
+<!-- Daily Status Pills S-M -->
+<div class="grid grid-cols-7 gap-1 text-center mb-space-sm">
+<div class="flex flex-col items-center gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Sen</span>
+<div class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-code-sm text-code-sm font-semibold">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Sel</span>
+<div class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-code-sm text-code-sm font-semibold">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Rab</span>
+<div class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-code-sm text-code-sm font-semibold">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Kam</span>
+<div class="w-8 h-8 rounded-full bg-secondary/20 text-secondary flex items-center justify-center font-code-sm text-code-sm font-semibold">
+<span class="material-symbols-outlined text-[16px]">horizontal_rule</span>
+</div>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Jum</span>
+<div class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-code-sm text-code-sm font-semibold">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Sab</span>
+<div class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-code-sm text-code-sm font-semibold">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="font-label-sm text-label-sm text-primary font-bold">Min</span>
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-code-sm text-code-sm font-semibold shadow-sm">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+</div>
+</div>
+<!-- Coach Micro Tactical Note -->
+<div class="bg-surface-container-high p-space-sm rounded-lg flex items-start gap-space-sm">
+<div class="w-7 h-7 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[16px]">sports</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+<span class="text-on-surface font-semibold">Catatan Coach Hendra:</span> “Kamis defisit agak longgar (+120 kcal saat meeting lembur), namun diimbangi intake protein tinggi. Rekomendasi dipertahankan.”
+      </div>
+</div>
+</section>
+<!-- 6. Papan Rekor Beban (Personal Records - PR List) -->
+<section class="bg-surface-container rounded-xl p-space-md shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<div>
+<h3 class="font-title-md text-title-md font-semibold text-on-surface">Papan Rekor Beban (PR)</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">4 Angkatan Utama Teruji</p>
+</div>
+<button class="h-8 px-space-sm bg-surface-container-high hover:bg-surface-bright text-primary rounded-lg font-label-md text-label-md font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">add</span>
+        Log PR
+      </button>
+</div>
+<div class="space-y-space-xs">
+<!-- PR 1: Squat -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex items-center justify-between">
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md font-semibold text-on-surface truncate">Barbell Back Squat</span>
+<span class="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-label-sm text-label-sm font-semibold">+5.0 kg PR</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+            110.0 kg × 5 reps • <span class="font-code-sm text-code-sm text-on-surface">Est. 1RM 124.0 kg</span>
+</p>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">workspace_premium</span>
+</div>
+</div>
+<!-- PR 2: Deadlift -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex items-center justify-between">
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md font-semibold text-on-surface truncate">Conventional Deadlift</span>
+<span class="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-label-sm text-label-sm font-semibold">+7.5 kg</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+            140.0 kg × 3 reps • <span class="font-code-sm text-code-sm text-on-surface">Est. 1RM 148.5 kg</span>
+</p>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">fitness_center</span>
+</div>
+</div>
+<!-- PR 3: Bench Press -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex items-center justify-between">
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md font-semibold text-on-surface truncate">Barbell Bench Press</span>
+<span class="bg-surface-container-highest text-on-surface-variant px-1.5 py-0.5 rounded font-label-sm text-label-sm">Solid Form</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+            82.5 kg × 6 reps • <span class="font-code-sm text-code-sm text-on-surface">Est. 1RM 95.0 kg</span>
+</p>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest text-on-surface-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">sports_martial_arts</span>
+</div>
+</div>
+<!-- PR 4: OHP -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex items-center justify-between">
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md font-semibold text-on-surface truncate">Overhead Press</span>
+<span class="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-label-sm text-label-sm font-semibold">+2.5 kg</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+            52.5 kg × 5 reps • <span class="font-code-sm text-code-sm text-on-surface">Est. 1RM 59.2 kg</span>
+</p>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">upgrade</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 7. Riwayat Sesi Latihan Terkini -->
+<section class="bg-surface-container rounded-xl p-space-md shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<div>
+<h3 class="font-title-md text-title-md font-semibold text-on-surface">Riwayat Sesi Terkini</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Log Terverifikasi Coach</p>
+</div>
+<span class="font-code-sm text-code-sm text-primary font-medium">Total 16 Selesai</span>
+</div>
+<div class="space-y-space-sm">
+<!-- Sesi 16 -->
+<div class="bg-surface-container-low p-space-sm rounded-lg space-y-2">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-code-sm text-code-sm font-semibold text-primary">#16</span>
+<h4 class="font-title-md text-title-md font-semibold text-on-surface">Lower Body Strength &amp; Core</h4>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Kemarin, 04 Nov • 90 Menit</p>
+</div>
+<div class="flex items-center gap-1 bg-primary/10 text-primary px-2 py-0.5 rounded-full font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Hadir
+          </div>
+</div>
+<div class="flex items-center justify-between pt-1 border-t border-surface-variant/30 font-label-sm text-label-sm text-on-surface-variant">
+<span>Volume Tonase: <strong class="text-on-surface font-code-sm text-code-sm">12,450 kg</strong></span>
+<span class="bg-surface-container-highest text-secondary px-1.5 py-0.5 rounded font-semibold font-code-sm text-code-sm">RPE 8.5</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant bg-surface-container/60 p-1.5 rounded italic">
+          “Mobilitas ankle saat deep squat membaik. Set penutup RDL terkendali dengan belt.”
+        </p>
+</div>
+<!-- Sesi 15 -->
+<div class="bg-surface-container-low p-space-sm rounded-lg space-y-2">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-code-sm text-code-sm font-semibold text-on-surface-variant">#15</span>
+<h4 class="font-title-md text-title-md font-semibold text-on-surface">Upper Push / Pull Hypertrophy</h4>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">01 Nov 2026 • 75 Menit</p>
+</div>
+<div class="flex items-center gap-1 bg-primary/10 text-primary px-2 py-0.5 rounded-full font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Hadir
+          </div>
+</div>
+<div class="flex items-center justify-between pt-1 border-t border-surface-variant/30 font-label-sm text-label-sm text-on-surface-variant">
+<span>Volume Tonase: <strong class="text-on-surface font-code-sm text-code-sm">9,820 kg</strong></span>
+<span class="bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded font-semibold font-code-sm text-code-sm">RPE 8.0</span>
+</div>
+</div>
+</div>
+<!-- Tombol Lihat Semua Sesi (Ramah Jempol) -->
+<button class="w-full h-11 mt-space-sm bg-surface-container-high hover:bg-surface-bright text-on-surface rounded-xl font-title-md text-title-md font-medium flex items-center justify-center gap-1 active:scale-98 transition-transform">
+<span>Lihat Semua 16 Sesi Lengkap</span>
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</section>
+<!-- 8. Dokumentasi Progres Fisik (Mobile Photo Comparison) -->
+<section class="bg-surface-container rounded-xl p-space-md shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<div>
+<h3 class="font-title-md text-title-md font-semibold text-on-surface">Dokumentasi Fisik</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Komparasi Foto Mgg 1 vs Mgg 8</p>
+</div>
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded-full font-label-sm text-label-sm font-semibold">
+        Definisi Perut Meningkat
+      </span>
+</div>
+<!-- Side-by-Side Comparison Container -->
+<div class="grid grid-cols-2 gap-space-xs rounded-xl overflow-hidden bg-surface-container-lowest p-1 mb-space-sm">
+<!-- Before Card -->
+<div class="relative flex flex-col rounded-lg overflow-hidden bg-surface-container-low">
+<div class="relative h-44 w-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Athletic Indonesian male client front torso progress photo in gymnasium setting under neutral studio lighting showing baseline week 1 physique with higher body fat, realistic sports analytics theme" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRRTiNXgmnunH5TzdDwI4jUig815VvzxwX9qGR6pLlo53DcEzYK-hKkKF5IUPbgV1jbxzDQ78r84pDIsL9yCuu9o5LcmkJnKl6XB7iqLixPkpo0lntYeJf9p0ACDMWTeJ4EcJMNSTzijZrJkbIyUahpd8XtJendT4_2RrPkBGW6QskofiLp-N0__NYoVhld5JhCJN4BeYgp4fJn6P9IArxxsQ30dYyqkQLXsyqDnU"/>
+<span class="absolute top-2 left-2 bg-surface/80 backdrop-blur-md text-on-surface font-code-sm text-code-sm px-2 py-0.5 rounded font-semibold">
+            Mgg 1 Baseline
+          </span>
+</div>
+<div class="p-2 bg-surface-container-high/60">
+<p class="font-code-sm text-code-sm font-semibold text-on-surface">84.5 kg</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Body Fat: 23.2%</p>
+</div>
+</div>
+<!-- After Card -->
+<div class="relative flex flex-col rounded-lg overflow-hidden bg-surface-container-low">
+<div class="relative h-44 w-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Athletic Indonesian male client front torso progress photo in fitness center setting showing toned muscular abs and shoulders at week 8 cut phase with leaner conditioning, emerald lighting accents" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8F4Eb7SARTyy7cgzGXBjbwLsRvkb5gHIBeE72fJsh2P8uxUZpwaATsiQbBZJ29RZq9_k5jE-9ROpZ9kZc2rBFz_Q9eOJf4QeZTHejFe6PPe3JfRRn6fsm9JFfqb0katQG9W_UHK_PWqmVKn7H2iLuxrVTMas3xg_ff3m558Ooi9BFTFWApLIbQRckooQfFpeKE-caASH87NPas08xkC3VguO2aVTE6-Ez7F5iPSk"/>
+<span class="absolute top-2 left-2 bg-primary/90 text-on-primary font-code-sm text-code-sm px-2 py-0.5 rounded font-semibold">
+            Mgg 8 (Kini)
+          </span>
+</div>
+<div class="p-2 bg-surface-container-high/60">
+<p class="font-code-sm text-code-sm font-semibold text-primary">81.1 kg (-3.4kg)</p>
+<p class="font-label-sm text-label-sm text-primary">Body Fat: 19.8% (-3.4%)</p>
+</div>
+</div>
+</div>
+<!-- Upload Button -->
+<button class="w-full h-11 bg-primary text-on-primary rounded-xl font-title-md text-title-md font-semibold flex items-center justify-center gap-2 active:scale-98 transition-transform shadow-sm">
+<span class="material-symbols-outlined text-[20px]">add_a_photo</span>
+<span>Unggah Foto Cek Berkala</span>
+</button>
+</section>
+</div>
+<script>
+  // Simple micro-interaction for tab buttons
+  document.querySelectorAll('nav[aria-label="Navigasi Klien"] button').forEach((tab) => {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('nav[aria-label="Navigasi Klien"] button').forEach((btn) => {
+        btn.className = 'px-space-md h-9 shrink-0 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors';
+      });
+      this.className = 'px-space-md h-9 shrink-0 rounded-full bg-primary text-on-primary font-label-md text-label-md font-semibold shadow-sm flex items-center gap-1.5';
+    });
+  });
+</script></main></body></html>

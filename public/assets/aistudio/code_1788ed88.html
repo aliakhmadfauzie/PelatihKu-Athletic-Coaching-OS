@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PelatihKu — Dashboard Pelatih Kebugaran</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            surface: {
+              base: '#0B0F17',
+              raised: '#111827',
+              overlay: '#1A2234',
+              card: '#0F1523',
+              subtle: '#141D2E',
+            },
+            accent: {
+              emerald: '#10B981',
+              emeraldDark: '#059669',
+              amber: '#F59E0B',
+            }
+          },
+          letterSpacing: {
+            tightest: '-0.035em',
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    /* Custom bespoke scrollbar & micro hairline utility */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0B0F17;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1F2937;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #374151;
+    }
+    .hairline-border {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .hairline-border-subtle {
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .linear-glow {
+      box-shadow: 0 0 24px -6px rgba(16, 185, 129, 0.18);
+    }
+    .card-glass {
+      background: rgba(17, 24, 39, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+  </style>
+</head>
+<body class="bg-[#0B0F17] text-neutral-200 font-sans antialiased min-h-screen selection:bg-emerald-500/20 selection:text-emerald-300 pb-12">
+
+  <!-- Mobile Top Bar & Header Navigation -->
+  <header class="sticky top-0 z-40 bg-[#0B0F17]/90 backdrop-blur-xl border-b border-white/[0.08]">
+    <div class="px-4 py-3 flex items-center justify-between">
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-slate-950">
+          <i data-lucide="dumbbell" class="w-5 h-5 stroke-[2.2]"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="font-bold text-base text-white tracking-tight">Pelatih<span class="text-emerald-400">Ku</span></span>
+            <span class="text-[10px] uppercase font-semibold tracking-wider px-1.5 py-0.5 rounded-full bg-white/[0.06] text-neutral-400 border border-white/[0.06]">Pro</span>
+          </div>
+          <p class="text-[11px] text-neutral-400 font-medium">Manajemen Klien &amp; PR</p>
+        </div>
+      </div>
+
+      <!-- Action & Profile Drawer Trigger -->
+      <div class="flex items-center gap-2">
+        <button id="openModalBtnTop" class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-500 text-slate-950 text-xs font-semibold hover:bg-emerald-400 active:scale-95 transition-all shadow-sm shadow-emerald-500/30">
+          <i data-lucide="plus" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+          <span>Klien</span>
+        </button>
+
+        <button id="mobileMenuToggle" class="p-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-neutral-300 hover:text-white hover:bg-white/[0.08] transition">
+          <i data-lucide="menu" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Contextual Greeting Sub-bar -->
+    <div class="px-4 py-2 bg-white/[0.02] border-t border-white/[0.04] flex items-center justify-between text-xs">
+      <div class="flex items-center gap-2 truncate">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-neutral-300 font-medium truncate">Selamat Siang, <strong class="text-white font-semibold">Coach Hendra</strong></span>
+      </div>
+      <span class="text-[11px] text-neutral-400 whitespace-nowrap pl-2">Kamis, 5 Nov 2026</span>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu (Navigasi Lengkap) -->
+  <div id="mobileDrawer" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden transition-opacity duration-200">
+    <div class="absolute right-0 top-0 bottom-0 w-4/5 max-w-xs bg-[#111827] border-l border-white/[0.1] p-5 flex flex-col justify-between shadow-2xl">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b border-white/[0.08]">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+              <i data-lucide="dumbbell" class="w-4 h-4"></i>
+            </div>
+            <span class="font-bold text-white text-base">PelatihKu Menu</span>
+          </div>
+          <button id="closeDrawerBtn" class="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-white/[0.06]">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="mt-4 space-y-1">
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium text-sm">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            <span>Dashboard</span>
+            <span class="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          </a>
+          <a href="#klienSection" onclick="closeDrawer()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/[0.04] font-medium text-sm transition">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            <span>Klien Saya</span>
+            <span class="ml-auto px-1.5 py-0.5 rounded text-[10px] bg-white/[0.06] text-neutral-400 font-mono">24</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/[0.04] font-medium text-sm transition">
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+            <span>Jadwal &amp; Sesi</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/[0.04] font-medium text-sm transition">
+            <i data-lucide="trophy" class="w-4 h-4"></i>
+            <span>Papan Rekor (PR)</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/[0.04] font-medium text-sm transition">
+            <i data-lucide="trending-up" class="w-4 h-4"></i>
+            <span>Laporan &amp; Progres</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/[0.04] font-medium text-sm transition">
+            <i data-lucide="settings" class="w-4 h-4"></i>
+            <span>Pengaturan</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Bottom Profile -->
+      <div class="pt-4 border-t border-white/[0.08]">
+        <div class="flex items-center justify-between p-2 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 to-emerald-400 p-[1.5px]">
+              <div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-xs font-bold text-white">
+                HP
+              </div>
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-white leading-tight">Coach Hendra</p>
+              <span class="inline-flex items-center gap-1 text-[10px] text-emerald-400 font-medium">
+                <i data-lucide="shield-check" class="w-3 h-3"></i> Pro Trainer
+              </span>
+            </div>
+          </div>
+          <button title="Keluar" class="p-1.5 text-neutral-400 hover:text-rose-400 transition">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <main class="max-w-xl mx-auto px-4 pt-4 space-y-6">
+
+    <!-- Search Shortcut & Quick Action Bar -->
+    <div class="flex items-center gap-2">
+      <div class="relative flex-1">
+        <i data-lucide="search" class="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+        <input 
+          id="globalQuickSearch" 
+          type="text" 
+          placeholder="Cari klien, target, sesi..." 
+          class="w-full bg-[#111827]/80 border border-white/[0.08] rounded-xl pl-9 pr-14 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/40 transition"
+        >
+        <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-neutral-500 bg-white/[0.06] border border-white/[0.08] px-1.5 py-0.5 rounded">⌘K</span>
+      </div>
+
+      <button id="openModalBtn" class="shrink-0 flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-semibold text-xs transition active:scale-95 shadow-md shadow-emerald-500/20">
+        <i data-lucide="user-plus" class="w-4 h-4 stroke-[2.3]"></i>
+        <span>Tambah</span>
+      </button>
+    </div>
+
+    <!-- Asymmetric KPI Bento Grid -->
+    <section>
+      <div class="flex items-center justify-between mb-2.5">
+        <h2 class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Ringkasan Metrik Kebugaran</h2>
+        <span class="text-[11px] text-emerald-400/90 flex items-center gap-1 font-medium">
+          <i data-lucide="refresh-cw" class="w-3 h-3"></i> Real-time
+        </span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2.5">
+        <!-- Bento 1: Total Klien Aktif -->
+        <div class="card-glass hairline-border rounded-2xl p-3.5 relative overflow-hidden group hover:border-emerald-500/30 transition">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-medium text-neutral-400">Total Klien Aktif</span>
+            <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+              <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+            </div>
+          </div>
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-2xl font-bold text-white tracking-tightest">24</span>
+            <span class="text-xs text-neutral-400 font-medium">Orang</span>
+          </div>
+          <div class="mt-2.5 flex items-center gap-1.5 text-[11px] text-emerald-400">
+            <span class="px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 font-medium font-mono text-[10px]">+3</span>
+            <span class="text-neutral-400">bulan ini</span>
+          </div>
+        </div>
+
+        <!-- Bento 2: Sesi Minggu Ini -->
+        <div class="card-glass hairline-border rounded-2xl p-3.5 relative overflow-hidden group hover:border-emerald-500/30 transition">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-medium text-neutral-400">Sesi Minggu Ini</span>
+            <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
+              <i data-lucide="calendar-check" class="w-3.5 h-3.5"></i>
+            </div>
+          </div>
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-2xl font-bold text-white tracking-tightest">38</span>
+            <span class="text-xs text-neutral-400 font-medium">Sesi</span>
+          </div>
+          <div class="mt-2.5">
+            <div class="flex justify-between text-[10px] text-neutral-400 mb-1">
+              <span>Progres Sesi</span>
+              <span class="text-amber-400 font-medium">26 / 38</span>
+            </div>
+            <div class="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+              <div class="h-full bg-amber-400 rounded-full" style="width: 68%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bento 3: Target Klien Tercapai -->
+        <div class="card-glass hairline-border rounded-2xl p-3.5 relative overflow-hidden group hover:border-emerald-500/30 transition">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-medium text-neutral-400">Target Tercapai</span>
+            <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+              <i data-lucide="target" class="w-3.5 h-3.5"></i>
+            </div>
+          </div>
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-2xl font-bold text-white tracking-tightest">7</span>
+            <span class="text-xs text-neutral-400 font-medium">Klien</span>
+          </div>
+          <div class="mt-2 flex items-center gap-1 text-[11px] text-neutral-400">
+            <i data-lucide="flame" class="w-3 h-3 text-amber-400 shrink-0"></i>
+            <span class="truncate text-[10px]">Fat loss &gt;3kg tercapai</span>
+          </div>
+        </div>
+
+        <!-- Bento 4: Rata-rata Kepatuhan Sesi -->
+        <div class="card-glass hairline-border rounded-2xl p-3.5 relative overflow-hidden group hover:border-emerald-500/30 transition">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-medium text-neutral-400">Kepatuhan Sesi</span>
+            <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+              <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+            </div>
+          </div>
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-2xl font-bold text-emerald-400 tracking-tightest">94.2%</span>
+          </div>
+          <div class="mt-2 flex items-center gap-1.5">
+            <!-- Micro Sparkline SVG -->
+            <svg class="w-full h-4 text-emerald-400" viewBox="0 0 100 20" fill="none" stroke="currentColor">
+              <path d="M0 16 L20 14 L40 15 L60 8 L80 10 L100 3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Direktori Klien Aktif Section -->
+    <section id="klienSection" class="space-y-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-sm font-semibold text-white tracking-tight">Direktori Klien</h2>
+          <p class="text-[11px] text-neutral-400">Kelola dan pantau progres individu klien</p>
+        </div>
+        <span id="clientCountBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-white/[0.06] text-neutral-300 border border-white/[0.08] font-mono">
+          5 Klien Ditampilkan
+        </span>
+      </div>
+
+      <!-- Filter Bar: Search, Status, Target -->
+      <div class="card-glass hairline-border rounded-xl p-3 space-y-2.5">
+        <div class="relative">
+          <i data-lucide="search" class="w-3.5 h-3.5 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+          <input 
+            id="tableSearchInput" 
+            type="text" 
+            placeholder="Cari nama klien (contoh: Budi, Siti)..." 
+            class="w-full bg-[#0B0F17]/90 border border-white/[0.08] rounded-lg pl-8 pr-3 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500/50 transition"
+          >
+        </div>
+
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
+          <!-- Status Dropdown Filter -->
+          <div class="flex items-center gap-1 text-[11px] text-neutral-400 shrink-0">
+            <span>Status:</span>
+            <select id="filterStatus" class="bg-[#0B0F17] border border-white/[0.08] rounded-md px-2 py-1 text-neutral-200 text-xs focus:outline-none focus:border-emerald-500/50">
+              <option value="Semua">Semua Status</option>
+              <option value="Aktif">Aktif</option>
+              <option value="Cuti">Cuti</option>
+            </select>
+          </div>
+
+          <!-- Target Dropdown Filter -->
+          <div class="flex items-center gap-1 text-[11px] text-neutral-400 shrink-0">
+            <span>Target:</span>
+            <select id="filterTarget" class="bg-[#0B0F17] border border-white/[0.08] rounded-md px-2 py-1 text-neutral-200 text-xs focus:outline-none focus:border-emerald-500/50">
+              <option value="Semua">Semua Target</option>
+              <option value="Fat Loss">Fat Loss</option>
+              <option value="Hipertrofi">Hipertrofi</option>
+              <option value="Powerlifting">Powerlifting</option>
+            </select>
+          </div>
+
+          <button id="resetFilterBtn" class="ml-auto text-[11px] text-neutral-400 hover:text-emerald-400 transition underline shrink-0">
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- Client Cards List (Optimized for Mobile & Desktop responsive layout) -->
+      <div id="clientCardsContainer" class="space-y-2.5">
+        <!-- Client card items are dynamically populated by JavaScript -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="hidden card-glass hairline-border rounded-2xl p-8 text-center space-y-2">
+        <div class="w-10 h-10 rounded-full bg-white/[0.04] text-neutral-400 flex items-center justify-center mx-auto border border-white/[0.08]">
+          <i data-lucide="user-x" class="w-5 h-5"></i>
+        </div>
+        <p class="text-sm font-medium text-white">Tidak ada klien ditemukan</p>
+        <p class="text-xs text-neutral-400">Coba ubah kata kunci pencarian atau sesuaikan opsi filter status/target.</p>
+      </div>
+    </section>
+
+    <!-- Jadwal Hari Ini / Micro Feed -->
+    <section class="card-glass hairline-border rounded-2xl p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="clock" class="w-4 h-4 text-emerald-400"></i>
+          <h3 class="text-xs font-semibold text-white uppercase tracking-wider">Sesi Berikutnya Hari Ini</h3>
+        </div>
+        <span class="text-[11px] text-neutral-400">3 Sesi Menunggu</span>
+      </div>
+
+      <div class="space-y-2">
+        <div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xs font-mono font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">15:00</span>
+            <div>
+              <p class="text-xs font-semibold text-white">Dimas Anggara</p>
+              <p class="text-[11px] text-neutral-400">Deadlift &amp; Back Hypertrophy</p>
+            </div>
+          </div>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">Konfirmasi</span>
+        </div>
+
+        <div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xs font-mono font-semibold text-amber-400 bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20">17:30</span>
+            <div>
+              <p class="text-xs font-semibold text-white">Siti Rahma</p>
+              <p class="text-[11px] text-neutral-400">Lower Body Conditioning &amp; Glutes</p>
+            </div>
+          </div>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Terkonfirmasi</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal: Tambah Klien Baru -->
+  <div id="addClientModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="w-full max-w-md bg-[#111827] border border-white/[0.12] rounded-2xl p-5 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+            <i data-lucide="user-plus" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white tracking-tight">Tambah Klien Baru</h3>
+            <p class="text-[11px] text-neutral-400">Registrasi klien dan set baseline metrik awal</p>
+          </div>
+        </div>
+        <button id="closeModalBtn" class="text-neutral-400 hover:text-white p-1 rounded-lg hover:bg-white/[0.06] transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form id="addClientForm" class="space-y-3.5">
+        <div>
+          <label class="block text-[11px] font-medium text-neutral-300 mb-1">Nama Lengkap</label>
+          <input 
+            type="text" 
+            id="inputNama" 
+            required 
+            placeholder="Contoh: Randy Saputra" 
+            class="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition"
+          >
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-[11px] font-medium text-neutral-300 mb-1">Jenis Kelamin</label>
+            <select id="inputGender" class="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition">
+              <option value="Pria">Pria</option>
+              <option value="Wanita">Wanita</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-neutral-300 mb-1">No. WhatsApp</label>
+            <input 
+              type="tel" 
+              id="inputTelepon" 
+              required 
+              placeholder="081234567890" 
+              class="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition font-mono"
+            >
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-[11px] font-medium text-neutral-300 mb-1">Target Utama</label>
+            <select id="inputTarget" class="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition">
+              <option value="Fat Loss">Fat Loss</option>
+              <option value="Hipertrofi">Hipertrofi / Bulking</option>
+              <option value="Powerlifting">Powerlifting &amp; Strength</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-neutral-300 mb-1">Berat Awal (kg)</label>
+            <input 
+              type="number" 
+              step="0.1" 
+              id="inputBerat" 
+              required 
+              placeholder="75.0" 
+              class="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition font-mono"
+            >
+          </div>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2 border-t border-white/[0.08]">
+          <button 
+            type="button" 
+            id="cancelModalBtn" 
+            class="px-3.5 py-2 rounded-xl text-xs font-medium text-neutral-300 hover:bg-white/[0.06] transition"
+          >
+            Batal
+          </button>
+          <button 
+            type="submit" 
+            class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold shadow-md shadow-emerald-500/25 active:scale-95 transition"
+          >
+            Simpan Klien
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastNotification" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 text-slate-950 text-xs font-semibold shadow-xl shadow-emerald-500/20 transition-all duration-300">
+    <i data-lucide="check-circle" class="w-4 h-4 stroke-[2.4]"></i>
+    <span id="toastMessage">Klien berhasil ditambahkan!</span>
+  </div>
+
+  <!-- Client-Side State & Logic (Vanilla JS) -->
+  <script>
+    // Initial Mock Data according to specifications
+    let clientsData = [
+      {
+        id: "k-01",
+        nama_lengkap: "Budi Santoso",
+        gender: "Pria",
+        usia: 29,
+        telepon: "6281234567801",
+        target_utama: "Fat Loss -5kg",
+        target_category: "Fat Loss",
+        status: "Aktif",
+        berat_awal_kg: 84.5,
+        berat_terkini_kg: 81.1,
+        sesi_terakhir: "Kemarin — Leg Day & Core",
+        initials: "BS",
+        color: "from-blue-500 to-indigo-600"
+      },
+      {
+        id: "k-02",
+        nama_lengkap: "Siti Rahma",
+        gender: "Wanita",
+        usia: 26,
+        telepon: "6281234567802",
+        target_utama: "Fat Loss & Toning",
+        target_category: "Fat Loss",
+        status: "Aktif",
+        berat_awal_kg: 62.0,
+        berat_terkini_kg: 58.6,
+        sesi_terakhir: "2 Hari lalu — Upper Conditioning",
+        initials: "SR",
+        color: "from-pink-500 to-rose-600"
+      },
+      {
+        id: "k-03",
+        nama_lengkap: "Dimas Anggara",
+        gender: "Pria",
+        usia: 32,
+        telepon: "6281234567803",
+        target_utama: "Hipertrofi / Bulking",
+        target_category: "Hipertrofi",
+        status: "Aktif",
+        berat_awal_kg: 68.0,
+        berat_terkini_kg: 71.4,
+        sesi_terakhir: "Hari ini 15:00 — Deadlift PR",
+        initials: "DA",
+        color: "from-emerald-500 to-teal-600"
+      },
+      {
+        id: "k-04",
+        nama_lengkap: "Dewi Lestari",
+        gender: "Wanita",
+        usia: 34,
+        telepon: "6281234567804",
+        target_utama: "Fat Loss Pasca-Melahirkan",
+        target_category: "Fat Loss",
+        status: "Cuti",
+        berat_awal_kg: 70.2,
+        berat_terkini_kg: 67.8,
+        sesi_terakhir: "12 Okt 2026 — Mobility Rest",
+        initials: "DL",
+        color: "from-amber-500 to-orange-600"
+      },
+      {
+        id: "k-05",
+        nama_lengkap: "Reza Pratama",
+        gender: "Pria",
+        usia: 24,
+        telepon: "6281234567805",
+        target_utama: "Powerlifting 300kg Total",
+        target_category: "Powerlifting",
+        status: "Aktif",
+        berat_awal_kg: 75.0,
+        berat_terkini_kg: 77.2,
+        sesi_terakhir: "3 Hari lalu — Squat High-Volume",
+        initials: "RP",
+        color: "from-purple-500 to-violet-600"
+      }
+    ];
+
+    // DOM Elements
+    const clientCardsContainer = document.getElementById('clientCardsContainer');
+    const tableSearchInput = document.getElementById('tableSearchInput');
+    const globalQuickSearch = document.getElementById('globalQuickSearch');
+    const filterStatus = document.getElementById('filterStatus');
+    const filterTarget = document.getElementById('filterTarget');
+    const resetFilterBtn = document.getElementById('resetFilterBtn');
+    const emptyState = document.getElementById('emptyState');
+    const clientCountBadge = document.getElementById('clientCountBadge');
+
+    const addClientModal = document.getElementById('addClientModal');
+    const openModalBtn = document.getElementById('openModalBtn');
+    const openModalBtnTop = document.getElementById('openModalBtnTop');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelModalBtn = document.getElementById('cancelModalBtn');
+    const addClientForm = document.getElementById('addClientForm');
+
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const mobileDrawer = document.getElementById('mobileDrawer');
+    const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+
+    const toastNotification = document.getElementById('toastNotification');
+    const toastMessage = document.getElementById('toastMessage');
+
+    // Show Toast Helper
+    function showToast(msg) {
+      toastMessage.textContent = msg;
+      toastNotification.classList.remove('hidden');
+      toastNotification.classList.add('flex');
+      setTimeout(() => {
+        toastNotification.classList.add('hidden');
+        toastNotification.classList.remove('flex');
+      }, 3000);
+    }
+
+    // Render Client Cards
+    function renderClients() {
+      const searchTerm = tableSearchInput.value.toLowerCase().trim();
+      const statusValue = filterStatus.value;
+      const targetValue = filterTarget.value;
+
+      const filtered = clientsData.filter(client => {
+        const matchSearch = client.nama_lengkap.toLowerCase().includes(searchTerm) || 
+                            client.target_utama.toLowerCase().includes(searchTerm) ||
+                            client.sesi_terakhir.toLowerCase().includes(searchTerm);
+        const matchStatus = statusValue === 'Semua' || client.status === statusValue;
+        const matchTarget = targetValue === 'Semua' || client.target_category.toLowerCase().includes(targetValue.toLowerCase());
+
+        return matchSearch && matchStatus && matchTarget;
+      });
+
+      clientCountBadge.textContent = `${filtered.length} Klien Ditampilkan`;
+
+      if (filtered.length === 0) {
+        clientCardsContainer.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      clientCardsContainer.innerHTML = filtered.map(client => {
+        const diffKg = (client.berat_terkini_kg - client.berat_awal_kg).toFixed(1);
+        const isLoss = diffKg < 0;
+        const isGain = diffKg > 0;
+        const diffText = isLoss ? `${diffKg} kg` : (isGain ? `+${diffKg} kg` : `0.0 kg`);
+        
+        // Color badge for weight diff
+        const diffBadgeClass = isLoss 
+          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+          : (isGain ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-neutral-500/10 text-neutral-400 border-neutral-500/20');
+
+        const statusClass = client.status === 'Aktif'
+          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+          : 'bg-neutral-500/10 text-neutral-400 border-neutral-500/20';
+
+        return `
+          <div class="card-glass hairline-border rounded-xl p-3.5 hover:border-white/[0.15] transition-all duration-200">
+            <!-- Header Row: Avatar, Name, Status Badge -->
+            <div class="flex items-start justify-between gap-2 mb-2.5">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br ${client.color} flex items-center justify-center text-xs font-bold text-white shadow-sm shrink-0">
+                  ${client.initials}
+                </div>
+                <div class="truncate">
+                  <div class="flex items-center gap-1.5">
+                    <h4 class="text-xs font-semibold text-white tracking-tight truncate">${client.nama_lengkap}</h4>
+                    <span class="text-[10px] text-neutral-400">(${client.usia} thn)</span>
+                  </div>
+                  <p class="text-[11px] text-neutral-400 flex items-center gap-1">
+                    <span class="inline-block w-1 h-1 rounded-full bg-neutral-500"></span>
+                    ${client.gender}
+                  </p>
+                </div>
+              </div>
+
+              <span class="shrink-0 text-[10px] px-2 py-0.5 rounded-full border font-medium ${statusClass}">
+                ${client.status}
+              </span>
+            </div>
+
+            <!-- Target & Metrics Grid -->
+            <div class="bg-black/30 rounded-lg p-2.5 hairline-border-subtle grid grid-cols-2 gap-2 text-xs mb-2.5">
+              <div>
+                <span class="text-[10px] text-neutral-400 block mb-0.5">Target Program:</span>
+                <span class="text-[11px] font-medium text-neutral-200 truncate block">
+                  ${client.target_utama}
+                </span>
+              </div>
+
+              <div>
+                <span class="text-[10px] text-neutral-400 block mb-0.5">Metrik Berat:</span>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-white font-mono font-medium text-xs">${client.berat_terkini_kg} <span class="text-[10px] text-neutral-400">kg</span></span>
+                  <span class="text-[10px] font-mono px-1 py-0.2 rounded border ${diffBadgeClass}">
+                    ${diffText}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer: Sesi Terakhir & Quick Action Buttons -->
+            <div class="flex items-center justify-between pt-1 text-[11px]">
+              <div class="flex items-center gap-1 text-neutral-400 truncate max-w-[55%]">
+                <i data-lucide="history" class="w-3 h-3 text-neutral-500 shrink-0"></i>
+                <span class="truncate text-[10px]">${client.sesi_terakhir}</span>
+              </div>
+
+              <div class="flex items-center gap-1.5 shrink-0">
+                <a 
+                  href="https://wa.me/${client.telepon}" 
+                  target="_blank" 
+                  title="Hubungi WhatsApp" 
+                  class="p-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 transition flex items-center justify-center"
+                >
+                  <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                </a>
+                
+                <button 
+                  onclick="showToast('Membuka detail profil ${client.nama_lengkap} (Phase 2)')"
+                  class="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-neutral-300 hover:text-white border border-white/[0.08] text-[11px] font-medium transition"
+                >
+                  <span>Detail</span>
+                  <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Re-initialize Lucide Icons after dynamic HTML injection
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    // Event Listeners for Search & Filters
+    tableSearchInput.addEventListener('input', renderClients);
+    globalQuickSearch.addEventListener('input', (e) => {
+      tableSearchInput.value = e.target.value;
+      renderClients();
+    });
+
+    filterStatus.addEventListener('change', renderClients);
+    filterTarget.addEventListener('change', renderClients);
+
+    resetFilterBtn.addEventListener('click', () => {
+      tableSearchInput.value = '';
+      globalQuickSearch.value = '';
+      filterStatus.value = 'Semua';
+      filterTarget.value = 'Semua';
+      renderClients();
+    });
+
+    // Modal Handlers
+    function openModal() {
+      addClientModal.classList.remove('hidden');
+      addClientModal.classList.add('flex');
+      document.getElementById('inputNama').focus();
+    }
+    function closeModal() {
+      addClientModal.classList.add('hidden');
+      addClientModal.classList.remove('flex');
+      addClientForm.reset();
+    }
+
+    openModalBtn.addEventListener('click', openModal);
+    openModalBtnTop.addEventListener('click', openModal);
+    closeModalBtn.addEventListener('click', closeModal);
+    cancelModalBtn.addEventListener('click', closeModal);
+
+    // Close Modal on backdrop click
+    addClientModal.addEventListener('click', (e) => {
+      if (e.target === addClientModal) closeModal();
+    });
+
+    // Handle Form Submit
+    addClientForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nama = document.getElementById('inputNama').value.trim();
+      const gender = document.getElementById('inputGender').value;
+      const telp = document.getElementById('inputTelepon').value.trim();
+      const target = document.getElementById('inputTarget').value;
+      const berat = parseFloat(document.getElementById('inputBerat').value);
+
+      if (!nama || !telp || isNaN(berat)) return;
+
+      const words = nama.split(' ');
+      const initials = words.length > 1 ? (words[0][0] + words[1][0]).toUpperCase() : words[0].substring(0, 2).toUpperCase();
+
+      const newClient = {
+        id: `k-${Date.now()}`,
+        nama_lengkap: nama,
+        gender: gender,
+        usia: 25,
+        telepon: telp.replace(/^0/, '62'),
+        target_utama: target,
+        target_category: target.includes('Fat Loss') ? 'Fat Loss' : (target.includes('Hipertrofi') ? 'Hipertrofi' : 'Powerlifting'),
+        status: "Aktif",
+        berat_awal_kg: berat,
+        berat_terkini_kg: berat,
+        sesi_terakhir: "Klien Baru — Jadwal Perdana",
+        initials: initials,
+        color: "from-emerald-600 to-cyan-700"
+      };
+
+      // Add to front of array
+      clientsData.unshift(newClient);
+      closeModal();
+      renderClients();
+      showToast(`Klien "${nama}" berhasil ditambahkan!`);
+    });
+
+    // Mobile Drawer Handlers
+    function toggleDrawer() {
+      mobileDrawer.classList.toggle('hidden');
+    }
+    function closeDrawer() {
+      mobileDrawer.classList.add('hidden');
+    }
+
+    mobileMenuToggle.addEventListener('click', toggleDrawer);
+    closeDrawerBtn.addEventListener('click', closeDrawer);
+    mobileDrawer.addEventListener('click', (e) => {
+      if (e.target === mobileDrawer) closeDrawer();
+    });
+
+    // Keyboard shortcut for Cmd+K search focus
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        tableSearchInput.focus();
+      }
+    });
+
+    // Initial load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderClients();
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    });
+  </script>
+</body>
+</html>
