@@ -170,7 +170,7 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
         </div>
       </section>
 
-      {/* 2. Alokasi Slot Klien & Ketersediaan Kuota */}
+      {/* 2. Alokasi Slot Member PT & Ketersediaan Kuota */}
       <section className="bg-[#141b2b] border border-white/[0.08] rounded-2xl p-5 space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
@@ -179,10 +179,10 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
             </div>
             <div>
               <h3 className="text-sm font-semibold text-white">
-                Alokasi Slot &amp; Kapasitas Klien
+                Alokasi Slot &amp; Kapasitas Member PT
               </h3>
               <p className="text-xs text-[#bbcabf]">
-                Pengaturan beban kerja mingguan dan kuota penerimaan atlet baru
+                Pengaturan beban kerja mingguan dan kuota penerimaan member fitness center baru
               </p>
             </div>
           </div>
@@ -196,7 +196,7 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
                 : 'bg-[#232a3a] text-[#bbcabf] border-white/[0.1]'
             }`}
           >
-            {coach.acceptingNewClients ? 'Menerima Klien Baru: AKTIF' : 'Kuota Ditutup Sementara'}
+            {coach.acceptingNewClients ? 'Menerima Member Baru: AKTIF' : 'Kuota Ditutup Sementara'}
           </button>
         </div>
 
@@ -216,7 +216,7 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
             />
           </div>
           <p className="text-xs text-[#86948a]">
-            Batas kuota ditetapkan maksimal {maxSlots} klien aktif guna menjaga kualitas koreksi biomekanik dan pemantauan nutrisi individu.
+            Batas kuota ditetapkan maksimal {maxSlots} member aktif guna menjaga kualitas koreksi biomekanik gym floor dan pemantauan nutrisi individu.
           </p>
         </div>
       </section>
@@ -281,7 +281,7 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
                   Edit Profil &amp; Kredensial Federasi
                 </h3>
                 <p className="text-xs text-[#bbcabf]">
-                  Perbarui data lisensi Kemenpora / PB PABSI dan kuota atlet
+                  Perbarui data lisensi kepelatihan kebugaran dan kuota member PT
                 </p>
               </div>
               <button
@@ -352,7 +352,7 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-[#bbcabf] mb-1">Kuota Maks Klien</label>
+                  <label className="block text-xs text-[#bbcabf] mb-1">Kuota Maks Member</label>
                   <input
                     type="number"
                     min={10}

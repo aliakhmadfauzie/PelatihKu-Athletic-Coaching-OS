@@ -1519,7 +1519,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
               </div>
 
               <div className="bg-[#191f2f] p-3 rounded-xl text-xs text-[#bbcabf]">
-                <strong className="text-white">Catatan Coach Hendra:</strong> “
+                <strong className="text-white">Catatan Coach Panji:</strong> “
                 {client.nutritionCoachNote}”
               </div>
             </section>

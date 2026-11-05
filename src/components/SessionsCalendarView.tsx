@@ -358,7 +358,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
               </span>
             </div>
             <p className="text-xs text-[#bbcabf] mt-0.5">
-              <span>Coach Hendra Kurniawan</span>
+              <span>Coach Panji Akbar Syamsi</span>
               <span aria-hidden="true"> · </span>
               <span>Total 38 Sesi ({totalCompleted} Selesai, {totalUpcoming} Mendatang)</span>
             </p>
@@ -969,7 +969,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                     Jadwalkan Sesi Latihan Baru
                   </h3>
                   <p className="text-[11px] text-neutral-400">
-                    Tambahkan sesi ke kalender mingguan Coach Hendra
+                    Tambahkan sesi ke kalender mingguan Coach Panji Akbar Syamsi
                   </p>
                 </div>
               </div>

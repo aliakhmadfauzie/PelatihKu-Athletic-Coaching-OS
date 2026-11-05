@@ -160,11 +160,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ coach, onLoginSuccess 
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1">
                   <span className="text-[15px] leading-[22px] font-medium text-[#dce2f7] truncate">
-                    Coach Hendra Kurniawan, M.Or.
+                    {coach.name || 'Coach Panji Akbar Syamsi, S.Or.'}
                   </span>
                 </div>
                 <span className="font-mono text-[12px] leading-[16px] text-[#4edea3]">
-                  Head S&amp;C Coach • #PLT-8820-JKT
+                  {coach.roleTitle || 'Head Coach & Master Fitness Trainer'} • #{coach.kemenporaId || 'PLT-8820-JKT'}
                 </span>
               </div>
             </div>
@@ -271,7 +271,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ coach, onLoginSuccess 
                   type="text"
                   value={credIdentifier}
                   onChange={(e) => setCredIdentifier(e.target.value)}
-                  placeholder="hendra.k@pelatihku.id atau 0812xxxx"
+                  placeholder="panji.akbar@pelatihku.id atau 0812xxxx"
                   className="w-full bg-[#070e1d] text-[#dce2f7] placeholder:text-[#86948a]/60 text-[13px] leading-[20px] pl-10 pr-3 py-2.5 rounded focus:outline-none focus:bg-[#232a3a]"
                 />
               </div>
