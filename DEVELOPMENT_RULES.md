@@ -1,7 +1,7 @@
 # Pedoman & Aturan Pengembangan (Development Rules) — PelatihKu PRO
 **Aturan Baku untuk Pengembang Perangkat Lunak dan Asisten AI (AI Studio Agents)**  
 **Target Aplikasi:** Fitness Center & Personal Training Management OS  
-**Versi:** 2.4.0  
+**Versi:** 2.6.0  
 
 ---
 
@@ -119,3 +119,60 @@ Sebelum menambahkan atau memodifikasi komponen, patuhi langkah-langkah berikut:
 - [ ] Kalender Sesi memiliki switch Day / Week / Month yang responsif.
 - [ ] Tab "Data Medis Lanjut" dapat menyimpan catatan screening postur, detail nutrisi, dan foto baseline.
 - [ ] `compile_applet` dan `lint_applet` lolos tanpa kompilasi gagal.
+
+---
+
+## 7. Aturan Penomoran Versi (Semantic Versioning 2.0.0), Sinkronisasi Rilis & Evolusi Skema Data
+
+Setiap pembaruan aplikasi PelatihKu PRO wajib mengikuti tata kelola versi yang ketat, terstandarisasi, dan deterministik:
+
+### 7.1 Spesifikasi SemVer 2.0.0 (`vMAJOR.MINOR.PATCH`)
+
+| Tingkatan | Format | Pemicu Kenaikan (Trigger Conditions) | Contoh Kasus PelatihKu PRO |
+| :--- | :--- | :--- | :--- |
+| **MAJOR** | `X.0.0` | Perubahan arsitektur mendasar, perubahan skema database Cloud Firestore yang *breaking* tanpa adapter backward-compatible, atau perombakan sistem autentikasi. | Migrasi arsitektur dari single-coach ke multi-gym enterprise, pemecahan struktur dokumen member menjadi sub-koleksi tanpa adapter otomatis. |
+| **MINOR** | `0.X.0` | Penambahan fitur fungsional baru yang kompatibel ke belakang (*backward-compatible*), penambahan modal/alur UI baru, atau field skema baru yang bersifat opsional. | Penambahan modal Ubah Data Member, penambahan tab visualisasi 3D biomekanik gerakan, penambahan generator program latihan berbasis AI Gemini. |
+| **PATCH** | `0.0.X` | Perbaikan bug fungsional, perbaikan formula kalkulasi kebugaran (1RM / kalori baseline), penyempurnaan UI/UX OLED Dark Mode, peningkatan area sentuh 44px, atau perbaikan dependensi. | Perbaikan persistensi penambahan jadwal ke Firestore, perbaikan sanitasi field `undefined` pada `setDoc()`, perbaikan kalkulasi label hari di kalender. |
+
+### 7.2 Aturan Sumber Tunggal Kebenaran (Single Source of Truth Synchronization)
+Saat menaikkan nomor versi aplikasi, SELURUH referensi berikut **wajib diperbarui secara sinkron dan atomik dalam satu komit rilis**:
+1. **`package.json`**: Field `"version": "X.Y.Z"` sebagai sumber utama kebenaran (*single source of truth*).
+2. **PWA Service Worker (`public/sw.js`)**:
+   - Header komentar versi: `Version: X.Y.Z`
+   - Cache bucket name: `const CACHE_NAME = 'pelatihku-vX.Y.Z';`
+   - Mekanisme pembersihan cache lama (`caches.delete()`) harus aktif di event `activate`.
+3. **Web App Manifest (`public/manifest.json`)**: Metadata aplikasi yang merefleksikan versi dan build.
+4. **Header Dokumen Pedoman**: Header versi di baris atas `DEVELOPMENT_RULES.md` dan `APP_REQUIREMENTS.md`.
+
+### 7.3 Standar Komit Git & Tagging Rilis
+1. **Format Pesan Komit (Conventional Commits)**:
+   - `feat(scope): deskripsi fitur baru`
+   - `fix(scope): deskripsi perbaikan bug`
+   - `perf(scope): peningkatan performa atau memori`
+   - `style(scope): penyesuaian visual / CSS / token warna`
+   - `refactor(scope): restrukturisasi kode tanpa mengubah perilaku`
+   - `chore(release): bump version to vX.Y.Z`
+2. **Git Release Tagging**:
+   - Setiap rilis ke staging atau production Firebase Hosting wajib diberi tag teranotasi:
+     ```bash
+     git tag -a vX.Y.Z -m "Release vX.Y.Z: <Ringkasan Fitur & Perbaikan Kunci>"
+     git push origin vX.Y.Z
+     ```
+
+### 7.4 Aturan Evolusi Skema Data & Cloud Firestore
+1. **Ketahanan Kompatibilitas ke Belakang (Backward Compatibility)**:
+   - Setiap penambahan field baru pada antarmuka `ClientProfile`, `CoachProfileData`, atau `SessionRecord` wajib bersifat opsional (`field?: type`) atau memiliki nilai default fallback yang aman di `INITIAL_CLIENTS`.
+   - Kode aplikasi tidak boleh berasumsi bahwa dokumen historis di Firestore memiliki field yang baru saja ditambahkan.
+2. **Sanitasi Data Firestore (`sanitizeForFirestore`)**:
+   - Dilarang mengirimkan nilai `undefined` ke dalam operasi `setDoc()`, `updateDoc()`, atau `writeBatch()`.
+   - Wajib menggunakan fungsi `sanitizeForFirestore()` untuk membersihkan nilai `undefined` sebelum data dikirim ke Firestore.
+3. **Penyimpanan Lokal Multi-Tab (`persistentLocalCache`)**:
+   - Koneksi Firestore di sisi browser wajib mempertahankan `persistentMultipleTabManager()` dan `ignoreUndefinedProperties: true` untuk kelancaran offline caching di lantai gym.
+
+### 7.5 Protokol Cache-Busting PWA & Hosting Header
+1. **Strategi Cache-Busting**:
+   - File statis ber-hash (`/assets/**.js`, `/assets/**.css`) disajikan dengan `Cache-Control: public, max-age=31536000, immutable`.
+   - File dinamis pembungkus (`/index.html`, `/sw.js`) wajib disajikan dengan `Cache-Control: no-cache, no-store, must-revalidate` agar browser member dan pelatih selalu mengunduh versi rilis terbaru tanpa tertahan cache lawas.
+2. **Pre-Release Verification Gate**:
+   - Wajib memastikan 0 error tipe pada `tsc --noEmit`.
+   - Wajib memastikan `npm run build` selesai tanpa kegagalan bundle sebelum melakukan *firebase deploy*.

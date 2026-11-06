@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#141b2b"/>
+      <stop offset="100%" stop-color="#0B0F17"/>
+    </linearGradient>
+    <linearGradient id="emeraldGrad512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4edea3"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <filter id="glow512" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="512" height="512" rx="112" fill="url(#bg512)" />
+  <rect width="508" height="508" x="2" y="2" rx="110" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="4" />
+
+  <!-- Dumbbell / Athletic Shield Icon -->
+  <g transform="translate(106, 106)" filter="url(#glow512)">
+    <!-- Dumbbell Outer Plates Left -->
+    <rect x="20" y="60" width="26" height="180" rx="10" fill="url(#emeraldGrad512)" />
+    <rect x="58" y="80" width="22" height="140" rx="8" fill="url(#emeraldGrad512)" opacity="0.85" />
+    
+    <!-- Central Bar -->
+    <rect x="80" y="136" width="140" height="28" rx="8" fill="#ffffff" />
+    
+    <!-- Dumbbell Outer Plates Right -->
+    <rect x="220" y="80" width="22" height="140" rx="8" fill="url(#emeraldGrad512)" opacity="0.85" />
+    <rect x="254" y="60" width="26" height="180" rx="10" fill="url(#emeraldGrad512)" />
+
+    <!-- Center Badge Accent -->
+    <circle cx="150" cy="150" r="38" fill="#0B0F17" stroke="url(#emeraldGrad512)" stroke-width="6" />
+    <polygon points="150,130 166,162 134,162" fill="url(#emeraldGrad512)" />
+  </g>
+
+  <!-- Brand Signature -->
+  <text x="256" y="420" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="36" fill="#4edea3" letter-spacing="6">PELATIHKU PRO</text>
+  <text x="256" y="452" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="18" fill="#86948a" letter-spacing="3">ATHLETIC COACHING OS</text>
+</svg>

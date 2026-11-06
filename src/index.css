@@ -4,18 +4,32 @@
 @layer base {
   :root,
   .dark {
-    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
+
+    /* Theme Tokens */
+    --color-bg-base: #0B0F17;
+    --color-bg-elevated: #111726;
+    --color-bg-surface: #141B28;
+    --color-primary: #10B981;
+    --color-primary-hover: #059669;
+    --color-primary-text: #002113;
+    --color-border-hairline: rgba(255, 255, 255, 0.08);
+    --color-border-subtle: rgba(255, 255, 255, 0.05);
+
+    /* Ergonomics */
+    --touch-target-min: 48px;
   }
 
   body {
     font-family: var(--font-sans);
-    background-color: #0B0F17;
+    background-color: var(--color-bg-base);
     color: #e5e5e5;
     overflow-x: hidden;
   }
 }
 
+/* Typography Utilities */
 .font-mono,
 .tabular-nums {
   font-family: var(--font-mono);
@@ -26,24 +40,68 @@
   letter-spacing: -0.035em;
 }
 
+/* Hairline Borders */
 .hairline-border {
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--color-border-hairline);
 }
 
 .hairline-border-subtle {
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border-subtle);
 }
 
+/* Glow Lighting Effects */
 .linear-glow {
-  box-shadow: 0 0 24px -6px rgba(16, 185, 129, 0.18);
+  box-shadow: 0 0 24px -6px rgba(16, 185, 129, 0.22);
 }
 
+.gold-glow {
+  box-shadow: 0 0 24px -6px rgba(255, 185, 95, 0.22);
+}
+
+/* Glassmorphism Levels */
 .card-glass {
   background: rgba(17, 24, 39, 0.65);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
 
+.surface-glass-1 {
+  background: rgba(17, 24, 39, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.surface-glass-2 {
+  background: rgba(20, 27, 43, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.surface-glass-modal {
+  background: rgba(16, 23, 38, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+/* Touch Target Standard */
+.touch-target-min {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+}
+
+/* Accessible Focus Ring */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid #10B981;
+  outline-offset: 2px;
+}
+
+/* Scrollbars */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -52,7 +110,6 @@
   scrollbar-width: none;
 }
 
-/* Custom bespoke scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;

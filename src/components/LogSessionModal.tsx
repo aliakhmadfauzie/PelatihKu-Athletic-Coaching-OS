@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   X,
   CheckCircle2,
@@ -8,14 +8,24 @@ import {
   Trash2,
   Award,
   Mic,
+  MicOff,
   Search,
   ArrowLeft,
   Zap,
   Moon,
   Activity,
   Dumbbell,
-  ShieldCheck
+  ShieldCheck,
+  Timer,
+  Play,
+  Pause,
+  RotateCcw,
+  Volume2,
+  Sparkles,
+  Bot,
+  AlertTriangle
 } from 'lucide-react';
+import { getWorkoutAssistance, WorkoutAssistResult } from '../services/geminiService';
 import {
   ClientProfile,
   ExerciseLog,
@@ -51,7 +61,10 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
 }) => {
   const nextSessionNum = client.paketTerpakai + 1;
   const remainingQuota = Math.max(0, client.paketTotal - nextSessionNum);
+  const isQuotaExhausted = client.paketTerpakai >= client.paketTotal;
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const [subView, setSubView] = useState<'logger' | 'catalog'>('logger');
   const [attendance, setAttendance] = useState<'Hadir' | 'Batal/Izin' | 'Reschedule'>('Hadir');
   const [focus, setFocus] = useState<string>(
@@ -97,15 +110,152 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
   ]);
 
   const [coachNotes, setCoachNotes] = useState<string>(
-    'Form squat stabil, kedalaman hip crease di bawah lutut tercapai bersih. Ankle mobility membaik signifikan. Klien sedikit lelah di set ke-3 RDL karena kurang tidur semalam.'
+    'Form squat stabil, kedalaman hip crease di bawah lutut tercapai bersih. Ankle mobility membaik signifikan. Member sedikit lelah di set ke-3 RDL karena kurang tidur semalam.'
   );
   const [dictating, setDictating] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  // Rest Timer State
+  const [timerActive, setTimerActive] = useState<boolean>(false);
+  const [timerSecondsLeft, setTimerSecondsLeft] = useState<number>(0);
+  const [timerTotalSeconds, setTimerTotalSeconds] = useState<number>(90);
+  const [timerExerciseName, setTimerExerciseName] = useState<string>('');
+  const [timerIsPaused, setTimerIsPaused] = useState<boolean>(false);
+
+  // Sound chime & vibration when timer completes
+  const playRestChime = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtx) {
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.6);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.6);
+      }
+    } catch {
+      // Audio context might be restricted
+    }
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate([200, 100, 200]);
+    }
+  };
+
+  // Timer Interval Effect
+  useEffect(() => {
+    let interval: any = null;
+    if (timerActive && !timerIsPaused && timerSecondsLeft > 0) {
+      interval = setInterval(() => {
+        setTimerSecondsLeft((prev) => {
+          if (prev <= 1) {
+            playRestChime();
+            setTimerActive(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [timerActive, timerIsPaused, timerSecondsLeft]);
+
+  const startRestTimer = (seconds: number, exName?: string) => {
+    setTimerTotalSeconds(seconds);
+    setTimerSecondsLeft(seconds);
+    setTimerExerciseName(exName || 'Istirahat Antar Set');
+    setTimerIsPaused(false);
+    setTimerActive(true);
+  };
+
+  const adjustTimer = (delta: number) => {
+    setTimerSecondsLeft((prev) => Math.max(0, prev + delta));
+    setTimerTotalSeconds((prev) => Math.max(prev, prev + delta));
+  };
+
+  const resetTimer = () => {
+    setTimerSecondsLeft(timerTotalSeconds);
+    setTimerIsPaused(false);
+    setTimerActive(true);
+  };
+
+  const stopTimer = () => {
+    setTimerActive(false);
+    setTimerSecondsLeft(0);
+  };
+
+  const formatTimerDisplay = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   // Catalog filter states
   const [catalogSearch, setCatalogSearch] = useState('');
   const [catalogCategory, setCatalogCategory] = useState<
     'Semua' | 'Free Weights' | 'Kabel/Mesin' | 'Kalistenik'
   >('Semua');
+
+  // AI Coach Assistant state
+  const [showAiAssistant, setShowAiAssistant] = useState(false);
+  const [aiTargetExId, setAiTargetExId] = useState<string>('');
+  const [aiFatigueScore, setAiFatigueScore] = useState<number>(4);
+  const [aiDomsScore, setAiDomsScore] = useState<number>(3);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState<WorkoutAssistResult | null>(null);
+
+  const handleRunAiAssist = async () => {
+    const targetEx = exercises.find((e) => e.id === aiTargetExId) || exercises[0];
+    if (!targetEx) return;
+    setAiLoading(true);
+    try {
+      const res = await getWorkoutAssistance({
+        exerciseName: targetEx.name,
+        fatigueScore: aiFatigueScore,
+        domsScore: aiDomsScore,
+        muscleGroup: targetEx.category,
+        injuryNotes: client.medicalHistoryNote || client.postureScreeningNote || 'None'
+      });
+      setAiResult(res);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleApplyAiCueToNotes = () => {
+    if (!aiResult) return;
+    setCoachNotes((prev) => {
+      const addition = `[Saran AI PAS]: ${aiResult.suggestedAction} — ${aiResult.originalExercise}. Fatigue ${aiFatigueScore}/10, DOMS ${aiDomsScore}/10.`;
+      return prev ? `${prev}\n${addition}` : addition;
+    });
+  };
+
+  const handleApplyAiRegressionToSets = () => {
+    const targetEx = exercises.find((e) => e.id === aiTargetExId) || exercises[0];
+    if (!targetEx) return;
+    setExercises((prev) =>
+      prev.map((ex) => {
+        if (ex.id !== targetEx.id) return ex;
+        return {
+          ...ex,
+          restSeconds: Math.min(180, (ex.restSeconds || 90) + 30),
+          sets: ex.sets.map((s) => ({
+            ...s,
+            weightKg: Math.max(0, Math.round(Number(s.weightKg) * 0.85 * 2) / 2)
+          }))
+        };
+      })
+    );
+  };
 
   // Total Volume Calculation
   const totalVolumeKg = useMemo(() => {
@@ -140,6 +290,10 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
   };
 
   const handleAddSet = (exId: string) => {
+    const targetEx = exercises.find((e) => e.id === exId);
+    if (targetEx) {
+      startRestTimer(targetEx.restSeconds || 90, targetEx.name);
+    }
     setExercises((prev) =>
       prev.map((ex) => {
         if (ex.id !== exId) return ex;
@@ -212,29 +366,124 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
   };
 
   const handleVoiceDictation = () => {
-    setDictating(true);
-    setTimeout(() => {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      setDictating(true);
+      setTimeout(() => {
+        setDictating(false);
+        setCoachNotes((prev) =>
+          prev
+            ? `${prev} Kecepatan konsentrik terjaga baik hingga set terakhir.`
+            : 'Kecepatan konsentrik terjaga baik hingga set terakhir.'
+        );
+      }, 700);
+      return;
+    }
+
+    if (dictating) {
+      try {
+        recognitionRef.current?.stop();
+      } catch {
+        // Ignore stop error
+      }
       setDictating(false);
-      setCoachNotes((prev) =>
-        prev
-          ? `${prev} Kecepatan konsentrik terjaga baik hingga set terakhir.`
-          : 'Kecepatan konsentrik terjaga baik hingga set terakhir.'
-      );
-    }, 700);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'id-ID';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        setDictating(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results?.[0]?.[0]?.transcript;
+        if (transcript) {
+          setCoachNotes((prev) => (prev ? `${prev} ${transcript}` : transcript));
+        }
+      };
+
+      recognition.onerror = () => {
+        setDictating(false);
+      };
+
+      recognition.onend = () => {
+        setDictating(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch {
+      setDictating(false);
+    }
   };
 
   const handleSubmitSession = () => {
+    if (isSubmitting) return;
+
     if (attendance === 'Reschedule') {
       onClose();
       onOpenReschedule();
       return;
     }
 
+    // Invariant validation: check exercise structure and weights
+    if (attendance === 'Hadir') {
+      if (!exercises || exercises.length === 0) {
+        setValidationError('Wajib memiliki minimal 1 gerakan latihan sebelum menyimpan sesi.');
+        return;
+      }
+
+      for (const ex of exercises) {
+        if (!ex.sets || ex.sets.length === 0) {
+          setValidationError(`Gerakan "${ex.name}" belum memiliki set latihan.`);
+          return;
+        }
+        for (const s of ex.sets) {
+          const w = Number(s.weightKg);
+          const r = Number(s.reps);
+          if (isNaN(w) || w < 0 || w > 500) {
+            setValidationError(`Beban pada ${ex.name} (Set #${s.setNumber}) harus antara 0 dan 500 kg.`);
+            return;
+          }
+          if (isNaN(r) || r < 1 || r > 50) {
+            setValidationError(`Repetisi pada ${ex.name} (Set #${s.setNumber}) harus antara 1 dan 50.`);
+            return;
+          }
+        }
+      }
+    }
+
+    setValidationError(null);
+    setIsSubmitting(true);
+
+    const sessionDateFormatted = client.nextSession?.date
+      ? new Intl.DateTimeFormat('id-ID', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric'
+        }).format(new Date(client.nextSession.date))
+      : new Intl.DateTimeFormat('id-ID', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric'
+        }).format(new Date());
+
+    const sessionTimeFormatted = client.nextSession?.time
+      ? `${client.nextSession.time} WIB`
+      : '16:30 WIB';
+
     const newSession: SessionRecord = {
       id: `ses-${Date.now()}`,
       sessionNumber: nextSessionNum,
-      date: '05 Nov 2026',
-      time: '16:30 WIB',
+      date: sessionDateFormatted,
+      time: sessionTimeFormatted,
       durationMinutes,
       focus,
       status: attendance,
@@ -250,7 +499,11 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
       exercises
     };
 
-    onSaveSession(newSession);
+    try {
+      onSaveSession(newSession);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const filteredCatalog = EXERCISE_CATALOG.filter((item) => {
@@ -266,13 +519,13 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
       <div
         role="dialog"
         aria-modal="true"
-        className="w-full max-w-xl max-h-[92vh] bg-[#141b2b] border border-white/[0.12] rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden relative"
+        className="w-full max-w-xl max-h-[92vh] bg-[#111726]/95 backdrop-blur-2xl border border-white/[0.12] rounded-t-3xl sm:rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden relative"
       >
         {/* Top Grab Handle */}
         <div className="w-10 h-1 rounded-full bg-[#2e3545] mx-auto mt-2.5 sm:hidden" />
 
         {/* Sticky Modal Header */}
-        <div className="px-4 py-3.5 bg-[#141b2b]/95 border-b border-white/[0.08] flex items-start justify-between gap-3 shrink-0">
+        <div className="px-4 py-3.5 bg-[#111726]/95 border-b border-white/[0.08] flex items-start justify-between gap-3 shrink-0">
           {subView === 'catalog' ? (
             <div className="flex items-center gap-2.5">
               <button
@@ -383,9 +636,39 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
           /* Sub-view 2: Main Workout Logger */
           <>
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-5 overscroll-contain">
-              {/* 1. Status Kehadiran Atlet */}
+              {/* Validation Invariant Alert */}
+              {validationError && (
+                <div className="p-3 bg-rose-500/15 border border-rose-500/30 rounded-xl text-xs text-rose-300 flex items-center gap-2.5 animate-in fade-in duration-200">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+                  <span className="flex-1 font-medium">{validationError}</span>
+                  <button
+                    type="button"
+                    onClick={() => setValidationError(null)}
+                    className="text-rose-400 hover:text-white text-xs p-1"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
+              {/* Package Quota Invariant Warning */}
+              {isQuotaExhausted && (
+                <div className="p-3 bg-amber-500/15 border border-amber-500/30 rounded-xl text-xs text-amber-300 flex items-start gap-2.5">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-amber-400 mt-0.5" />
+                  <div className="flex-1">
+                    <span className="font-semibold block text-amber-200">
+                      Perhatian: Kuota Paket Member Habis ({client.paketTerpakai}/{client.paketTotal} Sesi)
+                    </span>
+                    <span className="text-amber-300/80 text-[11px]">
+                      Member telah menghabiskan seluruh kuota paket sesi terprogram. Sesi ini akan dicatat sebagai sesi penyesuaian/ekstra.
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* 1. Status Kehadiran Member */}
               <div className="space-y-1.5">
-                <span className="text-xs font-medium text-[#bbcabf]">Status Sesi Atlet</span>
+                <span className="text-xs font-medium text-[#bbcabf]">Status Sesi Member</span>
                 <div className="grid grid-cols-3 gap-1 p-1 bg-[#070e1d] rounded-xl border border-white/[0.08]">
                   <button
                     type="button"
@@ -426,11 +709,11 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
                 </div>
               </div>
 
-              {/* 2. Pemeriksaan Kesiapan Atlet (Readiness Check) */}
+              {/* 2. Pemeriksaan Kesiapan Member (Readiness Check) */}
               <div className="p-3.5 bg-[#191f2f] border border-white/[0.08] rounded-xl space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-white">
-                    Pemeriksaan Kesiapan Atlet (Readiness Check)
+                    Pemeriksaan Kesiapan Member (Readiness Check)
                   </span>
                   <span className="text-xs font-mono text-[#4edea3]">
                     Skor Kesiapan Prima
@@ -439,7 +722,7 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
 
                 <div className="grid grid-cols-3 gap-2.5">
                   {/* Energy 1-10 */}
-                  <div className="p-2.5 bg-[#141b2b] rounded-lg border border-white/[0.06]">
+                  <div className="p-2.5 bg-[#141b2b] rounded-xl border border-white/[0.06]">
                     <div className="flex items-center justify-between text-[11px] text-[#bbcabf] mb-1">
                       <span>Energi</span>
                       <Zap className="w-3.5 h-3.5 text-[#4edea3]" />
@@ -448,17 +731,17 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
                       <button
                         type="button"
                         onClick={() => setEnergyScore((v) => Math.max(1, v - 1))}
-                        className="w-7 h-7 rounded bg-[#232a3a] text-white font-mono text-xs"
+                        className="w-10 h-10 min-w-[38px] min-h-[38px] rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-white font-mono text-sm font-bold flex items-center justify-center active:scale-95 transition-all shadow-sm"
                       >
                         -
                       </button>
-                      <span className="font-mono text-sm font-bold text-white">
+                      <span className="font-mono text-sm font-bold text-white px-1">
                         {energyScore}/10
                       </span>
                       <button
                         type="button"
                         onClick={() => setEnergyScore((v) => Math.min(10, v + 1))}
-                        className="w-7 h-7 rounded bg-[#232a3a] text-white font-mono text-xs"
+                        className="w-10 h-10 min-w-[38px] min-h-[38px] rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-white font-mono text-sm font-bold flex items-center justify-center active:scale-95 transition-all shadow-sm"
                       >
                         +
                       </button>
@@ -466,7 +749,7 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
                   </div>
 
                   {/* Sleep Hours */}
-                  <div className="p-2.5 bg-[#141b2b] rounded-lg border border-white/[0.06]">
+                  <div className="p-2.5 bg-[#141b2b] rounded-xl border border-white/[0.06]">
                     <div className="flex items-center justify-between text-[11px] text-[#bbcabf] mb-1">
                       <span>Tidur</span>
                       <Moon className="w-3.5 h-3.5 text-[#06b6d4]" />
@@ -475,17 +758,17 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
                       <button
                         type="button"
                         onClick={() => setSleepHours((v) => Math.max(3, +(v - 0.5).toFixed(1)))}
-                        className="w-7 h-7 rounded bg-[#232a3a] text-white font-mono text-xs"
+                        className="w-10 h-10 min-w-[38px] min-h-[38px] rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-white font-mono text-sm font-bold flex items-center justify-center active:scale-95 transition-all shadow-sm"
                       >
                         -
                       </button>
-                      <span className="font-mono text-sm font-bold text-white">
+                      <span className="font-mono text-sm font-bold text-white px-1">
                         {sleepHours}j
                       </span>
                       <button
                         type="button"
                         onClick={() => setSleepHours((v) => Math.min(12, +(v + 0.5).toFixed(1)))}
-                        className="w-7 h-7 rounded bg-[#232a3a] text-white font-mono text-xs"
+                        className="w-10 h-10 min-w-[38px] min-h-[38px] rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-white font-mono text-sm font-bold flex items-center justify-center active:scale-95 transition-all shadow-sm"
                       >
                         +
                       </button>
@@ -493,7 +776,7 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
                   </div>
 
                   {/* DOMS Level */}
-                  <div className="p-2.5 bg-[#141b2b] rounded-lg border border-white/[0.06]">
+                  <div className="p-2.5 bg-[#141b2b] rounded-xl border border-white/[0.06] flex flex-col justify-between">
                     <div className="flex items-center justify-between text-[11px] text-[#bbcabf] mb-1">
                       <span>DOMS</span>
                       <Activity className="w-3.5 h-3.5 text-[#ffb95f]" />
@@ -503,7 +786,7 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
                       onChange={(e) =>
                         setDomsLevel(e.target.value as 'Rendah' | 'Sedang' | 'Tinggi')
                       }
-                      className="w-full bg-[#232a3a] text-white text-xs font-semibold rounded px-1.5 py-1 focus:outline-none"
+                      className="w-full min-h-[38px] bg-[#070e1d] text-white text-xs font-semibold rounded-xl px-2 py-1.5 border border-white/[0.08] focus:outline-none focus:border-emerald-500"
                     >
                       <option value="Rendah">Rendah</option>
                       <option value="Sedang">Sedang</option>
@@ -545,13 +828,13 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
               {/* 4. Detail Beban Kerja & RPE Section */}
               <div className="p-4 bg-[#191f2f] border border-white/[0.08] rounded-xl space-y-4">
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3 bg-[#141b2b] rounded-lg border border-white/[0.06]">
+                  <div className="p-3 bg-[#141b2b] rounded-xl border border-white/[0.06]">
                     <span className="text-xs text-[#bbcabf] block">Durasi Latihan</span>
                     <div className="flex items-center justify-between mt-1.5">
                       <button
                         type="button"
                         onClick={() => setDurationMinutes((d) => Math.max(15, d - 5))}
-                        className="w-8 h-8 rounded-lg bg-[#232a3a] text-white font-mono text-sm font-semibold active:scale-95"
+                        className="w-11 h-11 min-w-[40px] min-h-[40px] rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-white font-mono text-base font-bold active:scale-95 transition-all flex items-center justify-center shadow-sm"
                       >
                         -
                       </button>
@@ -561,14 +844,14 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
                       <button
                         type="button"
                         onClick={() => setDurationMinutes((d) => Math.min(180, d + 5))}
-                        className="w-8 h-8 rounded-lg bg-[#232a3a] text-white font-mono text-sm font-semibold active:scale-95"
+                        className="w-11 h-11 min-w-[40px] min-h-[40px] rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-white font-mono text-base font-bold active:scale-95 transition-all flex items-center justify-center shadow-sm"
                       >
                         +
                       </button>
                     </div>
                   </div>
 
-                  <div className="p-3 bg-[#141b2b] rounded-lg border border-white/[0.06]">
+                  <div className="p-3 bg-[#141b2b] rounded-xl border border-white/[0.06]">
                     <span className="text-xs text-[#bbcabf] block">Estimasi Volume Tonase</span>
                     <div className="flex items-baseline gap-1.5 mt-2">
                       <span className="text-lg font-bold font-mono text-[#4edea3]">
@@ -593,9 +876,9 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
                         key={lvl}
                         type="button"
                         onClick={() => setRpe(lvl)}
-                        className={`min-h-[38px] rounded font-mono text-xs transition-transform ${
+                        className={`min-h-[44px] rounded-xl font-mono text-xs transition-transform ${
                           rpe === lvl
-                            ? 'bg-[#ffb95f] text-[#2a1700] font-bold scale-105 shadow'
+                            ? 'bg-[#ffb95f] text-[#2a1700] font-bold scale-105 shadow-md shadow-amber-950/40'
                             : 'bg-[#232a3a] text-[#bbcabf] hover:text-white'
                         }`}
                       >
@@ -603,10 +886,157 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
                       </button>
                     ))}
                   </div>
-                  <div className="px-3 py-2 bg-[#ee9800]/10 border border-[#ffb95f]/20 rounded-lg text-xs text-[#ffb95f]">
+                  <div className="px-3 py-2 bg-[#ee9800]/10 border border-[#ffb95f]/20 rounded-xl text-xs text-[#ffb95f]">
                     {getRpeDescription(rpe)}
                   </div>
                 </div>
+              </div>
+
+              {/* 4.5 AI Coach Assistant (PAS AI - Fatigue & Regression Guidance) */}
+              <div className="bg-[#141b2b] border border-white/[0.08] rounded-xl overflow-hidden transition-all shadow-md">
+                <div
+                  onClick={() => setShowAiAssistant((prev) => !prev)}
+                  className="p-3.5 flex items-center justify-between cursor-pointer hover:bg-white/[0.02] transition"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                          AI Coach Assistant (PAS AI)
+                        </h4>
+                        <span className="text-[10px] font-mono px-2 py-0.2 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
+                          Kesiapan &amp; Regresi Latihan
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[#bbcabf] mt-0.5">
+                        Analisis kelelahan &amp; DOMS member untuk penyesuaian beban real-time di lantai gym
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-emerald-400">
+                    {showAiAssistant ? 'Tutup ▲' : 'Buka Asisten ▼'}
+                  </span>
+                </div>
+
+                {showAiAssistant && (
+                  <div className="p-4 pt-1 border-t border-white/[0.06] bg-[#070e1d]/50 space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-neutral-300 mb-1">
+                          Pilih Gerakan yang Dianalisis:
+                        </label>
+                        <select
+                          value={aiTargetExId || exercises[0]?.id || ''}
+                          onChange={(e) => setAiTargetExId(e.target.value)}
+                          className="w-full bg-[#141b2b] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                        >
+                          {exercises.map((ex) => (
+                            <option key={ex.id} value={ex.id}>
+                              {ex.name} ({ex.category})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center text-[11px] mb-1">
+                          <span className="font-semibold text-neutral-300">Fatigue Sistemik:</span>
+                          <span className="font-mono font-bold text-amber-400">{aiFatigueScore}/10</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="1"
+                          max="10"
+                          value={aiFatigueScore}
+                          onChange={(e) => setAiFatigueScore(parseInt(e.target.value, 10))}
+                          className="w-full accent-amber-400"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center text-[11px] mb-1">
+                          <span className="font-semibold text-neutral-300">Nyeri Otot (DOMS):</span>
+                          <span className="font-mono font-bold text-emerald-400">{aiDomsScore}/10</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="1"
+                          max="10"
+                          value={aiDomsScore}
+                          onChange={(e) => setAiDomsScore(parseInt(e.target.value, 10))}
+                          className="w-full accent-emerald-400"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 pt-1">
+                      <p className="text-[11px] text-[#86948a]">
+                        Didukung Gemini 2.5 Flash &amp; Sports Science Rules Engine.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleRunAiAssist}
+                        disabled={aiLoading}
+                        className="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition active:scale-95 disabled:opacity-50"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>{aiLoading ? 'Menganalisis...' : 'Analisis Kesiapan Beban'}</span>
+                      </button>
+                    </div>
+
+                    {aiResult && (
+                      <div className="p-3 bg-[#141b2b] border border-emerald-500/30 rounded-xl space-y-2 mt-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                                aiResult.suggestedAction === 'Lanjutkan Sesuai Rencana'
+                                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                                  : aiResult.suggestedAction === 'Regresi Beban & Volume'
+                                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                                  : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                              }`}
+                            >
+                              {aiResult.suggestedAction}
+                            </span>
+                            <span className="text-xs font-semibold text-white">
+                              {aiResult.originalExercise}
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-mono text-neutral-400">
+                            Source: {aiResult.source}
+                          </span>
+                        </div>
+
+                        <div className="text-xs text-[#bbcabf] whitespace-pre-line leading-relaxed bg-[#070e1d] p-2.5 rounded-lg border border-white/[0.04]">
+                          {aiResult.recommendationText}
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={handleApplyAiCueToNotes}
+                            className="px-2.5 py-1 rounded bg-[#232a3a] hover:bg-[#323949] text-xs font-semibold text-white transition active:scale-95"
+                          >
+                            + Masukkan Cue ke Catatan Sesi
+                          </button>
+                          {aiResult.suggestedAction !== 'Lanjutkan Sesuai Rencana' && (
+                            <button
+                              type="button"
+                              onClick={handleApplyAiRegressionToSets}
+                              className="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-xs font-semibold text-amber-300 border border-amber-500/30 transition active:scale-95"
+                            >
+                              ⚡ Terapkan Regresi (-15% Beban &amp; +30s Rest)
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* 5. Set-by-Set Exercise Logging */}
@@ -643,7 +1073,15 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
                             <span aria-hidden="true"> · </span>
                             <span className="font-mono">Tempo {ex.tempo}</span>
                             <span aria-hidden="true"> · </span>
-                            <span>Rest {ex.restSeconds} dtk</span>
+                            <button
+                              type="button"
+                              onClick={() => startRestTimer(ex.restSeconds || 90, ex.name)}
+                              className="font-mono text-emerald-400 hover:underline inline-flex items-center gap-1 active:scale-95 transition-transform"
+                              title="Mulai timer istirahat"
+                            >
+                              <Timer className="w-3 h-3" />
+                              <span>Rest {ex.restSeconds} dtk</span>
+                            </button>
                             {ex.historicalBestKg > 0 && (
                               <>
                                 <span aria-hidden="true"> · </span>
@@ -798,7 +1236,7 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
                     rows={3}
                     value={coachNotes}
                     onChange={(e) => setCoachNotes(e.target.value)}
-                    placeholder="Tuliskan catatan teknis gerakan, fatigue level klien, atau rekomendasi recovery..."
+                    placeholder="Tuliskan catatan teknis gerakan, fatigue level member, atau rekomendasi recovery..."
                     className="w-full bg-transparent text-xs text-white placeholder-[#86948a] focus:outline-none resize-none leading-relaxed"
                   />
                   <div className="flex items-center justify-between pt-2 border-t border-white/[0.06] text-xs">
@@ -818,16 +1256,103 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
               </div>
             </div>
 
+            {/* Interactive Rest Countdown Timer Dock */}
+            {(timerActive || timerSecondsLeft > 0) && (
+              <div className="bg-[#070e1d] border-t border-emerald-500/30 p-3 shrink-0 flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center animate-pulse">
+                      <Timer className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="text-[11px] font-medium text-[#bbcabf] truncate max-w-[140px] sm:max-w-[200px] block">
+                        {timerExerciseName}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-base font-bold font-mono text-emerald-400">
+                          {formatTimerDisplay(timerSecondsLeft)}
+                        </span>
+                        <span className="text-[10px] font-mono text-[#86948a]">
+                          / {timerTotalSeconds}s
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Timer Controls */}
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => adjustTimer(-15)}
+                      className="px-2 py-1 rounded bg-[#191f2f] hover:bg-[#232a3a] text-[11px] font-mono text-[#bbcabf]"
+                      title="Kurangi 15 detik"
+                    >
+                      -15s
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => adjustTimer(30)}
+                      className="px-2 py-1 rounded bg-[#191f2f] hover:bg-[#232a3a] text-[11px] font-mono text-[#bbcabf]"
+                      title="Tambah 30 detik"
+                    >
+                      +30s
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTimerIsPaused((prev) => !prev)}
+                      className="w-8 h-8 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 flex items-center justify-center transition active:scale-95"
+                      title={timerIsPaused ? 'Lanjutkan Timer' : 'Jeda Timer'}
+                    >
+                      {timerIsPaused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={resetTimer}
+                      className="w-8 h-8 rounded-lg bg-[#191f2f] hover:bg-[#232a3a] text-[#bbcabf] hover:text-white flex items-center justify-center transition"
+                      title="Ulangi Timer"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={stopTimer}
+                      className="w-8 h-8 rounded-lg bg-[#232a3a] text-[#86948a] hover:text-rose-400 flex items-center justify-center transition"
+                      title="Tutup Timer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Progress bar */}
+                <div className="w-full h-1.5 bg-white/[0.08] rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 transition-all duration-300"
+                    style={{
+                      width: `${timerTotalSeconds > 0 ? (timerSecondsLeft / timerTotalSeconds) * 100 : 0}%`
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Sticky Bottom Action Footer */}
-            <div className="p-4 bg-[#141b2b] border-t border-white/[0.08] flex flex-col gap-2 shrink-0">
+            <div className="p-4 bg-[#111726]/95 border-t border-white/[0.08] flex flex-col gap-2.5 shrink-0">
               <button
                 type="button"
                 onClick={handleSubmitSession}
-                className="w-full min-h-[48px] py-3 rounded-xl bg-[#10b981] hover:bg-[#4edea3] text-[#002113] font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#10b981]/20 active:scale-[0.98] transition-transform"
+                disabled={isSubmitting}
+                className={`w-full min-h-[52px] py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-all ${
+                  isSubmitting
+                    ? 'bg-neutral-700 text-neutral-400 cursor-not-allowed opacity-70'
+                    : 'bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 shadow-emerald-500/25'
+                }`}
               >
-                <ShieldCheck className="w-5 h-5" />
+                <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
                 <span>
-                  {attendance === 'Reschedule'
+                  {isSubmitting
+                    ? 'Menyimpan Sesi...'
+                    : attendance === 'Reschedule'
                     ? 'Lanjut ke Penjadwalan Ulang Sesi'
                     : `Simpan & Selesaikan Sesi #${nextSessionNum}`}
                 </span>
@@ -835,7 +1360,7 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full min-h-[40px] py-2 rounded-xl text-xs font-medium text-[#bbcabf] hover:text-white transition-colors"
+                className="w-full min-h-[44px] py-2.5 rounded-xl text-xs font-semibold text-[#bbcabf] hover:text-white hover:bg-white/[0.04] transition-colors"
               >
                 Batal &amp; Tutup
               </button>

@@ -69,6 +69,50 @@ export interface ProgressCheckPhoto {
   customImageUrl?: string;
 }
 
+export interface PinChangeLogEntry {
+  id: string;
+  changedAt: string;
+  changedByRole: 'client' | 'coach' | 'admin';
+  changedByName?: string;
+  note?: string;
+}
+
+export interface RescheduleRequest {
+  id: string;
+  clientId: string;
+  clientName: string;
+  clientPhone?: string;
+  originalDate: string;
+  originalTime: string;
+  originalLocation: 'Gym Utama Senayan' | 'SCBD District 8' | 'Private Studio Kemang';
+  proposedDate: string;
+  proposedTime: string;
+  proposedLocation: 'Gym Utama Senayan' | 'SCBD District 8' | 'Private Studio Kemang';
+  reason: string;
+  requestedAt: string;
+  requestedByRole: 'client' | 'coach' | 'admin';
+  requestedByName: string;
+  status: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  isLateRequest?: boolean; // True jika diajukan <24 jam sebelum sesi
+  hoursLeadTime?: number;
+  decidedAt?: string;
+  decidedByRole?: 'coach' | 'admin' | 'client';
+  decidedByName?: string;
+  decisionNote?: string;
+}
+
+export interface ScheduledSlot {
+  id: string;
+  date: string; // YYYY-MM-DD
+  time: string; // HH:MM
+  durationMinutes: number;
+  location: 'Gym Utama Senayan' | 'SCBD District 8' | 'Private Studio Kemang';
+  focus: string;
+  sessionNumber: number;
+  status: 'Selesai' | 'Terkonfirmasi' | 'Menunggu';
+  coachNotes?: string;
+}
+
 export interface ClientProfile {
   id: string;
   code: string;
@@ -134,7 +178,37 @@ export interface ClientProfile {
   weeklyTrend: WeeklyBiometricPoint[];
   prList: PRRecord[];
   sessions: SessionRecord[];
+  scheduledSessions?: ScheduledSlot[];
   photos: ProgressCheckPhoto[];
+  // Security & Credential Management
+  clientPin?: string;
+  mustChangePin?: boolean;
+  pinChangedAt?: string;
+  pinChangeHistory?: PinChangeLogEntry[];
+  // Reschedule Approval Matrix & History
+  pendingReschedule?: RescheduleRequest;
+  rescheduleHistory?: RescheduleRequest[];
+  // AI Synthesis Artifacts
+  aiPeriodizationPlan?: {
+    success: boolean;
+    programTitle: string;
+    content: string;
+    source: 'gemini-api' | 'offline-engine';
+    createdAt?: string;
+  };
+  aiScreeningAnalysis?: {
+    success: boolean;
+    clientName: string;
+    analysis: string;
+    source: 'gemini-api' | 'offline-engine';
+    createdAt?: string;
+  };
+  aiReportDraft?: {
+    success: boolean;
+    whatsappMessage: string;
+    source: 'gemini-api' | 'offline-engine';
+    createdAt?: string;
+  };
 }
 
 export interface CoachCertification {
@@ -162,6 +236,7 @@ export interface CoachProfileData {
   secondaryLocation: string;
   experienceYears: number;
   certifications: CoachCertification[];
+  coachPin?: string;
 }
 
 export interface CatalogExercise {
@@ -241,13 +316,14 @@ export const INITIAL_COACH_PROFILE: CoachProfileData = {
       validUntil: 'Agu 2027',
       verified: true
     }
-  ]
+  ],
+  coachPin: '123456'
 };
 
 export const INITIAL_CLIENTS: ClientProfile[] = [
   {
     id: 'k-01',
-    code: '#KLN-2024-082',
+    code: '#MBR-2024-082',
     nama_lengkap: 'Budi Santoso',
     gender: 'Pria',
     usia: 29,
@@ -263,6 +339,17 @@ export const INITIAL_CLIENTS: ClientProfile[] = [
     paketTerpakai: 16,
     dietCompliancePct: 92,
     leadCoach: 'Panji Akbar Syamsi',
+    clientPin: '34567801',
+    mustChangePin: true,
+    pinChangeHistory: [
+      {
+        id: 'pin-log-k01-init',
+        changedAt: '2026-10-15T09:30:00.000Z',
+        changedByRole: 'admin',
+        changedByName: 'Supervisor Gym',
+        note: 'PIN awal 8-digit nomor telepon (+6281234567801) dibuat saat pendaftaran paket PT.'
+      }
+    ],
     berat_awal_kg: 84.5,
     berat_terkini_kg: 81.1,
     berat_target_kg: 79.5,
@@ -292,6 +379,28 @@ export const INITIAL_CLIENTS: ClientProfile[] = [
       location: 'Gym Utama Senayan',
       confirmed: true
     },
+    scheduledSessions: [
+      {
+        id: 'sched-k01-1',
+        date: '2026-11-05',
+        time: '16:30',
+        durationMinutes: 75,
+        location: 'Gym Utama Senayan',
+        focus: 'Lower Body Strength & Hypertrophy',
+        sessionNumber: 17,
+        status: 'Terkonfirmasi'
+      },
+      {
+        id: 'sched-k01-2',
+        date: '2026-11-07',
+        time: '10:30',
+        durationMinutes: 75,
+        location: 'Gym Utama Senayan',
+        focus: 'Upper Body Push & Pull Specialization',
+        sessionNumber: 18,
+        status: 'Terkonfirmasi'
+      }
+    ],
     sesi_terakhir: 'Kemarin — Leg Day & Core',
     weeklyTrend: [
       { weekLabel: 'M1', weightKg: 84.5, bodyFatPct: 23.2, muscleMassKg: 36.8, waistCm: 92.0 },
@@ -517,7 +626,7 @@ export const INITIAL_CLIENTS: ClientProfile[] = [
   },
   {
     id: 'k-02',
-    code: '#KLN-2024-091',
+    code: '#MBR-2024-091',
     nama_lengkap: 'Siti Rahma',
     gender: 'Wanita',
     usia: 26,
@@ -533,6 +642,17 @@ export const INITIAL_CLIENTS: ClientProfile[] = [
     paketTerpakai: 12,
     dietCompliancePct: 95,
     leadCoach: 'Panji Akbar Syamsi',
+    clientPin: '34567802',
+    mustChangePin: true,
+    pinChangeHistory: [
+      {
+        id: 'pin-log-k02-init',
+        changedAt: '2026-10-18T10:00:00.000Z',
+        changedByRole: 'admin',
+        changedByName: 'Supervisor Gym',
+        note: 'PIN awal 8-digit nomor telepon (+6281234567802) dibuat saat registrasi.'
+      }
+    ],
     berat_awal_kg: 62.0,
     berat_terkini_kg: 58.6,
     berat_target_kg: 57.0,
@@ -561,6 +681,47 @@ export const INITIAL_CLIENTS: ClientProfile[] = [
       focus: 'Lower Body Conditioning & Glutes',
       location: 'SCBD District 8',
       confirmed: true
+    },
+    scheduledSessions: [
+      {
+        id: 'sched-k02-1',
+        date: '2026-11-05',
+        time: '17:30',
+        durationMinutes: 60,
+        location: 'SCBD District 8',
+        focus: 'Lower Body Conditioning & Glutes',
+        sessionNumber: 13,
+        status: 'Terkonfirmasi'
+      },
+      {
+        id: 'sched-k02-2',
+        date: '2026-11-07',
+        time: '10:00',
+        durationMinutes: 60,
+        location: 'SCBD District 8',
+        focus: 'Full Body Conditioning & Core Rehab',
+        sessionNumber: 14,
+        status: 'Menunggu'
+      }
+    ],
+    pendingReschedule: {
+      id: 'rsch-k02-mock-1',
+      clientId: 'k-02',
+      clientName: 'Siti Rahmawati',
+      clientPhone: '6281234567802',
+      originalDate: '2026-11-05',
+      originalTime: '17:30',
+      originalLocation: 'SCBD District 8',
+      proposedDate: '2026-11-07',
+      proposedTime: '10:00',
+      proposedLocation: 'SCBD District 8',
+      reason: 'Jadwal Bentrok — Meeting dadakan di kantor pusat SCBD',
+      requestedAt: '2026-11-05T08:30:00.000Z',
+      requestedByRole: 'client',
+      requestedByName: 'Siti Rahmawati',
+      status: 'pending',
+      isLateRequest: false,
+      hoursLeadTime: 33.0
     },
     sesi_terakhir: '2 Hari lalu — Upper Conditioning',
     weeklyTrend: [
@@ -639,7 +800,7 @@ export const INITIAL_CLIENTS: ClientProfile[] = [
   },
   {
     id: 'k-03',
-    code: '#KLN-2024-064',
+    code: '#MBR-2024-064',
     nama_lengkap: 'Dimas Anggara',
     gender: 'Pria',
     usia: 32,
@@ -655,6 +816,17 @@ export const INITIAL_CLIENTS: ClientProfile[] = [
     paketTerpakai: 19,
     dietCompliancePct: 89,
     leadCoach: 'Panji Akbar Syamsi',
+    clientPin: '34567803',
+    mustChangePin: true,
+    pinChangeHistory: [
+      {
+        id: 'pin-log-k03-init',
+        changedAt: '2026-10-12T11:15:00.000Z',
+        changedByRole: 'admin',
+        changedByName: 'Supervisor Gym',
+        note: 'PIN awal 8-digit nomor telepon (+6281234567803) dibuat saat pendaftaran paket PT.'
+      }
+    ],
     berat_awal_kg: 68.0,
     berat_terkini_kg: 71.4,
     berat_target_kg: 73.0,
@@ -684,6 +856,28 @@ export const INITIAL_CLIENTS: ClientProfile[] = [
       location: 'Gym Utama Senayan',
       confirmed: false
     },
+    scheduledSessions: [
+      {
+        id: 'sched-k03-1',
+        date: '2026-11-05',
+        time: '15:00',
+        durationMinutes: 75,
+        location: 'Gym Utama Senayan',
+        focus: 'Deadlift & Back Hypertrophy',
+        sessionNumber: 15,
+        status: 'Menunggu'
+      },
+      {
+        id: 'sched-k03-2',
+        date: '2026-11-08',
+        time: '10:00',
+        durationMinutes: 75,
+        location: 'Gym Utama Senayan',
+        focus: 'Overhead Press & Deltoid Volume',
+        sessionNumber: 16,
+        status: 'Terkonfirmasi'
+      }
+    ],
     sesi_terakhir: 'Hari ini 15:00 — Deadlift PR',
     weeklyTrend: [
       { weekLabel: 'M1', weightKg: 68.0, bodyFatPct: 14.5, muscleMassKg: 33.4, waistCm: 77.0 },
@@ -724,7 +918,7 @@ export const INITIAL_CLIENTS: ClientProfile[] = [
   },
   {
     id: 'k-04',
-    code: '#KLN-2024-051',
+    code: '#MBR-2024-051',
     nama_lengkap: 'Dewi Lestari',
     gender: 'Wanita',
     usia: 34,
@@ -740,6 +934,17 @@ export const INITIAL_CLIENTS: ClientProfile[] = [
     paketTerpakai: 10,
     dietCompliancePct: 86,
     leadCoach: 'Panji Akbar Syamsi',
+    clientPin: '34567804',
+    mustChangePin: true,
+    pinChangeHistory: [
+      {
+        id: 'pin-log-k04-init',
+        changedAt: '2026-10-05T14:20:00.000Z',
+        changedByRole: 'admin',
+        changedByName: 'Supervisor Gym',
+        note: 'PIN awal 8-digit nomor telepon (+6281234567804) dibuat saat pendaftaran paket PT.'
+      }
+    ],
     berat_awal_kg: 70.2,
     berat_terkini_kg: 67.8,
     berat_target_kg: 64.0,
@@ -769,6 +974,28 @@ export const INITIAL_CLIENTS: ClientProfile[] = [
       location: 'Private Studio Kemang',
       confirmed: true
     },
+    scheduledSessions: [
+      {
+        id: 'sched-k04-1',
+        date: '2026-11-06',
+        time: '09:00',
+        durationMinutes: 60,
+        location: 'Private Studio Kemang',
+        focus: 'Pelvic Floor, Core & Postural Realignment',
+        sessionNumber: 9,
+        status: 'Terkonfirmasi'
+      },
+      {
+        id: 'sched-k04-2',
+        date: '2026-11-11',
+        time: '10:00',
+        durationMinutes: 60,
+        location: 'Private Studio Kemang',
+        focus: 'Spinal Decompression & Glute Activation',
+        sessionNumber: 10,
+        status: 'Terkonfirmasi'
+      }
+    ],
     sesi_terakhir: '12 Okt 2026 — Mobility Rest',
     weeklyTrend: [
       { weekLabel: 'M1', weightKg: 70.2, bodyFatPct: 31.0, muscleMassKg: 23.0, waistCm: 85.0 },
@@ -781,11 +1008,11 @@ export const INITIAL_CLIENTS: ClientProfile[] = [
   },
   {
     id: 'k-05',
-    code: '#KLN-2024-103',
+    code: '#MBR-2024-103',
     nama_lengkap: 'Reza Pratama',
     gender: 'Pria',
     usia: 24,
-    pekerjaan: 'Atlet S&C / Eksekutif Muda',
+    pekerjaan: 'Enthusiast S&C / Eksekutif Muda',
     telepon: '6281234567805',
     target_utama: 'Powerlifting 300kg Total',
     target_category: 'Powerlifting',
@@ -797,6 +1024,17 @@ export const INITIAL_CLIENTS: ClientProfile[] = [
     paketTerpakai: 21,
     dietCompliancePct: 97,
     leadCoach: 'Panji Akbar Syamsi',
+    clientPin: '34567805',
+    mustChangePin: true,
+    pinChangeHistory: [
+      {
+        id: 'pin-log-k05-init',
+        changedAt: '2026-10-01T08:45:00.000Z',
+        changedByRole: 'admin',
+        changedByName: 'Supervisor Gym',
+        note: 'PIN awal 8-digit nomor telepon (+6281234567805) dibuat saat registrasi.'
+      }
+    ],
     berat_awal_kg: 75.0,
     berat_terkini_kg: 77.2,
     berat_target_kg: 77.5,
@@ -826,6 +1064,28 @@ export const INITIAL_CLIENTS: ClientProfile[] = [
       location: 'Gym Utama Senayan',
       confirmed: true
     },
+    scheduledSessions: [
+      {
+        id: 'sched-k05-1',
+        date: '2026-11-05',
+        time: '19:00',
+        durationMinutes: 75,
+        location: 'Gym Utama Senayan',
+        focus: 'Heavy Squat & Bench Peaking',
+        sessionNumber: 21,
+        status: 'Terkonfirmasi'
+      },
+      {
+        id: 'sched-k05-2',
+        date: '2026-11-07',
+        time: '16:00',
+        durationMinutes: 75,
+        location: 'Gym Utama Senayan',
+        focus: 'Competition Deadlift & Lat Accessories',
+        sessionNumber: 22,
+        status: 'Terkonfirmasi'
+      }
+    ],
     sesi_terakhir: '3 Hari lalu — Squat High-Volume',
     weeklyTrend: [
       { weekLabel: 'M1', weightKg: 75.0, bodyFatPct: 13.8, muscleMassKg: 38.5, waistCm: 79.0 },

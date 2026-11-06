@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   ShieldCheck,
   Award,
@@ -10,28 +10,95 @@ import {
   Lock,
   Plus,
   X,
-  RefreshCw
+  RefreshCw,
+  Download,
+  Upload,
+  Database,
+  CalendarClock
 } from 'lucide-react';
-import { CoachProfileData, CoachCertification } from '../data/mockData';
+import { CoachProfileData, CoachCertification, ClientProfile } from '../data/mockData';
 
 interface CoachProfileViewProps {
   coach: CoachProfileData;
   activeClientsCount: number;
+  clients?: ClientProfile[];
   onUpdateCoach: (updated: CoachProfileData) => void;
   onLogoutConfirmed: () => void;
   onNotify: (msg: string) => void;
+  onOverlayChange?: (isOpen: boolean) => void;
+  onRestoreData?: (clients: ClientProfile[], coach: CoachProfileData) => void;
+  onOpenRescheduleHub?: () => void;
 }
 
 export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
   coach,
   activeClientsCount,
+  clients,
   onUpdateCoach,
   onLogoutConfirmed,
-  onNotify
+  onNotify,
+  onOverlayChange,
+  onRestoreData,
+  onOpenRescheduleHub
 }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [syncingLogout, setSyncingLogout] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    onOverlayChange?.(showEditModal || showLogoutModal);
+    return () => {
+      onOverlayChange?.(false);
+    };
+  }, [showEditModal, showLogoutModal, onOverlayChange]);
+
+  const handleExportBackup = () => {
+    try {
+      const backupPayload = {
+        app: 'PelatihKu PRO',
+        version: '2.4.0',
+        exportedAt: new Date().toISOString(),
+        coach,
+        clients: clients || []
+      };
+      const jsonStr = JSON.stringify(backupPayload, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const dateStr = new Date().toISOString().split('T')[0];
+      a.href = url;
+      a.download = `pelatihku-pro-backup-${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      onNotify('File cadangan JSON berhasil diunduh!');
+    } catch {
+      onNotify('Gagal mengekspor data cadangan.');
+    }
+  };
+
+  const handleImportBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target?.result as string);
+        if (parsed.clients && Array.isArray(parsed.clients) && parsed.coach) {
+          onRestoreData?.(parsed.clients, parsed.coach);
+          onNotify(`Berhasil memulihkan ${parsed.clients.length} data member!`);
+        } else {
+          onNotify('Format file JSON cadangan tidak valid.');
+        }
+      } catch {
+        onNotify('Gagal membaca file cadangan.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
 
   // Edit Form State
   const [editName, setEditName] = useState(coach.name);
@@ -40,6 +107,13 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
   const [editPabsi, setEditPabsi] = useState(coach.pabsiLicense);
   const [editSpecialization, setEditSpecialization] = useState(coach.specialization);
   const [editMaxQuota, setEditMaxQuota] = useState(coach.maxClientQuota);
+  const [editPin, setEditPin] = useState(() => {
+    try {
+      return coach.coachPin || localStorage.getItem('pelatihku_v45_coach_pin') || '123456';
+    } catch {
+      return coach.coachPin || '123456';
+    }
+  });
   const [newCertTitle, setNewCertTitle] = useState('');
   const [newCertIssuer, setNewCertIssuer] = useState('');
   const [newCertNumber, setNewCertNumber] = useState('');
@@ -54,8 +128,8 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
     onUpdateCoach({ ...coach, acceptingNewClients: nextVal });
     onNotify(
       nextVal
-        ? 'Status kuota dibuka: Menerima Klien Baru'
-        : 'Status kuota ditutup sementara untuk klien baru'
+        ? 'Status kuota dibuka: Menerima Member Baru'
+        : 'Status kuota ditutup sementara untuk member baru'
     );
   };
 
@@ -73,6 +147,7 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
       });
     }
 
+    const cleanPin = editPin.trim();
     onUpdateCoach({
       ...coach,
       name: editName.trim() || coach.name,
@@ -81,8 +156,17 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
       pabsiLicense: editPabsi.trim() || coach.pabsiLicense,
       specialization: editSpecialization.trim() || coach.specialization,
       maxClientQuota: Number(editMaxQuota) || 27,
-      certifications: updatedCerts
+      certifications: updatedCerts,
+      coachPin: cleanPin.length === 6 ? cleanPin : coach.coachPin || '123456'
     });
+
+    if (cleanPin.length === 6) {
+      try {
+        localStorage.setItem('pelatihku_v45_coach_pin', cleanPin);
+      } catch (err) {
+        console.warn('Failed to save custom PIN:', err);
+      }
+    }
 
     setNewCertTitle('');
     setNewCertIssuer('');
@@ -221,6 +305,33 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
         </div>
       </section>
 
+      {/* 2.5 Reschedule Management Action Card */}
+      {onOpenRescheduleHub && (
+        <section className="bg-[#141b2b] border border-white/[0.08] rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
+              <CalendarClock className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-white">
+                Daftar &amp; Riwayat Reschedule Sesi PT
+              </h3>
+              <p className="text-xs text-[#bbcabf]">
+                Tinjau dan putuskan seluruh permohonan pergantian jadwal latihan Member
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onOpenRescheduleHub}
+            className="min-h-[42px] px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20 transition active:scale-95 shrink-0"
+          >
+            <CalendarClock className="w-4 h-4 text-slate-950" />
+            <span>Buka Pusat Reschedule</span>
+          </button>
+        </section>
+      )}
+
       {/* 3. Status Lisensi & Akreditasi Internasional */}
       <section className="bg-[#141b2b] border border-white/[0.08] rounded-2xl p-5 space-y-4">
         <div className="flex items-center justify-between">
@@ -268,6 +379,52 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
               </span>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* 4. Cadangan & Pemulihan Data (Backup & Restore) */}
+      <section className="bg-[#141b2b] border border-white/[0.08] rounded-2xl p-5 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center shrink-0">
+            <Database className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-white tracking-tight">
+              Cadangan &amp; Pemulihan Data Lokal
+            </h3>
+            <p className="text-xs text-[#bbcabf]">
+              Simpan seluruh database member &amp; log sesi latihan ke file JSON terenkripsi
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <button
+            type="button"
+            onClick={handleExportBackup}
+            className="min-h-[44px] py-2.5 px-4 rounded-xl bg-[#232a3a] hover:bg-[#2e3545] border border-white/[0.08] text-white text-xs font-semibold flex items-center justify-center gap-2 transition active:scale-95"
+          >
+            <Download className="w-4 h-4 text-[#4edea3]" />
+            <span>Ekspor Cadangan JSON</span>
+          </button>
+
+          <div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImportBackup}
+              accept=".json"
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full min-h-[44px] py-2.5 px-4 rounded-xl bg-[#232a3a] hover:bg-[#2e3545] border border-white/[0.08] text-white text-xs font-semibold flex items-center justify-center gap-2 transition active:scale-95"
+            >
+              <Upload className="w-4 h-4 text-cyan-400" />
+              <span>Pulihkan dari File JSON</span>
+            </button>
+          </div>
         </div>
       </section>
 
@@ -363,6 +520,23 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
                     className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs text-[#bbcabf] mb-1">PIN Cepat Masuk (6 Digit Angka)</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={6}
+                  value={editPin}
+                  onChange={(e) => setEditPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="123456"
+                  className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-xs font-mono text-emerald-400 tracking-widest focus:outline-none focus:border-[#10b981]"
+                />
+                <span className="text-[10px] text-neutral-400 mt-1 block">
+                  PIN ini digunakan untuk membuka layar Login Pelatih di lantai gym (default: 123456).
+                </span>
               </div>
 
               {/* Optional Add New Certification */}

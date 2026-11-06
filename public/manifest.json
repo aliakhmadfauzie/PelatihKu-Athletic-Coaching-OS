@@ -1,0 +1,52 @@
+{
+  "name": "PelatihKu PRO — Athletic Coaching OS",
+  "short_name": "PelatihKu",
+  "description": "Sistem manajemen kepelatihan atletik dan kebugaran berdensitas tinggi untuk Head Coach Panji Akbar Syamsi (PAS), pelacakan biometrik member, log beban, rekor PR, dan penjadwalan sesi.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0B0F17",
+  "theme_color": "#10b981",
+  "categories": ["fitness", "sports", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Jadwal Latihan",
+      "short_name": "Jadwal",
+      "description": "Buka Kalender & Jadwal Latihan Member",
+      "url": "/?tab=calendar",
+      "icons": [
+        {
+          "src": "/icons/icon-192.svg",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Daftar Member",
+      "short_name": "Member",
+      "description": "Lihat Direktori Atlet & Member Aktif",
+      "url": "/?tab=dashboard",
+      "icons": [
+        {
+          "src": "/icons/icon-192.svg",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

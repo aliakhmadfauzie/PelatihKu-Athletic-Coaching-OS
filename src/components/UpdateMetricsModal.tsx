@@ -49,20 +49,29 @@ export const UpdateMetricsModal: React.FC<UpdateMetricsModalProps> = ({
 
   // Automatic 8-week baseline deltas
   const weightDelta = parsedWeight - client.berat_awal_kg;
-  const weightPctChange = ((weightDelta / client.berat_awal_kg) * 100).toFixed(1);
+  const weightPctChange = (client.berat_awal_kg || 0) > 0
+    ? ((weightDelta / client.berat_awal_kg) * 100).toFixed(1)
+    : '0.0';
   const fatDelta = parsedFat - client.body_fat_awal_pct;
   const muscleDelta = parsedMuscle - client.massa_otot_awal_kg;
   const waistDelta = parsedWaist - client.lingkar_pinggang_awal_cm;
 
+  const progressWeekLabel =
+    client.weeklyTrend && client.weeklyTrend.length > 1
+      ? `Mgg ${client.weeklyTrend.length}`
+      : 'Mgg 8';
+
   const formatSigned = (val: number, unit: string) =>
     `${val > 0 ? '+' : ''}${val.toFixed(1)} ${unit}`;
 
-  const whatsappReportDraft = `*LAPORAN PROGRES 8 MINGGU — PELATIHKU*
-Atlet: *${client.nama_lengkap}* (${client.code})
-Program: ${client.phase} (${client.target_utama})
-Pelatih: Coach ${client.leadCoach}
+  const cleanCoachName = (client.leadCoach || 'Panji Akbar Syamsi').replace(/^Coach\s+/i, '');
 
-*Ringkasan Biometrik (Mgg 1 vs Mgg 8):*
+  const whatsappReportDraft = `*LAPORAN KALIBRASI PROGRES FISIK — PELATIHKU*
+Member: *${client.nama_lengkap}* (${client.code})
+Program: ${client.phase} (${client.target_utama})
+Pelatih: Coach ${cleanCoachName}
+
+*Ringkasan Biometrik (Mgg 1 vs ${progressWeekLabel}):*
 • Berat Badan: ${client.berat_awal_kg} kg → *${parsedWeight.toFixed(1)} kg* (${formatSigned(weightDelta, 'kg')} / ${weightPctChange}%)
 • Lemak Tubuh (BF): ${client.body_fat_awal_pct}% → *${parsedFat.toFixed(1)}%* (${formatSigned(fatDelta, '%')})
 • Massa Otot (SMM): ${client.massa_otot_awal_kg} kg → *${parsedMuscle.toFixed(1)} kg* (${formatSigned(muscleDelta, 'kg')})
@@ -92,14 +101,14 @@ Progres sangat konsisten dengan tingkat kepatuhan nutrisi ${client.dietComplianc
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const waUrl = `https://wa.me/${client.telepon}?text=${encodeURIComponent(whatsappReportDraft)}`;
+  const waUrl = `https://wa.me/${(client.telepon || '').replace(/\D/g, '')}?text=${encodeURIComponent(whatsappReportDraft)}`;
 
   return (
     <div className="fixed inset-0 z-50 bg-[#070e1d]/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div
         role="dialog"
         aria-modal="true"
-        className="w-full max-w-lg max-h-[92vh] bg-[#141b2b] border border-white/[0.12] rounded-t-3xl sm:rounded-2xl flex flex-col overflow-hidden shadow-2xl"
+        className="w-full max-w-lg max-h-[92vh] bg-[#111726]/95 backdrop-blur-2xl border border-white/[0.12] rounded-t-3xl sm:rounded-3xl flex flex-col overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.6)]"
       >
         {/* Grab Handle on mobile */}
         <div className="w-10 h-1 rounded-full bg-[#2e3545] mx-auto mt-3 sm:hidden" />
@@ -272,7 +281,7 @@ Progres sangat konsisten dengan tingkat kepatuhan nutrisi ${client.dietComplianc
               <div className="text-xs">
                 <p className="font-semibold text-white">Metrik Biometrik Terkalibrasi</p>
                 <p className="text-[#bbcabf]">
-                  Grafik komposisi tubuh 8 minggu telah diperbarui. Draf laporan siap dikirim ke WhatsApp klien.
+                  Grafik komposisi tubuh 8 minggu telah diperbarui. Draf laporan siap dikirim ke WhatsApp member.
                 </p>
               </div>
             </div>
