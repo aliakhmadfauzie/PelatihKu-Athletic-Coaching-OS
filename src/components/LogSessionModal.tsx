@@ -40,6 +40,7 @@ interface LogSessionModalProps {
   onClose: () => void;
   onSaveSession: (newSession: SessionRecord) => void;
   onOpenReschedule: () => void;
+  exerciseCatalog?: CatalogExercise[];
 }
 
 const RPE_LEVELS = [5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
@@ -57,7 +58,8 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
   client,
   onClose,
   onSaveSession,
-  onOpenReschedule
+  onOpenReschedule,
+  exerciseCatalog
 }) => {
   const nextSessionNum = client.paketTerpakai + 1;
   const remainingQuota = Math.max(0, client.paketTotal - nextSessionNum);
@@ -506,7 +508,8 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
     }
   };
 
-  const filteredCatalog = EXERCISE_CATALOG.filter((item) => {
+  const activeCatalog = exerciseCatalog && exerciseCatalog.length > 0 ? exerciseCatalog : EXERCISE_CATALOG;
+  const filteredCatalog = activeCatalog.filter((item) => {
     const matchCat = catalogCategory === 'Semua' || item.category === catalogCategory;
     const matchSearch =
       item.name.toLowerCase().includes(catalogSearch.toLowerCase()) ||

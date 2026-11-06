@@ -268,6 +268,62 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
   { id: 'ex-16', name: 'Nordic Hamstring Curl', category: 'Kalistenik', primaryMuscle: 'Eccentric Hamstrings', defaultTempo: '4-0-1-0', defaultRestSeconds: 90, defaultBestKg: 0 }
 ];
 
+export interface GymLocationItem {
+  id: string;
+  name: string;
+  addressZone: string;
+  capacitySlots: number;
+  contactNumber?: string;
+  isActive: boolean;
+}
+
+export interface GymMasterSettings {
+  gymName: string;
+  tagline: string;
+  primaryAddress: string;
+  contactPhone: string;
+  contactWhatsApp: string;
+  operatingHours: string;
+  defaultSessionDurationMinutes: number;
+  locations: GymLocationItem[];
+}
+
+export const INITIAL_GYM_SETTINGS: GymMasterSettings = {
+  gymName: 'PelatihKu Fitness Center',
+  tagline: 'Commercial Fitness Center & Athletic Personal Training OS',
+  primaryAddress: 'Senayan Central Sports Complex, Jl. Asia Afrika No. 8, Jakarta Pusat',
+  contactPhone: '021-57891234',
+  contactWhatsApp: '628119876543',
+  operatingHours: 'Senin – Minggu: 06:00 – 22:00 WIB',
+  defaultSessionDurationMinutes: 75,
+  locations: [
+    {
+      id: 'loc-01',
+      name: 'Gym Utama Senayan',
+      addressZone: 'Senayan Central Sports Complex, Lantai 2',
+      capacitySlots: 15,
+      contactNumber: '021-57891234',
+      isActive: true
+    },
+    {
+      id: 'loc-02',
+      name: 'SCBD District 8',
+      addressZone: 'Treasury Tower Gym Floor, SCBD Lot 28',
+      capacitySlots: 10,
+      contactNumber: '021-57895678',
+      isActive: true
+    },
+    {
+      id: 'loc-03',
+      name: 'Private Studio Kemang',
+      addressZone: 'Jl. Kemang Raya No. 45, Jakarta Selatan',
+      capacitySlots: 6,
+      contactNumber: '021-71981234',
+      isActive: true
+    }
+  ]
+};
+
 export const INITIAL_COACH_PROFILE: CoachProfileData = {
   name: 'Coach Panji Akbar Syamsi',
   initials: 'PAS',

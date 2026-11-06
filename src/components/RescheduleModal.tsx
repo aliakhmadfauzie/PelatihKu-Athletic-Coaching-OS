@@ -26,6 +26,7 @@ export interface UpcomingSessionOption {
 interface RescheduleModalProps {
   client: ClientProfile;
   currentUserRole?: UserRole;
+  availableLocations?: string[];
   onClose: () => void;
   onConfirmReschedule: (payload: {
     date: string;
@@ -56,9 +57,13 @@ const LOCATIONS: ('Gym Utama Senayan' | 'SCBD District 8' | 'Private Studio Kema
 export const RescheduleModal: React.FC<RescheduleModalProps> = ({
   client,
   currentUserRole = 'coach',
+  availableLocations,
   onClose,
   onConfirmReschedule
 }) => {
+  const activeLocations = useMemo(() => {
+    return (availableLocations && availableLocations.length > 0 ? availableLocations : LOCATIONS) as ('Gym Utama Senayan' | 'SCBD District 8' | 'Private Studio Kemang')[];
+  }, [availableLocations]);
   // 1. Gather all upcoming scheduled sessions for this client (multi-schedule support)
   const upcomingSessions = useMemo<UpcomingSessionOption[]>(() => {
     const list: UpcomingSessionOption[] = [];
@@ -343,7 +348,7 @@ export const RescheduleModal: React.FC<RescheduleModalProps> = ({
               Zonasi Lokasi Gym
             </label>
             <div className="space-y-2">
-              {LOCATIONS.map((loc) => (
+              {activeLocations.map((loc) => (
                 <button
                   key={loc}
                   type="button"

@@ -9,6 +9,7 @@ import {
   UserPlus,
   UserCheck,
   CalendarCheck,
+  CalendarClock,
   Target,
   Activity,
   Clock,
@@ -58,7 +59,11 @@ import {
   SessionRecord,
   PRRecord,
   RescheduleRequest,
-  ScheduledSlot
+  ScheduledSlot,
+  GymMasterSettings,
+  INITIAL_GYM_SETTINGS,
+  CatalogExercise,
+  EXERCISE_CATALOG
 } from './data/mockData';
 import { LoginScreen } from './components/LoginScreen';
 import { ClientDetailView, MedicalAndBaselinePayload } from './components/ClientDetailView';
@@ -103,7 +108,9 @@ import {
 
 const STORAGE_KEYS = {
   CLIENTS: 'pelatihku_v45_clients',
-  COACH: 'pelatihku_v45_coach'
+  COACH: 'pelatihku_v45_coach',
+  GYM_SETTINGS: 'pelatihku_v45_gym_settings',
+  EXERCISE_CATALOG: 'pelatihku_v45_exercise_catalog'
 };
 
 export default function App() {
@@ -161,6 +168,40 @@ export default function App() {
       // Ignore storage quota errors
     }
   }, [coach]);
+
+  const [gymSettings, setGymSettings] = useState<GymMasterSettings>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.GYM_SETTINGS);
+      return saved ? JSON.parse(saved) : INITIAL_GYM_SETTINGS;
+    } catch {
+      return INITIAL_GYM_SETTINGS;
+    }
+  });
+
+  const [exerciseCatalog, setExerciseCatalog] = useState<CatalogExercise[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.EXERCISE_CATALOG);
+      return saved ? JSON.parse(saved) : EXERCISE_CATALOG;
+    } catch {
+      return EXERCISE_CATALOG;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.GYM_SETTINGS, JSON.stringify(gymSettings));
+    } catch {
+      // Ignore storage quota errors
+    }
+  }, [gymSettings]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.EXERCISE_CATALOG, JSON.stringify(exerciseCatalog));
+    } catch {
+      // Ignore storage quota errors
+    }
+  }, [exerciseCatalog]);
 
   // Real-time synchronization with Cloud Firestore
   useEffect(() => {
@@ -1220,7 +1261,7 @@ export default function App() {
                   </span>
                 </div>
                 <p className="text-[11px] text-neutral-400 font-medium truncate">
-                  Fitness Center &amp; Personal Training OS
+                  {gymSettings?.gymName || 'Fitness Center'} · {gymSettings?.tagline || 'Athletic Coaching OS'}
                 </p>
               </div>
             </div>
@@ -1630,7 +1671,9 @@ export default function App() {
                   }`}
                 >
                   <Settings className="w-4 h-4 text-neutral-400" />
-                  <span>Pengaturan &amp; Profil</span>
+                  <span>
+                    {currentUserRole === 'client' ? 'Profil Member & Keamanan' : 'Pengaturan Gym & Profil Coach'}
+                  </span>
                 </button>
 
                 {isInstallable && (
@@ -2051,6 +2094,7 @@ export default function App() {
                   clients[0]
                 }
                 coach={coach}
+                gymSettings={gymSettings}
                 onBackToDashboard={() => setActiveNav('dashboard')}
                 onNotify={showToast}
                 onLogoutConfirmed={() => {
@@ -2067,6 +2111,8 @@ export default function App() {
                 coach={coach}
                 clients={clients}
                 activeClientsCount={activeMembersCount}
+                gymSettings={gymSettings}
+                exerciseCatalog={exerciseCatalog}
                 onOpenRescheduleHub={() => setShowRescheduleHubModal(true)}
                 onUpdateCoach={(updatedCoach) => {
                   const prevCoach = coach;
@@ -2076,6 +2122,14 @@ export default function App() {
                     setCoach(prevCoach);
                     showToast('Koneksi terputus: Gagal menyimpan profil Coach ke database.');
                   });
+                }}
+                onUpdateGymSettings={(updatedGym) => {
+                  setGymSettings(updatedGym);
+                  showToast('Pengaturan identitas gym & lokasi berhasil disimpan.');
+                }}
+                onUpdateExerciseCatalog={(updatedCatalog) => {
+                  setExerciseCatalog(updatedCatalog);
+                  showToast('Katalog gerakan latihan berhasil diperbarui.');
                 }}
                 onRestoreData={(restoredClients, restoredCoach) => {
                   const prevClients = clients;
@@ -2853,13 +2907,13 @@ export default function App() {
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowAddClientModal(false);
           }}
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-[#070e1d]/85 backdrop-blur-md flex items-center justify-center p-4"
         >
-          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-[#111827] border border-white/[0.12] rounded-2xl p-5 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-[#111726]/95 backdrop-blur-2xl border border-white/[0.12] rounded-3xl p-6 shadow-[0_25px_60px_rgba(0,0,0,0.6)] space-y-4">
+            <div className="flex items-center justify-between pb-3.5 border-b border-white/[0.08]">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                  <UserPlus className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-sm">
+                  <UserPlus className="w-5 h-5 stroke-[2.2]" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white tracking-tight">
@@ -2873,9 +2927,10 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setShowAddClientModal(false)}
-                className="text-neutral-400 hover:text-white p-1.5 rounded-lg hover:bg-white/[0.06] transition"
+                aria-label="Tutup form member"
+                className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl text-neutral-400 hover:text-white flex items-center justify-center hover:bg-white/[0.06] transition active:scale-95"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
@@ -3154,17 +3209,17 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="pt-3 flex items-center justify-between gap-2 border-t border-white/[0.08]">
+              <div className="pt-3.5 flex items-center justify-between gap-2.5 border-t border-white/[0.08]">
                 <button
                   type="button"
                   onClick={() => setShowAddClientModal(false)}
-                  className="px-3.5 py-2.5 rounded-xl text-xs font-medium text-neutral-300 border border-white/[0.10] hover:bg-white/[0.06] transition"
+                  className="min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold text-neutral-300 border border-white/[0.10] hover:bg-white/[0.06] transition active:scale-95"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-md shadow-emerald-500/25 active:scale-95 transition"
+                  className="flex-1 min-h-[44px] flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 text-xs font-bold shadow-md shadow-emerald-500/25 active:scale-95 transition"
                 >
                   <span>Simpan &amp; Buka Profil Member</span>
                   <ChevronRight className="w-4 h-4 stroke-[2.5]" />
@@ -3189,6 +3244,7 @@ export default function App() {
       {logSessionClient && (
         <LogSessionModal
           client={logSessionClient}
+          exerciseCatalog={exerciseCatalog}
           onClose={() => setLogSessionClientId(null)}
           onSaveSession={(newSession) => handleSaveSession(logSessionClient.id, newSession)}
           onOpenReschedule={() => setRescheduleClientId(logSessionClient.id)}
@@ -3200,6 +3256,7 @@ export default function App() {
         <RescheduleModal
           client={rescheduleClient}
           currentUserRole={currentUserRole}
+          availableLocations={gymSettings.locations.filter((l) => l.isActive).map((l) => l.name)}
           onClose={() => setRescheduleClientId(null)}
           onConfirmReschedule={(payload) =>
             handleConfirmReschedule(rescheduleClient.id, payload)

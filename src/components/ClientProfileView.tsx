@@ -18,7 +18,7 @@ import {
   Award,
   CalendarClock
 } from 'lucide-react';
-import { ClientProfile, CoachProfileData, PinChangeLogEntry } from '../data/mockData';
+import { ClientProfile, CoachProfileData, PinChangeLogEntry, GymMasterSettings } from '../data/mockData';
 import {
   getClientPin,
   setClientPin,
@@ -32,6 +32,7 @@ import { PinChangeHistoryView } from './PinChangeHistoryView';
 export interface ClientProfileViewProps {
   client: ClientProfile;
   coach: CoachProfileData;
+  gymSettings?: GymMasterSettings;
   onNotify?: (msg: string) => void;
   onBackToDashboard?: () => void;
   onLogoutConfirmed?: () => void;
@@ -42,6 +43,7 @@ export interface ClientProfileViewProps {
 export const ClientProfileView: React.FC<ClientProfileViewProps> = ({
   client,
   coach,
+  gymSettings,
   onNotify,
   onBackToDashboard,
   onLogoutConfirmed,
@@ -140,15 +142,41 @@ export const ClientProfileView: React.FC<ClientProfileViewProps> = ({
         <button
           type="button"
           onClick={onBackToDashboard}
-          className="text-xs font-semibold text-emerald-400 hover:underline flex items-center gap-1.5 transition active:scale-95"
+          className="min-h-[40px] text-xs font-semibold text-emerald-400 hover:underline flex items-center gap-1.5 transition active:scale-95 cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Kembali ke Dashboard Latihan</span>
         </button>
       )}
 
+      {/* Fitness Center Dynamic Header Banner */}
+      {gymSettings && (
+        <div className="bg-[#111726]/85 backdrop-blur-xl border border-white/[0.08] rounded-3xl p-4 flex items-center justify-between gap-3 shadow-lg">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-sm">
+              <Dumbbell className="w-5 h-5 stroke-[2.2]" />
+            </div>
+            <div className="min-w-0 truncate">
+              <h2 className="text-xs font-bold text-white tracking-tight truncate">{gymSettings.gymName}</h2>
+              <p className="text-[11px] text-neutral-400 truncate">{gymSettings.primaryAddress} · {gymSettings.operatingHours}</p>
+            </div>
+          </div>
+          <a
+            href={`https://wa.me/${gymSettings.contactWhatsApp}?text=${encodeURIComponent(
+              `Halo Layanan ${gymSettings.gymName}, saya ${client.nama_lengkap} ingin bertanya mengenai jadwal latihan PT saya.`
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="min-h-[38px] px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 shrink-0"
+          >
+            <Phone className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Kontak Gym</span>
+          </a>
+        </div>
+      )}
+
       {/* Member Header Card */}
-      <div className="bg-[#111827] border border-white/[0.08] rounded-2xl p-5 shadow-xl relative overflow-hidden">
+      <div className="bg-[#111726]/85 backdrop-blur-xl border border-white/[0.08] rounded-3xl p-5 shadow-xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-44 h-44 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
