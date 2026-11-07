@@ -92,6 +92,11 @@ export function canApproveReschedule(
   role: UserRole,
   request: RescheduleRequest
 ): boolean {
+  // Terminal state protection: only pending requests can be approved
+  if (request.status !== 'pending') {
+    return false;
+  }
+
   if (role === 'admin') {
     return true; // Admin has operational supervisory override
   }
@@ -120,7 +125,38 @@ export function canRejectReschedule(
   role: UserRole,
   request: RescheduleRequest
 ): boolean {
+  if (request.status !== 'pending') return false;
   return canApproveReschedule(role, request);
+}
+
+export type RescheduleStatus = RescheduleRequest['status'];
+
+/**
+ * Explicit Reschedule State Machine Matrix
+ * Only 'pending' requests can transition to terminal decision states ('approved', 'rejected', 'cancelled').
+ * Terminal states have empty transition sets to prevent double-decisions or stale replays.
+ */
+export const ALLOWED_RESCHEDULE_TRANSITIONS: Record<RescheduleStatus, readonly RescheduleStatus[]> = {
+  pending: ['approved', 'rejected', 'cancelled'],
+  approved: [],
+  rejected: [],
+  cancelled: []
+};
+
+/**
+ * Validates that a reschedule status transition is permitted by the state machine.
+ * Throws a domain error if a terminal request is re-approved, re-rejected, or cancelled after decision.
+ */
+export function assertValidRescheduleTransition(
+  currentStatus: RescheduleStatus,
+  targetStatus: RescheduleStatus
+): void {
+  const allowed = ALLOWED_RESCHEDULE_TRANSITIONS[currentStatus] || [];
+  if (!allowed.includes(targetStatus)) {
+    throw new Error(
+      `Transisi status reschedule tidak valid: tidak dapat mengubah status dari "${currentStatus}" ke "${targetStatus}". Permohonan ini sudah diputuskan.`
+    );
+  }
 }
 
 /**
@@ -131,6 +167,7 @@ export function canCancelReschedule(
   role: UserRole,
   request: RescheduleRequest
 ): boolean {
+  if (request.status !== 'pending') return false;
   if (role === 'admin') return true;
   return role === request.requestedByRole;
 }
@@ -186,6 +223,14 @@ export function processApproveReschedule(params: {
 }): { updatedClient: ClientProfile; approvedRequest: RescheduleRequest } {
   const { client, request, approverRole, approverName, decisionNote } = params;
 
+  assertValidRescheduleTransition(request.status, 'approved');
+
+  if (client.pendingReschedule && client.pendingReschedule.id !== request.id) {
+    throw new Error(
+      `Konflik antrean reschedule: ID permohonan (${request.id}) tidak cocok dengan permohonan aktif member (${client.pendingReschedule.id}).`
+    );
+  }
+
   if (!canApproveReschedule(approverRole, request)) {
     throw new Error(`Role ${approverRole} tidak memiliki otorisasi untuk menyetujui permohonan reschedule ini.`);
   }
@@ -201,6 +246,23 @@ export function processApproveReschedule(params: {
 
   const existingHistory = client.rescheduleHistory || [];
 
+  // Synchronize multi-slot scheduledSessions if present
+  const updatedScheduledSessions = Array.isArray(client.scheduledSessions)
+    ? client.scheduledSessions.map((slot) => {
+        const matchesOriginalSlot =
+          slot.date === request.originalDate && slot.time === request.originalTime;
+        if (matchesOriginalSlot) {
+          return {
+            ...slot,
+            date: request.proposedDate,
+            time: request.proposedTime,
+            location: request.proposedLocation
+          };
+        }
+        return slot;
+      })
+    : client.scheduledSessions;
+
   const updatedClient: ClientProfile = {
     ...client,
     nextSession: {
@@ -211,6 +273,7 @@ export function processApproveReschedule(params: {
       confirmed: true,
       rescheduleReason: request.reason
     },
+    ...(updatedScheduledSessions ? { scheduledSessions: updatedScheduledSessions } : {}),
     pendingReschedule: undefined,
     rescheduleHistory: [approvedRequest, ...existingHistory.filter((h) => h.id !== request.id)]
   };
@@ -232,6 +295,14 @@ export function processRejectReschedule(params: {
   reason: string;
 }): { updatedClient: ClientProfile; rejectedRequest: RescheduleRequest } {
   const { client, request, rejectorRole, rejectorName, reason } = params;
+
+  assertValidRescheduleTransition(request.status, 'rejected');
+
+  if (client.pendingReschedule && client.pendingReschedule.id !== request.id) {
+    throw new Error(
+      `Konflik antrean reschedule: ID permohonan (${request.id}) tidak cocok dengan permohonan aktif member (${client.pendingReschedule.id}).`
+    );
+  }
 
   if (!canRejectReschedule(rejectorRole, request)) {
     throw new Error(`Role ${rejectorRole} tidak memiliki otorisasi untuk menolak permohonan reschedule ini.`);
@@ -266,6 +337,8 @@ export function processCancelReschedule(params: {
   cancellerRole: UserRole;
 }): { updatedClient: ClientProfile; cancelledRequest: RescheduleRequest } {
   const { client, request, cancellerRole } = params;
+
+  assertValidRescheduleTransition(request.status, 'cancelled');
 
   if (!canCancelReschedule(cancellerRole, request)) {
     throw new Error('Hanya pemohon atau Admin yang dapat membatalkan pengajuan reschedule ini.');

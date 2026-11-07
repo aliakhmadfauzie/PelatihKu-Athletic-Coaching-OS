@@ -208,9 +208,9 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
               <button
                 type="button"
                 onClick={handleRequestPermission}
-                className="min-h-[38px] px-3 py-1.5 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95"
+                className="min-h-[44px] px-3.5 py-2 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition active:scale-95"
               >
-                <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+                <Sparkles className="w-3.5 h-3.5 text-blue-400 shrink-0" />
                 <span>Aktifkan Push</span>
               </button>
             )}
@@ -219,9 +219,9 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
               type="button"
               onClick={handleTestPush}
               disabled={isTesting}
-              className="min-h-[38px] px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 disabled:opacity-50"
+              className="min-h-[44px] px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition active:scale-95 disabled:opacity-50"
             >
-              <Bell className={`w-3.5 h-3.5 ${isTesting ? 'animate-bounce text-emerald-400' : ''}`} />
+              <Bell className={`w-3.5 h-3.5 shrink-0 ${isTesting ? 'animate-bounce text-emerald-400' : ''}`} />
               <span>Tes Push</span>
             </button>
           </div>
@@ -245,7 +245,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                 className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex gap-3 relative ${
                   notif.read
                     ? 'bg-[#0b101b]/60 border-white/[0.04] text-neutral-400 opacity-75 hover:opacity-100 hover:border-white/[0.08]'
-                    : 'bg-[#121c2e] border-emerald-500/40 text-white shadow-md shadow-emerald-950/30 ring-1 ring-emerald-500/20 hover:border-emerald-500/60'
+                    : 'bg-[#121c2e] border-emerald-500/40 border-l-4 border-l-emerald-400 text-white shadow-md shadow-emerald-950/30 ring-1 ring-emerald-500/20 hover:border-emerald-500/60'
                 }`}
               >
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
@@ -260,7 +260,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                       {!notif.read && (
                         <span className="w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-emerald-500/30 shrink-0" />
                       )}
-                      <h4 className={`text-xs truncate ${notif.read ? 'font-medium text-neutral-300' : 'font-bold text-white'}`}>
+                      <h4 className={`text-xs sm:text-sm truncate ${notif.read ? 'font-medium text-neutral-300' : 'font-bold text-white'}`}>
                         {notif.title}
                       </h4>
                     </div>
@@ -294,9 +294,9 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                           e.stopPropagation();
                           handleNotificationClick(notif);
                         }}
-                        className="min-h-[38px] px-3.5 rounded-xl bg-gradient-to-r from-emerald-500/20 to-emerald-400/20 hover:from-emerald-500/30 hover:to-emerald-400/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-1.5 transition active:scale-95 shadow-sm"
+                        className="min-h-[44px] px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500/20 to-emerald-400/20 hover:from-emerald-500/30 hover:to-emerald-400/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition active:scale-95 shadow-sm"
                       >
-                        <CalendarClock className="w-3.5 h-3.5 text-emerald-400" />
+                        <CalendarClock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         <span>Tinjau Permintaan (Review Popup)</span>
                       </button>
                     )}

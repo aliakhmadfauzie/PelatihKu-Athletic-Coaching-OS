@@ -39,12 +39,18 @@ import {
   Eye,
   EyeOff,
   Pencil,
-  Bell
+  Bell,
+  Scale,
+  Layers
 } from 'lucide-react';
 import { usePwaInstall } from './hooks/usePwaInstall';
 import {
   subscribeToClients,
   subscribeToCoachProfile,
+  subscribeToGymSettings,
+  saveGymSettingsToFirestore,
+  subscribeToExerciseCatalog,
+  saveExerciseCatalogToFirestore,
   saveClientToFirestore,
   saveClientsBatchToFirestore,
   saveCoachProfileToFirestore,
@@ -78,6 +84,10 @@ import { PinChangeHistoryView } from './components/PinChangeHistoryView';
 import { NotificationCenterModal } from './components/NotificationCenterModal';
 import { ReviewRescheduleRequestModal } from './components/ReviewRescheduleRequestModal';
 import { RescheduleRequestsHubModal } from './components/RescheduleRequestsHubModal';
+import { OfflineSyncBadge } from './components/OfflineSyncBadge';
+import { BatchRecurringScheduleModal } from './components/BatchRecurringScheduleModal';
+import { ClientProgressReportModal } from './components/ClientProgressReportModal';
+import { PushNotificationPromptModal } from './components/PushNotificationPromptModal';
 import {
   createRescheduleRequest,
   processApproveReschedule,
@@ -85,7 +95,13 @@ import {
   processCancelReschedule
 } from './services/rescheduleMatrixService';
 import {
+  extractBestPRSet,
+  calculateBaselineMacros,
+  advanceBiometricTrend
+} from './services/sportsScienceDomain';
+import {
   subscribeToPushNotifications,
+  subscribeToNotificationsInFirestore,
   filterNotificationsForUser,
   notifyRescheduleRequested,
   notifyRescheduleApproved,
@@ -116,19 +132,27 @@ const STORAGE_KEYS = {
 export default function App() {
   const { isInstallable, triggerInstall } = usePwaInstall();
 
-  // Persistent State
+  // Persistent State — 1 sample client (k-01 Budi Santoso) + real coach-created clients
   const [clients, setClients] = useState<ClientProfile[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.CLIENTS);
       if (saved) {
         const parsed = JSON.parse(saved);
-        return parsed.map((c: ClientProfile) =>
-          c.leadCoach === 'Hendra Kurniawan' ? { ...c, leadCoach: 'Panji Akbar Syamsi' } : c
-        );
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Keep 1 sample client (k-01) and any newly created custom clients (excluding mock k-02..k-06)
+          const filtered = parsed
+            .filter((c: ClientProfile) => c.id === 'k-01' || !['k-02', 'k-03', 'k-04', 'k-05', 'k-06'].includes(c.id))
+            .map((c: ClientProfile) =>
+              c.leadCoach === 'Hendra Kurniawan' ? { ...c, leadCoach: 'Panji Akbar Syamsi' } : c
+            );
+          if (filtered.length > 0) {
+            return filtered;
+          }
+        }
       }
-      return INITIAL_CLIENTS;
+      return [INITIAL_CLIENTS[0]];
     } catch {
-      return INITIAL_CLIENTS;
+      return [INITIAL_CLIENTS[0]];
     }
   });
 
@@ -203,7 +227,7 @@ export default function App() {
     }
   }, [exerciseCatalog]);
 
-  // Real-time synchronization with Cloud Firestore
+  // Real-time synchronization with Cloud Firestore across all entities
   useEffect(() => {
     // 1. Subscribe to clients collection in Firestore with local cache resilience
     const unsubClients = subscribeToClients(
@@ -229,9 +253,39 @@ export default function App() {
       }
     );
 
+    // 3. Subscribe to gym master settings in Firestore
+    const unsubGym = subscribeToGymSettings(
+      (remoteGym) => {
+        if (remoteGym) {
+          setGymSettings(remoteGym);
+        }
+      },
+      (err) => {
+        console.warn('[Firestore] Gym settings listener fallback:', err.message);
+      }
+    );
+
+    // 4. Subscribe to dynamic exercise catalog in Firestore
+    const unsubCatalog = subscribeToExerciseCatalog(
+      (remoteCatalog) => {
+        if (remoteCatalog && remoteCatalog.length > 0) {
+          setExerciseCatalog(remoteCatalog);
+        }
+      },
+      (err) => {
+        console.warn('[Firestore] Exercise catalog listener fallback:', err.message);
+      }
+    );
+
+    // 5. Subscribe to cross-device push notifications in Firestore
+    const unsubNotifs = subscribeToNotificationsInFirestore();
+
     return () => {
       unsubClients();
       unsubCoach();
+      unsubGym();
+      unsubCatalog();
+      unsubNotifs();
     };
   }, []);
 
@@ -262,6 +316,42 @@ export default function App() {
   });
   const [showFullSessionHistory, setShowFullSessionHistory] = useState<boolean>(false);
 
+  // Manual scroll restoration: Prevents browser from retaining stale scroll positions on page reload
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+  }, []);
+
+  // Scroll-to-Top Restoration: Ensure all landing screens always start from the top (except login screen)
+  useEffect(() => {
+    if (!isLocked) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
+  }, [activeNav, selectedClientId, isLocked, showFullSessionHistory]);
+
+  // Smart scroll-direction detector for auto-hiding the FAB on downward scroll
+  const [isScrollingDown, setIsScrollingDown] = useState<boolean>(false);
+  useEffect(() => {
+    if (isLocked || typeof window === 'undefined') return;
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const currentY = window.scrollY;
+      if (currentY < 40) {
+        setIsScrollingDown(false);
+      } else if (currentY > lastY + 10) {
+        setIsScrollingDown(true);
+      } else if (currentY < lastY - 10) {
+        setIsScrollingDown(false);
+      }
+      lastY = currentY;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [isLocked]);
+
   // Active Modals
   const [showAddClientModal, setShowAddClientModal] = useState<boolean>(false);
   const [metricsModalClientId, setMetricsModalClientId] = useState<string | null>(null);
@@ -270,6 +360,11 @@ export default function App() {
   const [changePinClientId, setChangePinClientId] = useState<string | null>(null);
   const [showNotificationCenter, setShowNotificationCenter] = useState<boolean>(false);
   const [showRescheduleHubModal, setShowRescheduleHubModal] = useState<boolean>(false);
+  const [showBatchScheduleModal, setShowBatchScheduleModal] = useState<boolean>(false);
+  const [batchScheduleInitialClientId, setBatchScheduleInitialClientId] = useState<string | undefined>(undefined);
+  const [showProgressReportModal, setShowProgressReportModal] = useState<boolean>(false);
+  const [progressReportClient, setProgressReportClient] = useState<ClientProfile | null>(null);
+  const [showPushPromptModal, setShowPushPromptModal] = useState<boolean>(false);
   const [unreadNotificationCount, setUnreadNotificationCount] = useState<number>(0);
   const [reviewingRescheduleData, setReviewingRescheduleData] = useState<{
     client: ClientProfile;
@@ -581,13 +676,10 @@ export default function App() {
         ? `Hipertrofi ${targetSign}kg`
         : `Powerlifting & Strength`;
 
-    const estKalori =
-      targetCategory === 'Fat Loss'
-        ? Math.round(berat * 26)
-        : targetCategory === 'Hipertrofi'
-        ? Math.round(berat * 34)
-        : Math.round(berat * 32);
-    const estProtein = Math.round(berat * 2.0);
+    const { calories: estKalori, proteinGrams: estProtein } = calculateBaselineMacros(
+      targetCategory,
+      berat
+    );
     const estMuscleMass = +(berat * (1 - bodyFatAwal / 100) * 0.54).toFixed(1);
 
     const medicalAndCoachNote = newClientMedicalNote.trim()
@@ -706,23 +798,21 @@ export default function App() {
     clientId: string,
     updater: (prev: ClientProfile) => ClientProfile
   ) => {
-    let updatedTarget: ClientProfile | null = null;
-    let previousState: ClientProfile[] = [];
     setClients((prev) => {
-      previousState = prev;
-      return prev.map((c) => {
-        if (c.id !== clientId) return c;
-        updatedTarget = updater(c);
-        return updatedTarget;
-      });
-    });
-    if (updatedTarget) {
+      const currentTarget = prev.find((c) => c.id === clientId);
+      if (!currentTarget) return prev;
+      const updatedTarget = updater(currentTarget);
+
       saveClientToFirestore(updatedTarget).catch((err) => {
         console.warn('[Firestore] Background write queued/failed:', err);
-        setClients(previousState);
+        setClients((rollbackPrev) =>
+          rollbackPrev.map((c) => (c.id === clientId ? currentTarget : c))
+        );
         showToast('Koneksi terputus: Gagal menyimpan pembaruan ke database.');
       });
-    }
+
+      return prev.map((c) => (c.id === clientId ? updatedTarget : c));
+    });
   };
 
   const handleEditClient = (
@@ -782,31 +872,21 @@ export default function App() {
       return;
     }
     updateClientAndSync(clientId, (c) => {
-      const nextTrend = [...(c.weeklyTrend || [])];
-      const newPoint = {
-        weekLabel: nextTrend.length <= 1 ? 'M8' : nextTrend[nextTrend.length - 1].weekLabel || 'M8',
-        weightKg: updated.weightKg,
-        bodyFatPct: updated.bodyFatPct,
-        muscleMassKg: updated.muscleMassKg,
-        waistCm: updated.waistCm
-      };
-
-      if (nextTrend.length === 0) {
-        nextTrend.push({
-          weekLabel: 'M1',
+      const nextTrend = advanceBiometricTrend(
+        c.weeklyTrend,
+        {
           weightKg: c.berat_awal_kg || updated.weightKg,
           bodyFatPct: c.body_fat_awal_pct || updated.bodyFatPct,
           muscleMassKg: c.massa_otot_awal_kg || updated.muscleMassKg,
           waistCm: c.lingkar_pinggang_awal_cm || updated.waistCm
-        });
-        nextTrend.push(newPoint);
-      } else if (nextTrend.length === 1) {
-        // Preserve baseline M1 intact, append calibrated checkpoint M8
-        nextTrend.push(newPoint);
-      } else {
-        // Update current latest progress checkpoint
-        nextTrend[nextTrend.length - 1] = newPoint;
-      }
+        },
+        {
+          weightKg: updated.weightKg,
+          bodyFatPct: updated.bodyFatPct,
+          muscleMassKg: updated.muscleMassKg,
+          waistCm: updated.waistCm
+        }
+      );
 
       // Recalculate visceral fat score dynamically from updated body fat
       const nextVisceral =
@@ -837,10 +917,8 @@ export default function App() {
     updateClientAndSync(clientId, (c) => {
       const updatedPrList = [...c.prList];
       newSession.exercises.forEach((ex) => {
-        const prSet = ex.sets.find((s) => s.isPR);
-        if (prSet) {
-          const est1RM = +(prSet.weightKg * (1 + prSet.reps / 30)).toFixed(1);
-          const deltaKg = +(prSet.weightKg - ex.historicalBestKg).toFixed(1);
+        const bestPr = extractBestPRSet(ex.sets, ex.historicalBestKg);
+        if (bestPr) {
           const existingIdx = updatedPrList.findIndex(
             (p) => p.exerciseName.toLowerCase() === ex.name.toLowerCase()
           );
@@ -848,10 +926,10 @@ export default function App() {
             id: `pr-${Date.now()}-${Math.random()}`,
             exerciseName: ex.name,
             category: ex.category,
-            weightKg: prSet.weightKg,
-            reps: prSet.reps,
-            est1RM,
-            deltaKg: deltaKg > 0 ? deltaKg : 2.5,
+            weightKg: bestPr.weightKg,
+            reps: bestPr.reps,
+            est1RM: bestPr.est1RM,
+            deltaKg: bestPr.deltaKg,
             achievedDate: newSession.date,
             note: `Sesi #${newSession.sessionNumber} · RPE ${newSession.rpe}`
           };
@@ -1049,14 +1127,17 @@ export default function App() {
       targetClient = clients.find((c) => c.id === target.clientId);
     }
 
-    // Fallback: If request still not found, check INITIAL_CLIENTS for default pendingReschedule (e.g. k-02)
-    if (!req) {
+    // Fallback: Only check INITIAL_CLIENTS if targetClient is completely unknown in current state
+    if (!req && !targetClient) {
       const clientIdToCheck = typeof target === 'string' ? target : target?.clientId;
       const initialMatch = INITIAL_CLIENTS.find((c) => c.id === clientIdToCheck);
       if (initialMatch?.pendingReschedule) {
         req = initialMatch.pendingReschedule;
-        if (!targetClient) targetClient = initialMatch;
+        targetClient = initialMatch;
       }
+    } else if (!req && targetClient && targetClient.rescheduleHistory && targetClient.rescheduleHistory.length > 0) {
+      // If pending was actioned, show the latest historical decision entry in read-only mode
+      req = targetClient.rescheduleHistory[0];
     }
 
     if (targetClient && req) {
@@ -1169,6 +1250,43 @@ export default function App() {
     showToast('Data medis lanjut, makronutrisi & referensi awal berhasil disimpan!');
   };
 
+  const handleSaveRecurringSessions = (
+    clientId: string,
+    newSlots: ScheduledSlot[],
+    firstSessionAsNext: boolean
+  ) => {
+    updateClientAndSync(clientId, (c) => {
+      const existingSlots = c.scheduledSessions || [];
+      const mergedSlots = [...existingSlots];
+      newSlots.forEach((slot) => {
+        const idx = mergedSlots.findIndex((s) => s.date === slot.date && s.time === slot.time);
+        if (idx >= 0) {
+          mergedSlots[idx] = slot;
+        } else {
+          mergedSlots.push(slot);
+        }
+      });
+      mergedSlots.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+
+      const updatedNext =
+        firstSessionAsNext && newSlots.length > 0
+          ? {
+              date: newSlots[0].date,
+              time: newSlots[0].time,
+              location: newSlots[0].location,
+              focus: newSlots[0].focus,
+              confirmed: true
+            }
+          : c.nextSession;
+
+      return {
+        ...c,
+        nextSession: updatedNext,
+        scheduledSessions: mergedSlots
+      };
+    });
+  };
+
   if (isLocked) {
     return (
       <LoginScreen
@@ -1206,6 +1324,10 @@ export default function App() {
     drawerOpen ||
       showAddClientModal ||
       showNotificationCenter ||
+      showRescheduleHubModal ||
+      showBatchScheduleModal ||
+      showProgressReportModal ||
+      showPushPromptModal ||
       reviewingRescheduleData ||
       metricsModalClientId ||
       logSessionClientId ||
@@ -1213,6 +1335,220 @@ export default function App() {
       changePinClientId ||
       childOverlayActive
   );
+
+  const pendingRescheduleCount = clients.filter(
+    (c) => c.pendingReschedule && c.pendingReschedule.status === 'pending'
+  ).length;
+
+  const dockTabs = isCoachOrAdmin(currentUserRole)
+    ? [
+        {
+          key: 'dashboard',
+          label: 'Beranda',
+          ariaLabel: 'Kembali ke Dashboard Utama',
+          icon: LayoutDashboard,
+          isActive: activeNav === 'dashboard' && !selectedClientId,
+          badge: 0,
+          onPress: () => {
+            setSelectedClientId(null);
+            setShowFullSessionHistory(false);
+            setActiveNav('dashboard');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        },
+        {
+          key: 'members',
+          label: 'Member',
+          ariaLabel: 'Direktori Member Fitness Center',
+          icon: Users,
+          isActive: Boolean(selectedClientId),
+          badge: 0,
+          onPress: () => {
+            if (selectedClientId) {
+              setSelectedClientId(null);
+              setShowFullSessionHistory(false);
+              setActiveNav('dashboard');
+              setTimeout(() => {
+                document.getElementById('memberSection')?.scrollIntoView({ behavior: 'smooth' });
+              }, 80);
+            } else if (activeNav !== 'dashboard') {
+              setActiveNav('dashboard');
+              setTimeout(() => {
+                document.getElementById('memberSection')?.scrollIntoView({ behavior: 'smooth' });
+              }, 80);
+            } else {
+              document.getElementById('memberSection')?.scrollIntoView({ behavior: 'smooth' });
+            }
+          }
+        },
+        {
+          key: 'calendar',
+          label: 'Jadwal',
+          ariaLabel: 'Jadwal & Kalender Sesi PT',
+          icon: Calendar,
+          isActive: activeNav === 'calendar' && !selectedClientId,
+          badge: pendingRescheduleCount,
+          onPress: () => {
+            setSelectedClientId(null);
+            setShowFullSessionHistory(false);
+            setActiveNav('calendar');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        },
+        {
+          key: 'settings',
+          label: 'Pengaturan',
+          ariaLabel: 'Pengaturan Gym & Profil Coach',
+          icon: Settings,
+          isActive: activeNav === 'profile' && !selectedClientId,
+          badge: 0,
+          onPress: () => {
+            setSelectedClientId(null);
+            setShowFullSessionHistory(false);
+            setActiveNav('profile');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }
+      ]
+    : [
+        {
+          key: 'dashboard',
+          label: 'Beranda',
+          ariaLabel: 'Kembali ke Dashboard Utama',
+          icon: LayoutDashboard,
+          isActive: activeNav === 'dashboard' && !selectedClientId,
+          badge: 0,
+          onPress: () => {
+            setSelectedClientId(null);
+            setShowFullSessionHistory(false);
+            setActiveNav('dashboard');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        },
+        {
+          key: 'cockpit',
+          label: 'Kokpit PT',
+          ariaLabel: 'Kokpit Latihan & Biometrik Saya',
+          icon: Activity,
+          isActive: Boolean(selectedClientId),
+          badge: 0,
+          onPress: () => {
+            const targetId = currentClient?.id || currentUserSession?.clientId || 'k-01';
+            handleSelectClient(targetId);
+          }
+        },
+        {
+          key: 'calendar',
+          label: 'Jadwal',
+          ariaLabel: 'Jadwal Sesi PT Saya',
+          icon: Calendar,
+          isActive: activeNav === 'calendar' && !selectedClientId,
+          badge: 0,
+          onPress: () => {
+            setSelectedClientId(null);
+            setShowFullSessionHistory(false);
+            setActiveNav('calendar');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        },
+        {
+          key: 'profile',
+          label: 'Profil',
+          ariaLabel: 'Profil & Keamanan PIN Saya',
+          icon: User,
+          isActive: activeNav === 'profile' && !selectedClientId,
+          badge: 0,
+          onPress: () => {
+            setSelectedClientId(null);
+            setShowFullSessionHistory(false);
+            setActiveNav('profile');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }
+      ];
+
+  const fabActions = selectedClient
+    ? [
+        {
+          key: 'log-session-member',
+          label: `Catat Sesi PT — ${selectedClient.nama_lengkap.split(' ')[0]}`,
+          icon: Dumbbell,
+          tone: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+          onPress: () => setLogSessionClientId(selectedClient.id)
+        },
+        {
+          key: 'update-metrics-member',
+          label: 'Update Timbang & Metrik',
+          icon: Scale,
+          tone: 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30',
+          onPress: () => setMetricsModalClientId(selectedClient.id)
+        },
+        {
+          key: 'reschedule-member',
+          label: 'Atur Ulang Jadwal Sesi',
+          icon: CalendarClock,
+          tone: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
+          onPress: () => setRescheduleClientId(selectedClient.id)
+        }
+      ]
+    : activeNav === 'calendar'
+    ? [
+        {
+          key: 'log-session-cal',
+          label: 'Catat Sesi PT Baru',
+          icon: Dumbbell,
+          tone: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+          onPress: () => setLogSessionClientId(clients[0]?.id || 'k-01')
+        },
+        {
+          key: 'reschedule-hub-cal',
+          label: `Pusat Reschedule${pendingRescheduleCount > 0 ? ` (${pendingRescheduleCount})` : ''}`,
+          icon: CalendarClock,
+          tone: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
+          onPress: () => setShowRescheduleHubModal(true)
+        },
+        {
+          key: 'add-member-cal',
+          label: 'Tambah Member Baru',
+          icon: UserPlus,
+          tone: 'bg-teal-500/20 text-teal-400 border border-teal-500/30',
+          onPress: () => setShowAddClientModal(true)
+        }
+      ]
+    : [
+        {
+          key: 'add-member-dash',
+          label: 'Tambah Member Baru',
+          icon: UserPlus,
+          tone: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+          onPress: () => setShowAddClientModal(true)
+        },
+        {
+          key: 'log-session-dash',
+          label: 'Catat Sesi PT Baru',
+          icon: Dumbbell,
+          tone: 'bg-teal-500/20 text-teal-400 border border-teal-500/30',
+          onPress: () => setLogSessionClientId(clients[0]?.id || 'k-01')
+        },
+        {
+          key: 'reschedule-hub-dash',
+          label: `Pusat Reschedule${pendingRescheduleCount > 0 ? ` (${pendingRescheduleCount})` : ''}`,
+          icon: CalendarClock,
+          tone: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
+          onPress: () => setShowRescheduleHubModal(true)
+        }
+      ];
+
+  const isFabVisible =
+    !isAnyOverlayOpen &&
+    activeNav !== 'profile' &&
+    (!isScrollingDown || isFabMenuOpen);
+
+  const coachWhatsAppNumber = (
+    gymSettings?.contactWhatsApp ||
+    coach.whatsapp ||
+    INITIAL_COACH_PROFILE.whatsapp
+  ).replace(/\D/g, '');
 
   return (
     <div className="bg-[#0B0F17] text-neutral-200 font-sans antialiased min-h-screen selection:bg-emerald-500/20 selection:text-emerald-300">
@@ -1286,12 +1622,12 @@ export default function App() {
               type="button"
               onClick={() => setShowNotificationCenter(true)}
               aria-label="Buka Pusat Notifikasi Push"
-              className="relative min-w-[36px] min-h-[36px] p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-neutral-300 hover:text-white flex items-center justify-center transition active:scale-95"
+              className="relative min-w-[44px] min-h-[44px] p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-neutral-300 hover:text-white flex items-center justify-center transition active:scale-95"
               title="Pusat Notifikasi Push"
             >
               <Bell className="w-4 h-4 text-neutral-300" />
               {unreadNotificationCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center shadow-md animate-pulse">
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center shadow-md animate-pulse">
                   {unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}
                 </span>
               )}
@@ -1301,9 +1637,9 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setShowAddClientModal(true)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 text-xs font-semibold transition active:scale-95 shadow-sm"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 text-xs font-semibold whitespace-nowrap transition active:scale-95 shadow-sm"
               >
-                <UserPlus className="w-3.5 h-3.5" />
+                <UserPlus className="w-4 h-4 shrink-0" />
                 <span className="hidden sm:inline">+ Member</span>
               </button>
             )}
@@ -1315,7 +1651,7 @@ export default function App() {
                 setShowFullSessionHistory(false);
                 setActiveNav('profile');
               }}
-              className={`w-8 h-8 rounded-full p-[1.5px] transition active:scale-95 shadow-sm focus:outline-none ${
+              className={`w-10 h-10 min-w-[44px] min-h-[44px] rounded-full p-[1.5px] transition active:scale-95 shadow-sm focus:outline-none ${
                 currentUserRole === 'coach'
                   ? 'bg-gradient-to-tr from-amber-500 to-emerald-400'
                   : currentUserRole === 'client'
@@ -1324,12 +1660,24 @@ export default function App() {
               }`}
               title="Profil & Pengaturan"
             >
-              <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-[10px] font-bold text-white">
-                {currentUserRole === 'coach'
-                  ? coach.initials || 'PAS'
-                  : currentUserRole === 'client'
-                  ? 'BS'
-                  : 'ADM'}
+              <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-[10px] font-bold text-white overflow-hidden">
+                {currentUserRole === 'coach' ? (
+                  coach.avatarUrl ? (
+                    <img src={coach.avatarUrl} alt={coach.name} className="w-full h-full object-cover" />
+                  ) : (
+                    coach.initials || 'PAS'
+                  )
+                ) : currentUserRole === 'client' ? (
+                  currentClient?.avatarUrl ? (
+                    <img src={currentClient.avatarUrl} alt={currentClient.nama_lengkap} className="w-full h-full object-cover" />
+                  ) : (
+                    currentClient?.initials || 'BS'
+                  )
+                ) : coach.avatarUrl ? (
+                  <img src={coach.avatarUrl} alt="Admin" className="w-full h-full object-cover" />
+                ) : (
+                  'ADM'
+                )}
               </div>
             </button>
           </div>
@@ -1366,7 +1714,9 @@ export default function App() {
                   <>
                     {timeGreeting},{' '}
                     <strong className="text-white font-semibold">
-                      {currentUserSession?.displayName || 'Budi Santoso'}
+                      {currentUserSession?.role === 'client'
+                        ? currentUserSession.displayName
+                        : currentClient?.nama_lengkap || 'Budi Santoso'}
                     </strong>{' '}
                     <span className="text-blue-400 font-medium">(Member PT)</span>
                   </>
@@ -1381,6 +1731,7 @@ export default function App() {
               </span>
             </div>
             <div className="flex items-center gap-2">
+              <OfflineSyncBadge />
               <button
                 type="button"
                 onClick={() => {
@@ -1394,7 +1745,7 @@ export default function App() {
                     showToast('Beralih ke tampilan Head Coach (Panji Akbar Syamsi)');
                   }
                 }}
-                className="min-h-[30px] px-2.5 py-1 rounded-full bg-white/[0.05] hover:bg-white/[0.1] active:bg-white/[0.15] border border-white/[0.08] text-[10px] text-neutral-300 hover:text-white flex items-center gap-1.5 transition active:scale-95 shadow-sm font-semibold shrink-0"
+                className="min-h-[36px] px-3 py-1.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] active:bg-white/[0.15] border border-white/[0.08] text-[11px] text-neutral-300 hover:text-white flex items-center gap-1.5 transition active:scale-95 shadow-sm font-semibold shrink-0 whitespace-nowrap"
                 title="Beralih perspektif Coach ↔ Member PT"
               >
                 <span>{currentUserRole === 'coach' ? '👁️ Mode Member' : '👁️ Mode Coach'}</span>
@@ -1458,12 +1809,24 @@ export default function App() {
                         : 'bg-gradient-to-tr from-amber-500 to-purple-400'
                     }`}
                   >
-                    <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-xs font-bold text-white">
-                      {currentUserRole === 'coach'
-                        ? coach.initials || 'PAS'
-                        : currentUserRole === 'client'
-                        ? 'BS'
-                        : 'ADM'}
+                    <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-xs font-bold text-white overflow-hidden">
+                      {currentUserRole === 'coach' ? (
+                        coach.avatarUrl ? (
+                          <img src={coach.avatarUrl} alt={coach.name} className="w-full h-full object-cover" />
+                        ) : (
+                          coach.initials || 'PAS'
+                        )
+                      ) : currentUserRole === 'client' ? (
+                        currentClient?.avatarUrl ? (
+                          <img src={currentClient.avatarUrl} alt={currentClient.nama_lengkap} className="w-full h-full object-cover" />
+                        ) : (
+                          currentClient?.initials || 'BS'
+                        )
+                      ) : coach.avatarUrl ? (
+                        <img src={coach.avatarUrl} alt="Admin" className="w-full h-full object-cover" />
+                      ) : (
+                        'ADM'
+                      )}
                     </div>
                   </div>
                   <div className="min-w-0">
@@ -1642,6 +2005,32 @@ export default function App() {
                   )}
                 </button>
 
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPushPromptModal(true);
+                    setDrawerOpen(false);
+                  }}
+                  className="w-full min-h-[44px] flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-neutral-300 hover:text-white hover:bg-white/[0.04] font-medium text-xs transition active:scale-[0.98]"
+                >
+                  <Bell className="w-4 h-4 text-emerald-400" />
+                  <span>Aktivasi Notifikasi Layar Kunci (PWA)</span>
+                </button>
+
+                {isCoachOrAdmin(currentUserRole) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowBatchScheduleModal(true);
+                      setDrawerOpen(false);
+                    }}
+                    className="w-full min-h-[44px] flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-neutral-300 hover:text-white hover:bg-white/[0.04] font-medium text-xs transition active:scale-[0.98]"
+                  >
+                    <Layers className="w-4 h-4 text-cyan-400" />
+                    <span>Jadwalkan Paket Berulang (Batch)</span>
+                  </button>
+                )}
+
                 {isCoachOrAdmin(currentUserRole) && (
                   <button
                     type="button"
@@ -1726,12 +2115,24 @@ export default function App() {
                         : 'bg-gradient-to-tr from-amber-500 to-purple-400'
                     }`}
                   >
-                    <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-xs font-bold text-white">
-                      {currentUserRole === 'coach'
-                        ? coach.initials || 'PAS'
-                        : currentUserRole === 'client'
-                        ? 'BS'
-                        : 'ADM'}
+                    <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-xs font-bold text-white overflow-hidden">
+                      {currentUserRole === 'coach' ? (
+                        coach.avatarUrl ? (
+                          <img src={coach.avatarUrl} alt={coach.name} className="w-full h-full object-cover" />
+                        ) : (
+                          coach.initials || 'PAS'
+                        )
+                      ) : currentUserRole === 'client' ? (
+                        currentClient?.avatarUrl ? (
+                          <img src={currentClient.avatarUrl} alt={currentClient.nama_lengkap} className="w-full h-full object-cover" />
+                        ) : (
+                          currentClient?.initials || 'BS'
+                        )
+                      ) : coach.avatarUrl ? (
+                        <img src={coach.avatarUrl} alt="Admin" className="w-full h-full object-cover" />
+                      ) : (
+                        'ADM'
+                      )}
                     </div>
                   </div>
                   <div className="min-w-0 truncate">
@@ -1770,121 +2171,52 @@ export default function App() {
         </div>
       )}
 
-      {/* Elevated Center Dock (HTML + Tailwind CSS tailored for PelatihKu PRO) */}
+      {/* ───────────────────────────────────────────────────────────────
+          iOS-style Bottom Tab Bar — flat, translucent, safe-area aware.
+          Role-aware tabs (Coach/Admin vs Member). No duplicate "Menu"
+          (hamburger lives in the header) and no competing center button:
+          the FAB is the ONLY primary action on screen.
+         ─────────────────────────────────────────────────────────────── */}
       <nav
         aria-label="Navigasi Utama PelatihKu"
-        className={`fixed inset-x-0 bottom-4 pb-[env(safe-area-inset-bottom,0px)] px-4 max-w-sm mx-auto z-40 select-none pointer-events-none transition-all duration-300 ${
-          isAnyOverlayOpen ? 'opacity-0 translate-y-8 pointer-events-none' : 'opacity-100 translate-y-0'
+        className={`fixed inset-x-0 bottom-0 z-40 select-none bg-[#0B0F17]/80 backdrop-blur-2xl border-t border-white/[0.08] shadow-[0_-8px_32px_-12px_rgba(0,0,0,0.7)] pb-[env(safe-area-inset-bottom,0px)] transition-all duration-300 ${
+          isAnyOverlayOpen ? 'opacity-0 translate-y-full pointer-events-none' : 'opacity-100 translate-y-0'
         }`}
       >
-        <div className="relative flex items-center justify-between px-5 py-2.5 rounded-[26px] bg-[#0c1322]/85 backdrop-blur-2xl border border-white/[0.12] shadow-[0_16px_48px_-8px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.12)] pointer-events-auto">
-          {/* 1. Jadwal & Kalender */}
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedClientId(null);
-              setShowFullSessionHistory(false);
-              setActiveNav('calendar');
-              setDrawerOpen(false);
-            }}
-            className={`flex flex-col items-center gap-1 px-2 min-w-[44px] transition ${
-              activeNav === 'calendar'
-                ? 'text-emerald-400 font-semibold'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <Calendar className="w-5 h-5" />
-            <span className="text-[10px]">Jadwal</span>
-          </button>
-
-          {/* 2. Cari (Coach/Admin) OR Kokpit Latihan (Client) */}
-          {currentUserRole === 'client' ? (
-            <button
-              type="button"
-              onClick={() => {
-                handleSelectClient(currentClient.id);
-                setDrawerOpen(false);
-              }}
-              className={`flex flex-col items-center gap-1 px-2 min-w-[44px] transition ${
-                selectedClientId === currentClient.id
-                  ? 'text-emerald-400 font-semibold'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <Activity className="w-5 h-5" />
-              <span className="text-[10px]">Kokpit</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedClientId(null);
-                setShowFullSessionHistory(false);
-                setActiveNav('dashboard');
-                setDrawerOpen(false);
-                setTimeout(() => {
-                  tableSearchInputRef.current?.focus();
-                  tableSearchInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 50);
-              }}
-              className="flex flex-col items-center gap-1 px-2 min-w-[44px] text-slate-400 hover:text-white transition"
-            >
-              <Search className="w-5 h-5" />
-              <span className="text-[10px]">Cari</span>
-            </button>
-          )}
-
-          {/* 3. Elevated Center Home Anchor */}
-          <div className="relative -top-5 flex flex-col items-center scale-110">
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedClientId(null);
-                setShowFullSessionHistory(false);
-                setActiveNav('dashboard');
-                setDrawerOpen(false);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="relative w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-500 to-emerald-300 text-slate-950 flex items-center justify-center border border-white/20 shadow-[0_0_20px_-4px_rgba(16,185,129,0.6)] active:scale-95 transition-transform"
-              aria-label="Kembali ke Dashboard Utama"
-            >
-              <Dumbbell className="w-6 h-6 stroke-[2.2]" />
-            </button>
-            <span className="text-[10px] font-bold text-emerald-400 mt-1">Home</span>
-          </div>
-
-          {/* 4. Menu Drawer */}
-          <button
-            type="button"
-            onClick={() => setDrawerOpen((prev) => !prev)}
-            className={`flex flex-col items-center gap-1 px-2 min-w-[44px] transition ${
-              drawerOpen
-                ? 'text-emerald-400 font-semibold'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <Menu className="w-5 h-5" />
-            <span className="text-[10px]">Menu</span>
-          </button>
-
-          {/* 5. Profil Coach */}
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedClientId(null);
-              setShowFullSessionHistory(false);
-              setActiveNav('profile');
-              setDrawerOpen(false);
-            }}
-            className={`flex flex-col items-center gap-1 px-2 min-w-[44px] transition ${
-              activeNav === 'profile'
-                ? 'text-emerald-400 font-semibold'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <User className="w-5 h-5" />
-            <span className="text-[10px]">Profil</span>
-          </button>
+        <div className="max-w-xl mx-auto grid grid-cols-4 h-16 px-2">
+          {dockTabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={tab.onPress}
+                aria-label={tab.ariaLabel}
+                aria-current={tab.isActive ? 'page' : undefined}
+                className="relative flex flex-col items-center justify-center gap-0.5 min-h-[48px] min-w-[44px] rounded-2xl transition active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60"
+              >
+                <span
+                  className={`relative flex items-center justify-center w-14 h-8 rounded-full transition-colors duration-200 ${
+                    tab.isActive ? 'bg-emerald-500/15 text-emerald-400' : 'text-neutral-400'
+                  }`}
+                >
+                  <Icon className={`w-5 h-5 ${tab.isActive ? 'stroke-[2.4]' : 'stroke-2'}`} />
+                  {tab.badge > 0 && (
+                    <span className="absolute top-0 right-2.5 min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-slate-950 text-[9px] font-bold flex items-center justify-center ring-2 ring-[#0B0F17]">
+                      {tab.badge > 9 ? '9+' : tab.badge}
+                    </span>
+                  )}
+                </span>
+                <span
+                  className={`text-[10px] leading-none tracking-tight ${
+                    tab.isActive ? 'text-emerald-400 font-semibold' : 'text-neutral-400 font-medium'
+                  }`}
+                >
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </nav>
 
@@ -1892,70 +2224,49 @@ export default function App() {
       {isFabMenuOpen && (
         <div
           onClick={() => setIsFabMenuOpen(false)}
-          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-[2px] transition-opacity"
+          aria-hidden="true"
+          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-[2px] transition-opacity"
         />
       )}
 
-      {/* Floating Action Button (FAB) — Gym Floor Speed Dial & Rapid Action */}
+      {/* Floating Action Button — single primary action, context-aware.
+          Auto-hides on scroll-down, on settings/profile, and when any overlay is open. */}
       <div
-        className={`fixed bottom-6 right-5 z-40 flex flex-col items-end gap-2.5 transition-all duration-300 ${
-          isAnyOverlayOpen ? 'opacity-0 pointer-events-none scale-75' : 'opacity-100 pointer-events-auto scale-100'
+        className={`fixed right-5 bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] z-40 flex flex-col items-end gap-2.5 transition-all duration-300 ${
+          isFabVisible ? 'opacity-100 pointer-events-auto scale-100' : 'opacity-0 pointer-events-none scale-90'
         }`}
       >
-        {/* Speed Dial Menu for Coach / Admin */}
+        {/* Contextual Speed Dial (Coach / Admin) */}
         {isCoachOrAdmin(currentUserRole) && isFabMenuOpen && (
-          <div className="flex flex-col items-end gap-2 mb-1 animate-in fade-in slide-in-from-bottom-3 duration-200">
-            {/* Action 1: Catat Sesi PT Baru */}
-            <button
-              type="button"
-              onClick={() => {
-                setIsFabMenuOpen(false);
-                const targetClientId = selectedClientId || (clients[0] && clients[0].id) || 'k-01';
-                setLogSessionClientId(targetClientId);
-              }}
-              className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl bg-[#111726]/95 backdrop-blur-xl border border-emerald-500/30 text-white shadow-xl hover:bg-emerald-500/10 active:scale-95 transition text-xs font-semibold group cursor-pointer"
-            >
-              <span className="text-emerald-400 group-hover:text-emerald-300">Catat Sesi PT Baru</span>
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
-                <Dumbbell className="w-4 h-4 stroke-[2.2]" />
-              </div>
-            </button>
-
-            {/* Action 2: Tambah Member Baru */}
-            <button
-              type="button"
-              onClick={() => {
-                setIsFabMenuOpen(false);
-                setShowAddClientModal(true);
-              }}
-              className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl bg-[#111726]/95 backdrop-blur-xl border border-teal-500/30 text-white shadow-xl hover:bg-teal-500/10 active:scale-95 transition text-xs font-semibold group cursor-pointer"
-            >
-              <span className="text-teal-300 group-hover:text-teal-200">Tambah Member Baru</span>
-              <div className="w-9 h-9 rounded-xl bg-teal-500/20 text-teal-300 border border-teal-500/30 flex items-center justify-center">
-                <UserPlus className="w-4 h-4 stroke-[2.2]" />
-              </div>
-            </button>
-
-            {/* Action 3: Kalender & Sesi PT */}
-            <button
-              type="button"
-              onClick={() => {
-                setIsFabMenuOpen(false);
-                setSelectedClientId(null);
-                setShowFullSessionHistory(false);
-                setActiveNav('calendar');
-              }}
-              className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl bg-[#111726]/95 backdrop-blur-xl border border-amber-500/30 text-white shadow-xl hover:bg-amber-500/10 active:scale-95 transition text-xs font-semibold group cursor-pointer"
-            >
-              <span className="text-amber-300 group-hover:text-amber-200">Jadwal & Sesi</span>
-              <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center">
-                <Calendar className="w-4 h-4 stroke-[2.2]" />
-              </div>
-            </button>
+          <div
+            role="menu"
+            aria-label="Aksi Cepat Lantai Gym"
+            className="flex flex-col items-end gap-2 mb-1 animate-in fade-in slide-in-from-bottom-3 duration-200"
+          >
+            {fabActions.map((action) => {
+              const Icon = action.icon;
+              return (
+                <button
+                  key={action.key}
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setIsFabMenuOpen(false);
+                    action.onPress();
+                  }}
+                  className="min-h-[44px] flex items-center gap-2.5 pl-3.5 pr-1.5 py-1.5 rounded-full bg-[#111726]/95 backdrop-blur-xl border border-white/[0.1] text-white shadow-xl hover:bg-white/[0.06] active:scale-95 transition text-xs font-semibold"
+                >
+                  <span className="max-w-[200px] truncate">{action.label}</span>
+                  <span className={`w-9 h-9 rounded-full flex items-center justify-center ${action.tone}`}>
+                    <Icon className="w-4 h-4 stroke-[2.2]" />
+                  </span>
+                </button>
+              );
+            })}
           </div>
         )}
 
-        {/* Primary Circular FAB Button (Strictly w-14 h-14 rounded-full) */}
+        {/* Primary Circular FAB (strictly w-14 h-14 rounded-full) */}
         <button
           type="button"
           onClick={() => {
@@ -1963,15 +2274,23 @@ export default function App() {
               setIsFabMenuOpen((prev) => !prev);
             } else {
               window.open(
-                `https://wa.me/${INITIAL_COACH_PROFILE.whatsapp}?text=${encodeURIComponent(
-                  'Halo Coach Panji, saya ingin berkonsultasi mengenai sesi latihan PT dan target kebugaran saya.'
+                `https://wa.me/${coachWhatsAppNumber}?text=${encodeURIComponent(
+                  `Halo ${coach.name || 'Coach Panji'}, saya ingin berkonsultasi mengenai sesi PT dan target kebugaran saya.`
                 )}`,
-                '_blank'
+                '_blank',
+                'noopener,noreferrer'
               );
             }
           }}
-          aria-label={isCoachOrAdmin(currentUserRole) ? 'Aksi Cepat Lantai Gym' : 'Konsultasi WhatsApp Coach Panji'}
-          className="w-14 h-14 min-w-[56px] min-h-[56px] rounded-full bg-gradient-to-tr from-emerald-500 to-teal-300 text-slate-950 flex items-center justify-center border border-white/25 shadow-[0_8px_30px_rgba(16,185,129,0.5)] active:scale-90 transition-all duration-300 cursor-pointer"
+          aria-label={
+            isCoachOrAdmin(currentUserRole)
+              ? isFabMenuOpen
+                ? 'Tutup Aksi Cepat'
+                : 'Buka Aksi Cepat Lantai Gym'
+              : 'Konsultasi WhatsApp dengan Coach'
+          }
+          aria-expanded={isCoachOrAdmin(currentUserRole) ? isFabMenuOpen : undefined}
+          className="w-14 h-14 min-w-[56px] min-h-[56px] rounded-full bg-gradient-to-tr from-emerald-500 to-teal-300 text-slate-950 flex items-center justify-center border border-white/25 shadow-[0_8px_28px_rgba(16,185,129,0.45)] active:scale-90 transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-400/40"
         >
           {isCoachOrAdmin(currentUserRole) ? (
             <Plus
@@ -2026,6 +2345,14 @@ export default function App() {
             onRejectReschedule={handleRejectReschedule}
             onCancelReschedule={handleCancelReschedule}
             onOpenReviewReschedule={handleOpenReviewReschedule}
+            onOpenProgressReport={() => {
+              setProgressReportClient(selectedClient);
+              setShowProgressReportModal(true);
+            }}
+            onOpenBatchSchedule={() => {
+              setBatchScheduleInitialClientId(selectedClient.id);
+              setShowBatchScheduleModal(true);
+            }}
           />
         ) : activeNav === 'calendar' ? (
           <SessionsCalendarView
@@ -2038,6 +2365,10 @@ export default function App() {
             }}
             onOpenLogSession={(clientId) => setLogSessionClientId(clientId)}
             onOpenReschedule={(clientId) => setRescheduleClientId(clientId)}
+            onOpenBatchSchedule={(cid) => {
+              setBatchScheduleInitialClientId(cid);
+              setShowBatchScheduleModal(true);
+            }}
             onApproveReschedule={handleApproveReschedule}
             onRejectReschedule={handleRejectReschedule}
             onCancelReschedule={handleCancelReschedule}
@@ -2080,13 +2411,6 @@ export default function App() {
           />
         ) : activeNav === 'profile' ? (
           <div className="space-y-4">
-            <button
-              type="button"
-              onClick={() => setActiveNav('dashboard')}
-              className="text-xs font-semibold text-emerald-400 hover:underline flex items-center gap-1"
-            >
-              ← Kembali ke Dashboard
-            </button>
             {currentUserRole === 'client' ? (
               <ClientProfileView
                 client={
@@ -2095,6 +2419,14 @@ export default function App() {
                 }
                 coach={coach}
                 gymSettings={gymSettings}
+                onUpdateClient={(payload) => {
+                  const targetClient =
+                    clients.find((c) => c.id === (currentUserSession?.clientId || 'k-01')) ||
+                    clients[0];
+                  if (targetClient) {
+                    handleEditClient(targetClient.id, payload);
+                  }
+                }}
                 onBackToDashboard={() => setActiveNav('dashboard')}
                 onNotify={showToast}
                 onLogoutConfirmed={() => {
@@ -2124,11 +2456,23 @@ export default function App() {
                   });
                 }}
                 onUpdateGymSettings={(updatedGym) => {
+                  const prev = gymSettings;
                   setGymSettings(updatedGym);
+                  saveGymSettingsToFirestore(updatedGym).catch((err) => {
+                    console.warn('[Firestore] Failed to persist gym settings:', err);
+                    setGymSettings(prev);
+                    showToast('Koneksi terputus: Gagal menyimpan pengaturan gym ke database.');
+                  });
                   showToast('Pengaturan identitas gym & lokasi berhasil disimpan.');
                 }}
                 onUpdateExerciseCatalog={(updatedCatalog) => {
+                  const prev = exerciseCatalog;
                   setExerciseCatalog(updatedCatalog);
+                  saveExerciseCatalogToFirestore(updatedCatalog).catch((err) => {
+                    console.warn('[Firestore] Failed to persist exercise catalog:', err);
+                    setExerciseCatalog(prev);
+                    showToast('Koneksi terputus: Gagal menyimpan katalog gerakan ke database.');
+                  });
                   showToast('Katalog gerakan latihan berhasil diperbarui.');
                 }}
                 onRestoreData={(restoredClients, restoredCoach) => {
@@ -2162,10 +2506,18 @@ export default function App() {
             {/* Search Shortcut & Quick Action Bar */}
             {currentUserRole === 'client' ? (
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-blue-500/10 via-[#111827] to-[#111827] border border-blue-500/25 shadow-lg">
+                <div className="flex items-center justify-between gap-2.5 p-3.5 rounded-2xl bg-gradient-to-r from-blue-500/10 via-[#111827] to-[#111827] border border-blue-500/25 shadow-lg">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-500 to-emerald-400 text-white font-bold flex items-center justify-center text-sm shadow-md shrink-0">
-                      {currentClient.initials}
+                    <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-500 to-emerald-400 text-white font-bold flex items-center justify-center text-sm shadow-md shrink-0 overflow-hidden">
+                      {currentClient.avatarUrl ? (
+                        <img
+                          src={currentClient.avatarUrl}
+                          alt={currentClient.nama_lengkap}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        currentClient.initials
+                      )}
                     </div>
                     <div className="min-w-0">
                       <h2 className="text-sm font-bold text-white tracking-tight truncate">
@@ -2179,9 +2531,9 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => handleSelectClient(currentClient.id)}
-                    className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition active:scale-95 shadow-sm shrink-0 flex items-center gap-1.5"
+                    className="min-h-[44px] px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold whitespace-nowrap transition active:scale-95 shadow-sm shrink-0 flex items-center gap-1.5"
                   >
-                    <Dumbbell className="w-3.5 h-3.5 stroke-[2.5]" />
+                    <Dumbbell className="w-3.5 h-3.5 stroke-[2.5] shrink-0" />
                     <span>Buka Kokpit Latihan</span>
                   </button>
                 </div>
@@ -2190,15 +2542,15 @@ export default function App() {
                 <div className="card-glass hairline-border bg-[#111827]/90 rounded-2xl p-3.5 border border-white/[0.08] shadow-md space-y-3">
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/25 text-blue-400 flex items-center justify-center shrink-0">
+                      <div className="w-9 h-9 rounded-lg bg-blue-500/15 border border-blue-500/25 text-blue-400 flex items-center justify-center shrink-0">
                         <KeyRound className="w-4 h-4" />
                       </div>
                       <div>
                         <span className="text-[10px] text-neutral-400 uppercase tracking-wider block font-semibold">
                           PIN Akses Member
                         </span>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="font-mono text-sm font-bold text-white tracking-widest">
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <span className="font-mono text-sm font-bold text-white tracking-widest tabular-nums">
                             {showDashboardPin
                               ? (currentClient.clientPin || getClientPin(currentClient.id, currentClient.telepon))
                               : '••••••••'}
@@ -2206,18 +2558,19 @@ export default function App() {
                           <button
                             type="button"
                             onClick={() => setShowDashboardPin(!showDashboardPin)}
-                            className="p-1 rounded text-neutral-400 hover:text-white transition"
+                            className="min-w-[44px] min-h-[44px] p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] text-neutral-300 hover:text-white flex items-center justify-center transition active:scale-95"
                             title={showDashboardPin ? 'Sembunyikan PIN' : 'Tampilkan PIN'}
+                            aria-label={showDashboardPin ? 'Sembunyikan PIN' : 'Tampilkan PIN'}
                           >
-                            {showDashboardPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                            {showDashboardPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>
                           <button
                             type="button"
                             onClick={() => setChangePinClientId(currentClient.id)}
-                            className="px-2 py-1 rounded-lg bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/30 text-blue-300 text-xs font-semibold flex items-center gap-1 transition active:scale-95 shadow-sm"
+                            className="min-h-[44px] px-3 py-2 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/30 text-blue-300 text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition active:scale-95 shadow-sm"
                             title="Klik untuk membuka layar ubah PIN"
                           >
-                            <Pencil className="w-3 h-3 text-blue-400" />
+                            <Pencil className="w-3.5 h-3.5 text-blue-400 shrink-0" />
                             <span>Ubah PIN</span>
                           </button>
                         </div>
@@ -2225,7 +2578,7 @@ export default function App() {
                     </div>
 
                     <span
-                      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                      className={`text-xs font-semibold px-2.5 py-1 rounded-full border shrink-0 whitespace-nowrap ${
                         mustChangeClientPin(currentClient.id)
                           ? 'bg-amber-500/15 border-amber-500/30 text-amber-300'
                           : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
@@ -2239,34 +2592,7 @@ export default function App() {
                   <PinChangeHistoryView history={currentClient.pinChangeHistory} compact />
                 </div>
               </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <div className="relative flex-1">
-                  <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Cari member, target PT, sesi..."
-                    className="w-full bg-[#111827]/80 border border-white/[0.08] rounded-xl pl-9 pr-14 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/40 transition"
-                  />
-                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-neutral-500 bg-white/[0.06] border border-white/[0.08] px-1.5 py-0.5 rounded">
-                    ⌘K
-                  </span>
-                </div>
-
-                {isCoachOrAdmin(currentUserRole) && (
-                  <button
-                    type="button"
-                    onClick={() => setShowAddClientModal(true)}
-                    className="shrink-0 flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs transition active:scale-95 shadow-md shadow-emerald-500/20"
-                  >
-                    <UserPlus className="w-4 h-4 stroke-[2.3]" />
-                    <span>Tambah Member</span>
-                  </button>
-                )}
-              </div>
-            )}
+            ) : null}
 
             {/* Asymmetric KPI Bento Grid */}
             <section>
@@ -2426,11 +2752,11 @@ export default function App() {
                         </span>
                         <span className="text-xs text-neutral-400 font-medium">Member</span>
                       </div>
-                      <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-emerald-400">
-                        <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 font-medium font-mono text-[10px]">
+                      <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-emerald-400 min-w-0">
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 font-medium font-mono text-[10px] shrink-0 whitespace-nowrap tabular-nums">
                           {activeMembersCount} Aktif
                         </span>
-                        <span className="text-neutral-400">dari {clients.length} total member</span>
+                        <span className="text-neutral-400 truncate">dari {clients.length} total member</span>
                       </div>
                     </div>
 
@@ -2562,24 +2888,24 @@ export default function App() {
 
                 {/* 3 Metric Pills */}
                 <div className="grid grid-cols-3 gap-2.5 text-xs font-mono">
-                  <div className="bg-[#070e1d] p-3 rounded-xl border border-white/[0.05]">
-                    <span className="text-[10px] font-sans text-neutral-400 block mb-0.5">Berat Terkini</span>
-                    <span className="text-sm font-bold text-white">{currentClient.berat_terkini_kg} kg</span>
-                    <span className="text-[10px] text-emerald-400 block mt-0.5">
+                  <div className="bg-[#070e1d] p-3.5 rounded-xl border border-white/[0.06]">
+                    <span className="text-[11px] font-sans font-medium text-neutral-400 block mb-1">Berat Terkini</span>
+                    <span className="text-lg sm:text-xl font-bold text-white tracking-tight tabular-nums block">{currentClient.berat_terkini_kg} <span className="text-xs font-normal text-neutral-400">kg</span></span>
+                    <span className="text-[10px] text-emerald-400 block mt-1 tabular-nums">
                       {(currentClient.berat_terkini_kg - currentClient.berat_awal_kg).toFixed(1)} kg vs M1
                     </span>
                   </div>
-                  <div className="bg-[#070e1d] p-3 rounded-xl border border-white/[0.05]">
-                    <span className="text-[10px] font-sans text-neutral-400 block mb-0.5">Body Fat</span>
-                    <span className="text-sm font-bold text-amber-400">{currentClient.body_fat_terkini_pct}%</span>
-                    <span className="text-[10px] text-emerald-400 block mt-0.5">
+                  <div className="bg-[#070e1d] p-3.5 rounded-xl border border-white/[0.06]">
+                    <span className="text-[11px] font-sans font-medium text-neutral-400 block mb-1">Body Fat</span>
+                    <span className="text-lg sm:text-xl font-bold text-amber-400 tracking-tight tabular-nums block">{currentClient.body_fat_terkini_pct}<span className="text-xs font-normal text-neutral-400">%</span></span>
+                    <span className="text-[10px] text-emerald-400 block mt-1 tabular-nums">
                       {(currentClient.body_fat_terkini_pct - currentClient.body_fat_awal_pct).toFixed(1)}% vs M1
                     </span>
                   </div>
-                  <div className="bg-[#070e1d] p-3 rounded-xl border border-white/[0.05]">
-                    <span className="text-[10px] font-sans text-neutral-400 block mb-0.5">Lingkar Pinggang</span>
-                    <span className="text-sm font-bold text-cyan-400">{currentClient.lingkar_pinggang_terkini_cm} cm</span>
-                    <span className="text-[10px] text-emerald-400 block mt-0.5">
+                  <div className="bg-[#070e1d] p-3.5 rounded-xl border border-white/[0.06]">
+                    <span className="text-[11px] font-sans font-medium text-neutral-400 block mb-1">Lingkar Pinggang</span>
+                    <span className="text-lg sm:text-xl font-bold text-cyan-400 tracking-tight tabular-nums block">{currentClient.lingkar_pinggang_terkini_cm} <span className="text-xs font-normal text-neutral-400">cm</span></span>
+                    <span className="text-[10px] text-emerald-400 block mt-1 tabular-nums">
                       {(currentClient.lingkar_pinggang_terkini_cm - currentClient.lingkar_pinggang_awal_cm).toFixed(1)} cm
                     </span>
                   </div>
@@ -2615,68 +2941,71 @@ export default function App() {
               </section>
             ) : (
               /* Direktori Member Fitness Center Section (Coach/Admin Only) */
-              <section id="memberSection" className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-sm font-semibold text-white tracking-tight">
+              <section id="memberSection" className="space-y-3.5 pt-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <h2 className="text-base font-bold text-white tracking-tight truncate">
                       Direktori Member Fitness Center
                     </h2>
-                    <p className="text-[11px] text-neutral-400">
+                    <p className="text-xs text-neutral-400 truncate mt-0.5">
                       Kelola dan pantau progres latihan &amp; sesi PT member
                     </p>
                   </div>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-white/[0.06] text-neutral-300 border border-white/[0.08] font-mono">
+                  <span className="text-xs px-2.5 py-1 rounded-full bg-white/[0.06] text-neutral-300 border border-white/[0.08] font-mono shrink-0 whitespace-nowrap tabular-nums">
                     {visibleClients.length} Member Ditampilkan
                   </span>
                 </div>
 
-                {/* Filter Bar: Search, Status, Target */}
-                <div className="card-glass hairline-border rounded-xl p-3 space-y-2.5">
+                {/* Unified Filter Bar: Search (with ⌘K), Status, Target */}
+                <div className="card-glass hairline-border rounded-2xl p-3.5 space-y-2.5">
                   <div className="relative">
-                    <Search className="w-3.5 h-3.5 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
                       ref={tableSearchInputRef}
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Cari nama member (contoh: Budi, Siti)..."
-                      className="w-full bg-[#0B0F17]/90 border border-white/[0.08] rounded-lg pl-8 pr-3 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500/50 transition"
+                      placeholder="Cari member, target PT, sesi (contoh: Budi, Siti)..."
+                      className="w-full min-h-[44px] bg-[#0B0F17]/90 border border-white/[0.08] rounded-xl pl-10 pr-14 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition"
                     />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-neutral-400 bg-white/[0.06] border border-white/[0.08] px-1.5 py-0.5 rounded pointer-events-none">
+                      ⌘K
+                    </span>
                   </div>
 
-                  <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
+                  <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 text-xs">
                     {/* Status Dropdown Filter */}
-                    <div className="flex items-center gap-1 text-[11px] text-neutral-400 shrink-0">
-                      <span>Status:</span>
-                      <div className="relative flex items-center">
+                    <div className="flex items-center gap-1.5 text-[11px] text-neutral-400 flex-1 min-w-[138px]">
+                      <span className="shrink-0">Status:</span>
+                      <div className="relative flex items-center flex-1">
                         <select
                           value={statusFilter}
                           onChange={(e) => setStatusFilter(e.target.value)}
-                          className="bg-[#0B0F17] border border-white/[0.08] rounded-md pl-2 pr-6 py-1 text-neutral-200 text-xs focus:outline-none focus:border-emerald-500/50 appearance-none cursor-pointer"
+                          className="w-full min-h-[44px] bg-[#0B0F17] border border-white/[0.08] rounded-xl pl-2.5 pr-7 py-2 text-neutral-200 text-xs focus:outline-none focus:border-emerald-500/50 appearance-none cursor-pointer"
                         >
                           <option value="Semua">Semua Status</option>
                           <option value="Aktif">Aktif</option>
                           <option value="Cuti">Cuti</option>
                         </select>
-                        <ChevronDown className="w-3 h-3 text-neutral-400 absolute right-1.5 pointer-events-none" />
+                        <ChevronDown className="w-3.5 h-3.5 text-neutral-400 absolute right-2 pointer-events-none" />
                       </div>
                     </div>
 
                     {/* Target Dropdown Filter */}
-                    <div className="flex items-center gap-1 text-[11px] text-neutral-400 shrink-0">
-                      <span>Target:</span>
-                      <div className="relative flex items-center">
+                    <div className="flex items-center gap-1.5 text-[11px] text-neutral-400 flex-1 min-w-[138px]">
+                      <span className="shrink-0">Target:</span>
+                      <div className="relative flex items-center flex-1">
                         <select
                           value={targetFilter}
                           onChange={(e) => setTargetFilter(e.target.value)}
-                          className="bg-[#0B0F17] border border-white/[0.08] rounded-md pl-2 pr-6 py-1 text-neutral-200 text-xs focus:outline-none focus:border-emerald-500/50 appearance-none cursor-pointer"
+                          className="w-full min-h-[44px] bg-[#0B0F17] border border-white/[0.08] rounded-xl pl-2.5 pr-7 py-2 text-neutral-200 text-xs focus:outline-none focus:border-emerald-500/50 appearance-none cursor-pointer"
                         >
                           <option value="Semua">Semua Target</option>
                           <option value="Fat Loss">Fat Loss</option>
                           <option value="Hipertrofi">Hipertrofi</option>
                           <option value="Powerlifting">Powerlifting</option>
                         </select>
-                        <ChevronDown className="w-3 h-3 text-neutral-400 absolute right-1.5 pointer-events-none" />
+                        <ChevronDown className="w-3.5 h-3.5 text-neutral-400 absolute right-2 pointer-events-none" />
                       </div>
                     </div>
 
@@ -2687,9 +3016,9 @@ export default function App() {
                         setStatusFilter('Semua');
                         setTargetFilter('Semua');
                       }}
-                      className="ml-auto text-[11px] text-neutral-400 hover:text-emerald-400 transition underline shrink-0"
+                      className="min-h-[44px] px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-semibold text-neutral-300 hover:text-emerald-400 transition shrink-0 whitespace-nowrap ml-auto"
                     >
-                      Reset
+                      Reset Filter
                     </button>
                   </div>
                 </div>
@@ -2748,28 +3077,38 @@ export default function App() {
                               className="flex items-center gap-2.5 min-w-0 cursor-pointer"
                             >
                               <div
-                                className={`w-9 h-9 rounded-xl bg-gradient-to-br ${avatarGradient} flex items-center justify-center text-xs font-bold text-white shadow-sm shrink-0`}
+                                className={`w-9 h-9 rounded-xl bg-gradient-to-br ${avatarGradient} flex items-center justify-center text-xs font-bold text-white shadow-sm shrink-0 overflow-hidden`}
                               >
-                                {client.initials}
+                                {client.avatarUrl ? (
+                                  <img
+                                    src={client.avatarUrl}
+                                    alt={client.nama_lengkap}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  client.initials
+                                )}
                               </div>
                               <div className="truncate">
-                                <div className="flex items-center gap-1.5">
-                                  <h4 className="text-xs font-semibold text-white tracking-tight truncate">
+                                <div className="flex items-center gap-2">
+                                  <h4 className="text-sm sm:text-base font-bold text-white tracking-tight truncate">
                                     {client.nama_lengkap}
                                   </h4>
-                                  <span className="text-[10px] text-neutral-400">
+                                  <span className="text-[11px] font-medium text-neutral-400 shrink-0">
                                     ({client.usia} thn)
                                   </span>
                                 </div>
-                                <p className="text-[11px] text-neutral-400 flex items-center gap-1">
-                                  <span className="inline-block w-1 h-1 rounded-full bg-neutral-500" />
-                                  {client.gender}
+                                <p className="text-xs text-neutral-400 flex items-center gap-1.5 mt-0.5">
+                                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500/60" />
+                                  <span>{client.gender}</span>
+                                  <span className="text-neutral-600">•</span>
+                                  <span className="font-mono text-[11px] text-neutral-400">{client.code}</span>
                                 </p>
                               </div>
                             </div>
 
                             <span
-                              className={`shrink-0 text-[10px] px-2 py-0.5 rounded-full border font-medium ${statusClass}`}
+                              className={`shrink-0 text-[11px] px-2.5 py-0.5 rounded-full border font-semibold ${statusClass}`}
                             >
                               {client.status}
                             </span>
@@ -2778,28 +3117,28 @@ export default function App() {
                           {/* Target & Metrics Grid */}
                           <div
                             onClick={() => handleSelectClient(client.id)}
-                            className="bg-black/30 rounded-lg p-2.5 hairline-border-subtle grid grid-cols-2 gap-2 text-xs mb-2.5 cursor-pointer"
+                            className="bg-black/30 rounded-xl p-3 hairline-border-subtle grid grid-cols-2 gap-3 text-xs mb-2.5 cursor-pointer"
                           >
                             <div>
-                              <span className="text-[10px] text-neutral-400 block mb-0.5">
-                                Target Program:
+                              <span className="text-[11px] text-neutral-400 block mb-0.5">
+                                Target Program
                               </span>
-                              <span className="text-[11px] font-medium text-neutral-200 truncate block">
+                              <span className="text-xs sm:text-sm font-semibold text-white truncate block">
                                 {client.target_utama}
                               </span>
                             </div>
 
                             <div>
-                              <span className="text-[10px] text-neutral-400 block mb-0.5">
-                                Metrik Berat:
+                              <span className="text-[11px] text-neutral-400 block mb-0.5">
+                                Metrik Berat
                               </span>
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-white font-mono font-medium text-xs">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-white font-mono font-bold text-sm tabular-nums">
                                   {client.berat_terkini_kg}{' '}
-                                  <span className="text-[10px] text-neutral-400">kg</span>
+                                  <span className="text-[11px] font-normal text-neutral-400">kg</span>
                                 </span>
                                 <span
-                                  className={`text-[10px] font-mono px-1 py-0.5 rounded border ${diffBadgeClass}`}
+                                  className={`text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded border tabular-nums ${diffBadgeClass}`}
                                 >
                                   {diffText}
                                 </span>
@@ -3337,6 +3676,46 @@ export default function App() {
               pinChangeHistory: [logEntry, ...(c.pinChangeHistory || [])]
             }));
           }}
+          onNotify={showToast}
+        />
+      )}
+
+      {/* Modal: Penjadwalan Paket Sesi Berulang (Batch Scheduler) */}
+      {showBatchScheduleModal && (
+        <BatchRecurringScheduleModal
+          isOpen={showBatchScheduleModal}
+          onClose={() => {
+            setShowBatchScheduleModal(false);
+            setBatchScheduleInitialClientId(undefined);
+          }}
+          clients={clients}
+          initialClientId={batchScheduleInitialClientId}
+          onSaveRecurringSessions={(cid, slots, asNext) => {
+            handleSaveRecurringSessions(cid, slots, asNext);
+          }}
+          onNotify={showToast}
+        />
+      )}
+
+      {/* Modal: Sertifikat & Laporan Progres Resmi (Print/PDF) */}
+      {showProgressReportModal && progressReportClient && (
+        <ClientProgressReportModal
+          isOpen={showProgressReportModal}
+          onClose={() => {
+            setShowProgressReportModal(false);
+            setProgressReportClient(null);
+          }}
+          client={progressReportClient}
+          coach={coach}
+          onNotify={showToast}
+        />
+      )}
+
+      {/* Modal: Aktivasi Notifikasi Perangkat Web Push */}
+      {showPushPromptModal && (
+        <PushNotificationPromptModal
+          isOpen={showPushPromptModal}
+          onClose={() => setShowPushPromptModal(false)}
           onNotify={showToast}
         />
       )}

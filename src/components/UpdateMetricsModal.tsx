@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   Scale,
@@ -7,7 +7,8 @@ import {
   MessageCircle,
   TrendingDown,
   TrendingUp,
-  ArrowRight
+  ArrowRight,
+  Database
 } from 'lucide-react';
 import { ClientProfile } from '../data/mockData';
 
@@ -31,21 +32,55 @@ export const UpdateMetricsModal: React.FC<UpdateMetricsModalProps> = ({
   onSaveMetrics,
   onNotify
 }) => {
+  const latestTrendPoint =
+    client.weeklyTrend && client.weeklyTrend.length > 0
+      ? client.weeklyTrend[client.weeklyTrend.length - 1]
+      : null;
+
+  // Latest saved values in database prior to this update
+  const lastDbWeight = client.berat_terkini_kg ?? latestTrendPoint?.weightKg ?? client.berat_awal_kg;
+  const lastDbFat = client.body_fat_terkini_pct ?? latestTrendPoint?.bodyFatPct ?? client.body_fat_awal_pct;
+  const lastDbMuscle = client.massa_otot_terkini_kg ?? latestTrendPoint?.muscleMassKg ?? client.massa_otot_awal_kg;
+  const lastDbWaist = client.lingkar_pinggang_terkini_cm ?? latestTrendPoint?.waistCm ?? client.lingkar_pinggang_awal_cm;
+  const lastDbChest = client.lingkar_dada_terkini_cm ?? client.lingkar_dada_awal_cm;
+  const lastDbArm = client.lingkar_lengan_terkini_cm ?? client.lingkar_lengan_awal_cm;
+
   const [step, setStep] = useState<'form' | 'confirmation'>('form');
-  const [weightKg, setWeightKg] = useState<string>(client.berat_terkini_kg.toString());
-  const [bodyFatPct, setBodyFatPct] = useState<string>(client.body_fat_terkini_pct.toString());
-  const [muscleMassKg, setMuscleMassKg] = useState<string>(client.massa_otot_terkini_kg.toString());
-  const [waistCm, setWaistCm] = useState<string>(client.lingkar_pinggang_terkini_cm.toString());
-  const [chestCm, setChestCm] = useState<string>(client.lingkar_dada_terkini_cm.toString());
-  const [armCm, setArmCm] = useState<string>(client.lingkar_lengan_terkini_cm.toString());
+  const [weightKg, setWeightKg] = useState<string>(String(lastDbWeight));
+  const [bodyFatPct, setBodyFatPct] = useState<string>(String(lastDbFat));
+  const [muscleMassKg, setMuscleMassKg] = useState<string>(String(lastDbMuscle));
+  const [waistCm, setWaistCm] = useState<string>(String(lastDbWaist));
+  const [chestCm, setChestCm] = useState<string>(String(lastDbChest));
+  const [armCm, setArmCm] = useState<string>(String(lastDbArm));
   const [copied, setCopied] = useState(false);
 
-  const parsedWeight = parseFloat(weightKg) || client.berat_terkini_kg;
-  const parsedFat = parseFloat(bodyFatPct) || client.body_fat_terkini_pct;
-  const parsedMuscle = parseFloat(muscleMassKg) || client.massa_otot_terkini_kg;
-  const parsedWaist = parseFloat(waistCm) || client.lingkar_pinggang_terkini_cm;
-  const parsedChest = parseFloat(chestCm) || client.lingkar_dada_terkini_cm;
-  const parsedArm = parseFloat(armCm) || client.lingkar_lengan_terkini_cm;
+  // Ensure form always reflects the latest saved database values when opened or updated
+  useEffect(() => {
+    if (step === 'form') {
+      setWeightKg(String(lastDbWeight));
+      setBodyFatPct(String(lastDbFat));
+      setMuscleMassKg(String(lastDbMuscle));
+      setWaistCm(String(lastDbWaist));
+      setChestCm(String(lastDbChest));
+      setArmCm(String(lastDbArm));
+    }
+  }, [
+    client.id,
+    lastDbWeight,
+    lastDbFat,
+    lastDbMuscle,
+    lastDbWaist,
+    lastDbChest,
+    lastDbArm,
+    step
+  ]);
+
+  const parsedWeight = parseFloat(weightKg) || lastDbWeight;
+  const parsedFat = parseFloat(bodyFatPct) || lastDbFat;
+  const parsedMuscle = parseFloat(muscleMassKg) || lastDbMuscle;
+  const parsedWaist = parseFloat(waistCm) || lastDbWaist;
+  const parsedChest = parseFloat(chestCm) || lastDbChest;
+  const parsedArm = parseFloat(armCm) || lastDbArm;
 
   // Automatic 8-week baseline deltas
   const weightDelta = parsedWeight - client.berat_awal_kg;
@@ -172,11 +207,55 @@ Progres sangat konsisten dengan tingkat kepatuhan nutrisi ${client.dietComplianc
               </div>
             </div>
 
+            {/* Database Synced State Info Card — Shows Latest DB Data Prior to Update */}
+            <div className="bg-[#121928] border border-emerald-500/30 rounded-xl p-3.5 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Database className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Data Terakhir Tersimpan di Database (Sebelum Update)</span>
+                </span>
+                <span className="text-[10px] font-mono text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                  {latestTrendPoint?.weekLabel || 'Checkpoint Terkini'}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center text-[11px] font-mono">
+                <div className="bg-[#0b101c] p-2 rounded-lg border border-white/[0.06]">
+                  <span className="text-[10px] text-neutral-400 block">Berat</span>
+                  <span className="font-bold text-white">{lastDbWeight} kg</span>
+                </div>
+                <div className="bg-[#0b101c] p-2 rounded-lg border border-white/[0.06]">
+                  <span className="text-[10px] text-neutral-400 block">Body Fat</span>
+                  <span className="font-bold text-white">{lastDbFat}%</span>
+                </div>
+                <div className="bg-[#0b101c] p-2 rounded-lg border border-white/[0.06]">
+                  <span className="text-[10px] text-neutral-400 block">Massa Otot</span>
+                  <span className="font-bold text-white">{lastDbMuscle} kg</span>
+                </div>
+                <div className="bg-[#0b101c] p-2 rounded-lg border border-white/[0.06]">
+                  <span className="text-[10px] text-neutral-400 block">Pinggang</span>
+                  <span className="font-bold text-white">{lastDbWaist} cm</span>
+                </div>
+                <div className="bg-[#0b101c] p-2 rounded-lg border border-white/[0.06]">
+                  <span className="text-[10px] text-neutral-400 block">Dada</span>
+                  <span className="font-bold text-white">{lastDbChest} cm</span>
+                </div>
+                <div className="bg-[#0b101c] p-2 rounded-lg border border-white/[0.06]">
+                  <span className="text-[10px] text-neutral-400 block">Lengan</span>
+                  <span className="font-bold text-white">{lastDbArm} cm</span>
+                </div>
+              </div>
+            </div>
+
             {/* Primary Biometrics */}
             <div className="space-y-3">
-              <h3 className="text-xs font-semibold text-[#bbcabf]">
-                Komposisi Tubuh Utama
-              </h3>
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-xs font-semibold text-[#bbcabf]">
+                  Komposisi Tubuh Utama
+                </h3>
+                <span className="text-[10px] font-mono text-[#86948a]">
+                  Nilai form terisi otomatis dari data terakhir DB
+                </span>
+              </div>
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs text-[#bbcabf] mb-1">Berat Badan (kg)</label>
@@ -186,8 +265,11 @@ Progres sangat konsisten dengan tingkat kepatuhan nutrisi ${client.dietComplianc
                     required
                     value={weightKg}
                     onChange={(e) => setWeightKg(e.target.value)}
-                    className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-sm font-mono font-semibold text-white focus:outline-none focus:border-[#10b981]"
+                    className="w-full min-h-[46px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-base font-mono font-bold text-white tabular-nums focus:outline-none focus:border-[#10b981]"
                   />
+                  <span className="block text-[10px] font-mono text-[#86948a] mt-1">
+                    Terakhir: <strong className="text-[#bbcabf]">{lastDbWeight} kg</strong>
+                  </span>
                 </div>
                 <div>
                   <label className="block text-xs text-[#bbcabf] mb-1">Body Fat (%)</label>
@@ -197,8 +279,11 @@ Progres sangat konsisten dengan tingkat kepatuhan nutrisi ${client.dietComplianc
                     required
                     value={bodyFatPct}
                     onChange={(e) => setBodyFatPct(e.target.value)}
-                    className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-sm font-mono font-semibold text-white focus:outline-none focus:border-[#10b981]"
+                    className="w-full min-h-[46px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-base font-mono font-bold text-white tabular-nums focus:outline-none focus:border-[#10b981]"
                   />
+                  <span className="block text-[10px] font-mono text-[#86948a] mt-1">
+                    Terakhir: <strong className="text-[#bbcabf]">{lastDbFat}%</strong>
+                  </span>
                 </div>
                 <div>
                   <label className="block text-xs text-[#bbcabf] mb-1">Massa Otot (kg)</label>
@@ -208,17 +293,25 @@ Progres sangat konsisten dengan tingkat kepatuhan nutrisi ${client.dietComplianc
                     required
                     value={muscleMassKg}
                     onChange={(e) => setMuscleMassKg(e.target.value)}
-                    className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-sm font-mono font-semibold text-white focus:outline-none focus:border-[#10b981]"
+                    className="w-full min-h-[46px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-base font-mono font-bold text-white tabular-nums focus:outline-none focus:border-[#10b981]"
                   />
+                  <span className="block text-[10px] font-mono text-[#86948a] mt-1">
+                    Terakhir: <strong className="text-[#bbcabf]">{lastDbMuscle} kg</strong>
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Circumference Measurements */}
             <div className="space-y-3">
-              <h3 className="text-xs font-semibold text-[#bbcabf]">
-                Pengukuran Lingkar Tubuh (Antropometri)
-              </h3>
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-xs font-semibold text-[#bbcabf]">
+                  Pengukuran Lingkar Tubuh (Antropometri)
+                </h3>
+                <span className="text-[10px] font-mono text-[#86948a]">
+                  Baseline M1: {client.lingkar_pinggang_awal_cm}/{client.lingkar_dada_awal_cm}/{client.lingkar_lengan_awal_cm} cm
+                </span>
+              </div>
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs text-[#bbcabf] mb-1">Pinggang (cm)</label>
@@ -228,8 +321,11 @@ Progres sangat konsisten dengan tingkat kepatuhan nutrisi ${client.dietComplianc
                     required
                     value={waistCm}
                     onChange={(e) => setWaistCm(e.target.value)}
-                    className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-sm font-mono font-semibold text-white focus:outline-none focus:border-[#10b981]"
+                    className="w-full min-h-[46px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-base font-mono font-bold text-white tabular-nums focus:outline-none focus:border-[#10b981]"
                   />
+                  <span className="block text-[10px] font-mono text-[#86948a] mt-1">
+                    Terakhir: <strong className="text-[#bbcabf]">{lastDbWaist} cm</strong>
+                  </span>
                 </div>
                 <div>
                   <label className="block text-xs text-[#bbcabf] mb-1">Dada (cm)</label>
@@ -239,8 +335,11 @@ Progres sangat konsisten dengan tingkat kepatuhan nutrisi ${client.dietComplianc
                     required
                     value={chestCm}
                     onChange={(e) => setChestCm(e.target.value)}
-                    className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-sm font-mono font-semibold text-white focus:outline-none focus:border-[#10b981]"
+                    className="w-full min-h-[46px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-base font-mono font-bold text-white tabular-nums focus:outline-none focus:border-[#10b981]"
                   />
+                  <span className="block text-[10px] font-mono text-[#86948a] mt-1">
+                    Terakhir: <strong className="text-[#bbcabf]">{lastDbChest} cm</strong>
+                  </span>
                 </div>
                 <div>
                   <label className="block text-xs text-[#bbcabf] mb-1">Lengan (cm)</label>
@@ -250,8 +349,11 @@ Progres sangat konsisten dengan tingkat kepatuhan nutrisi ${client.dietComplianc
                     required
                     value={armCm}
                     onChange={(e) => setArmCm(e.target.value)}
-                    className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-sm font-mono font-semibold text-white focus:outline-none focus:border-[#10b981]"
+                    className="w-full min-h-[46px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-base font-mono font-bold text-white tabular-nums focus:outline-none focus:border-[#10b981]"
                   />
+                  <span className="block text-[10px] font-mono text-[#86948a] mt-1">
+                    Terakhir: <strong className="text-[#bbcabf]">{lastDbArm} cm</strong>
+                  </span>
                 </div>
               </div>
             </div>

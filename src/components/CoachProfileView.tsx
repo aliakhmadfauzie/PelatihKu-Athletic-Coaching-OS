@@ -24,7 +24,8 @@ import {
   Phone,
   MessageCircle,
   AlertTriangle,
-  Sparkles
+  Sparkles,
+  Camera
 } from 'lucide-react';
 import {
   CoachProfileData,
@@ -36,6 +37,7 @@ import {
   INITIAL_GYM_SETTINGS,
   EXERCISE_CATALOG
 } from '../data/mockData';
+import { optimizeAvatarImage } from '../utils/avatarImageOptimizer';
 
 interface CoachProfileViewProps {
   coach: CoachProfileData;
@@ -70,6 +72,13 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
 }) => {
   // Navigation Tabs: Coach Profile | Gym Settings & Locations | Exercise Catalog | Backup
   const [activeTab, setActiveTab] = useState<'coach' | 'gym' | 'exercises' | 'backup'>('coach');
+
+  // Scroll to top on every profile segmented tab switch
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [activeTab]);
 
   // Modals
   const [showEditModal, setShowEditModal] = useState(false);
@@ -258,6 +267,40 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
     }, 650);
   };
 
+  // --- Coach Profile Picture Upload & Optimization ---
+  const coachAvatarInputRef = useRef<HTMLInputElement | null>(null);
+  const [isOptimizingCoachAvatar, setIsOptimizingCoachAvatar] = useState(false);
+  const [coachAvatarSizeInfo, setCoachAvatarSizeInfo] = useState<string | null>(null);
+
+  const handleCoachAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsOptimizingCoachAvatar(true);
+    try {
+      const optimized = await optimizeAvatarImage(file, 320, 38 * 1024);
+      onUpdateCoach({
+        ...coach,
+        avatarUrl: optimized.dataUrl
+      });
+      setCoachAvatarSizeInfo(`${optimized.width}×${optimized.height}px · ${optimized.sizeKB} KB (${optimized.format.toUpperCase()})`);
+      onNotify(`Foto profil Head Coach berhasil diperbarui (${optimized.sizeKB} KB · Tajam HD)!`);
+    } catch (err: any) {
+      onNotify(err?.message || 'Gagal memproses foto profil Head Coach.');
+    } finally {
+      setIsOptimizingCoachAvatar(false);
+      if (coachAvatarInputRef.current) coachAvatarInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveCoachAvatar = () => {
+    onUpdateCoach({
+      ...coach,
+      avatarUrl: ''
+    });
+    setCoachAvatarSizeInfo(null);
+    onNotify('Foto profil Head Coach dikembalikan ke inisial PAS.');
+  };
+
   // --- Gym Identity Save ---
   const handleSaveGymIdentity = (e: React.FormEvent) => {
     e.preventDefault();
@@ -393,15 +436,15 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Segmented Capsule Control (iOS High-Craft Navigation Bar) */}
-      <div className="p-1 bg-[#111726]/85 backdrop-blur-xl border border-white/[0.08] rounded-2xl shadow-lg flex items-center gap-1 overflow-x-auto no-scrollbar">
+      {/* Segmented Capsule Control (iOS High-Craft Subordinate Navigation Bar) */}
+      <div className="p-1.5 bg-[#0c1322]/85 backdrop-blur-2xl border border-white/[0.08] rounded-2xl shadow-sm flex items-center gap-1.5 overflow-x-auto no-scrollbar">
         <button
           type="button"
           onClick={() => setActiveTab('coach')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition active:scale-95 flex items-center gap-1.5 shrink-0 ${
+          className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1.5 shrink-0 ${
             activeTab === 'coach'
-              ? 'bg-[#10b981] text-[#002113] shadow-md shadow-emerald-950/40'
-              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
           }`}
         >
           <Award className="w-4 h-4" />
@@ -411,10 +454,10 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
         <button
           type="button"
           onClick={() => setActiveTab('gym')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition active:scale-95 flex items-center gap-1.5 shrink-0 ${
+          className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1.5 shrink-0 ${
             activeTab === 'gym'
-              ? 'bg-[#10b981] text-[#002113] shadow-md shadow-emerald-950/40'
-              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
           }`}
         >
           <Building2 className="w-4 h-4" />
@@ -424,10 +467,10 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
         <button
           type="button"
           onClick={() => setActiveTab('exercises')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition active:scale-95 flex items-center gap-1.5 shrink-0 ${
+          className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1.5 shrink-0 ${
             activeTab === 'exercises'
-              ? 'bg-[#10b981] text-[#002113] shadow-md shadow-emerald-950/40'
-              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
           }`}
         >
           <Dumbbell className="w-4 h-4" />
@@ -437,10 +480,10 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
         <button
           type="button"
           onClick={() => setActiveTab('backup')}
-          className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition active:scale-95 flex items-center gap-1.5 shrink-0 ${
+          className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition active:scale-95 flex items-center gap-1.5 shrink-0 ${
             activeTab === 'backup'
-              ? 'bg-[#10b981] text-[#002113] shadow-md shadow-emerald-950/40'
-              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
           }`}
         >
           <Database className="w-4 h-4" />
@@ -453,11 +496,36 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
         <div className="space-y-5 animate-in fade-in duration-200">
           {/* 1. Header Portofolio Pelatih */}
           <section className="bg-[#111726]/85 backdrop-blur-xl border border-white/[0.08] rounded-3xl p-5 space-y-4 shadow-xl">
+            <input
+              ref={coachAvatarInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleCoachAvatarChange}
+              className="hidden"
+            />
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3.5">
-                <div className="w-14 h-14 rounded-2xl bg-[#141b2b] border border-[#4edea3]/40 text-[#4edea3] flex items-center justify-center font-bold text-lg shrink-0 shadow-md">
-                  {coach.initials}
-                </div>
+                <button
+                  type="button"
+                  onClick={() => coachAvatarInputRef.current?.click()}
+                  disabled={isOptimizingCoachAvatar}
+                  title="Ubah Foto Profil Head Coach"
+                  aria-label="Ubah Foto Profil Head Coach"
+                  className="relative w-16 h-16 rounded-2xl bg-[#141b2b] border border-[#4edea3]/40 text-[#4edea3] flex items-center justify-center font-bold text-lg shrink-0 shadow-md overflow-hidden transition active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4edea3]"
+                >
+                  {coach.avatarUrl ? (
+                    <img
+                      src={coach.avatarUrl}
+                      alt={coach.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span>{coach.initials}</span>
+                  )}
+                  <span className="absolute bottom-0.5 right-0.5 w-6 h-6 rounded-lg bg-[#10b981] text-[#002113] flex items-center justify-center shadow-md border border-[#141b2b]">
+                    <Camera className="w-3.5 h-3.5 stroke-[2.4]" />
+                  </span>
+                </button>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="text-lg font-bold text-white tracking-tight">
@@ -473,6 +541,32 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
                     <span aria-hidden="true"> · </span>
                     <span>{coach.pabsiLicense}</span>
                   </p>
+                  <div className="flex items-center gap-2 mt-2.5 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => coachAvatarInputRef.current?.click()}
+                      disabled={isOptimizingCoachAvatar}
+                      className="min-h-[44px] px-3.5 py-2 rounded-xl bg-[#10b981]/15 hover:bg-[#10b981]/25 border border-[#10b981]/30 text-[#4edea3] text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition active:scale-95"
+                    >
+                      <Camera className="w-3.5 h-3.5 shrink-0" />
+                      <span>{isOptimizingCoachAvatar ? 'Mengoptimalkan...' : coach.avatarUrl ? 'Ganti Foto Coach' : 'Upload Foto Coach'}</span>
+                    </button>
+                    {coach.avatarUrl && (
+                      <button
+                        type="button"
+                        onClick={handleRemoveCoachAvatar}
+                        className="min-h-[44px] px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 text-rose-300 text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition active:scale-95"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 shrink-0" />
+                        <span>Hapus Foto</span>
+                      </button>
+                    )}
+                    {coachAvatarSizeInfo && (
+                      <span className="text-[10px] font-mono text-[#4edea3] bg-[#10b981]/10 px-2.5 py-1 rounded-lg border border-[#10b981]/20 whitespace-nowrap">
+                        ✓ Hemat Memori: {coachAvatarSizeInfo}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 

@@ -1,4 +1,16 @@
 import { RescheduleRequest } from '../data/mockData';
+import {
+  doc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  writeBatch,
+  collection,
+  onSnapshot,
+  Unsubscribe
+} from 'firebase/firestore';
+import { db } from './firebase';
+import { sanitizeForFirestore, withFirestoreTimeout } from './firestoreService';
 
 export type PushNotificationType =
   | 'reschedule_request'
@@ -205,20 +217,38 @@ export function playNotificationSound(): void {
 
 /**
  * Dispatches a push notification both locally in-app and to the system tray (via Web Push / Notification API).
+ * Supports an optional `idempotencyKey` so duplicate dispatches for the same domain event overwrite cleanly.
  */
 export async function dispatchPushNotification(
-  item: Omit<PushNotificationItem, 'id' | 'timestamp' | 'read'>
+  item: Omit<PushNotificationItem, 'id' | 'timestamp' | 'read'> & { idempotencyKey?: string }
 ): Promise<PushNotificationItem> {
+  const { idempotencyKey, ...restItem } = item;
+  const notifId = idempotencyKey || `notif-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
   const newNotif: PushNotificationItem = {
-    ...item,
-    id: `notif-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    ...restItem,
+    id: notifId,
     timestamp: new Date().toISOString(),
     read: false
   };
 
-  // 1. Add to local store
-  inMemoryNotifications = [newNotif, ...inMemoryNotifications];
+  // 1. Add to local store (deduplicating by id if idempotencyKey matched)
+  inMemoryNotifications = [
+    newNotif,
+    ...inMemoryNotifications.filter((existing) => existing.id !== notifId)
+  ];
   persistStore();
+
+  // Save to Cloud Firestore for cross-device real-time sync (in browser/PWA runtime)
+  if (typeof window !== 'undefined') {
+    try {
+      const docRef = doc(db, 'notifications', newNotif.id);
+      withFirestoreTimeout(setDoc(docRef, sanitizeForFirestore(newNotif), { merge: true }), 2500).catch((err) => {
+        console.warn('[PushNotificationService] Firestore background write deferred:', err.message);
+      });
+    } catch {
+      // Offline resilience
+    }
+  }
 
   // 2. Play acoustic chime & mobile haptic vibration
   playNotificationSound();
@@ -268,6 +298,7 @@ export async function dispatchPushNotification(
 export async function notifyRescheduleRequested(request: RescheduleRequest): Promise<PushNotificationItem> {
   const lateBadge = request.isLateRequest ? ' ⚠️ [Mepet <24 Jam]' : '';
   return dispatchPushNotification({
+    idempotencyKey: `notif-rsch-${request.id}-requested`,
     type: 'reschedule_request',
     title: `Pengajuan Reschedule Sesi PT${lateBadge}`,
     body: `${request.clientName} mengajukan pindah ke ${request.proposedDate} (${request.proposedTime} WIB) di ${request.proposedLocation}. Alasan: "${request.reason}".`,
@@ -287,6 +318,7 @@ export async function notifyRescheduleApproved(
   approverName: string
 ): Promise<PushNotificationItem> {
   return dispatchPushNotification({
+    idempotencyKey: `notif-rsch-${request.id}-approved`,
     type: 'reschedule_approved',
     title: 'Jadwal Sesi PT Disetujui ✅',
     body: `Sesi latihan Anda resmi dipindahkan ke ${request.proposedDate} jam ${request.proposedTime} WIB di ${request.proposedLocation} oleh ${approverName}.`,
@@ -306,6 +338,7 @@ export async function notifyRescheduleRejected(
   reason: string
 ): Promise<PushNotificationItem> {
   return dispatchPushNotification({
+    idempotencyKey: `notif-rsch-${request.id}-rejected`,
     type: 'reschedule_rejected',
     title: 'Permintaan Reschedule Ditolak ⚠️',
     body: `Pengajuan ganti jadwal ditolak oleh ${rejectorName}. Catatan: "${reason}". Sesi tetap sesuai jadwal awal (${request.originalDate} ${request.originalTime} WIB).`,
@@ -321,6 +354,7 @@ export async function notifyRescheduleRejected(
  */
 export async function notifyRescheduleCancelled(request: RescheduleRequest): Promise<PushNotificationItem> {
   return dispatchPushNotification({
+    idempotencyKey: `notif-rsch-${request.id}-cancelled`,
     type: 'reschedule_cancelled',
     title: 'Pengajuan Reschedule Dibatalkan ℹ️',
     body: `Permintaan pindah jadwal sesi ${request.clientName} telah dibatalkan oleh pemohon.`,
@@ -405,20 +439,101 @@ export function filterNotificationsForUser(
 export function markPushNotificationAsRead(id: string): void {
   inMemoryNotifications = inMemoryNotifications.map((n) => (n.id === id ? { ...n, read: true } : n));
   persistStore();
+  if (typeof window !== 'undefined') {
+    try {
+      const docRef = doc(db, 'notifications', id);
+      withFirestoreTimeout(updateDoc(docRef, { read: true }), 2000).catch(() => {});
+    } catch {
+      // Offline resilience
+    }
+  }
+}
+
+/**
+ * Subscribes to real-time notification collection changes in Cloud Firestore.
+ */
+export function subscribeToNotificationsInFirestore(
+  onUpdate?: (notifications: PushNotificationItem[]) => void
+): Unsubscribe {
+  try {
+    const colRef = collection(db, 'notifications');
+    return onSnapshot(
+      colRef,
+      (snapshot) => {
+        const remoteItems: PushNotificationItem[] = [];
+        snapshot.forEach((d) => {
+          remoteItems.push(d.data() as PushNotificationItem);
+        });
+        if (remoteItems.length > 0) {
+          const existingIds = new Set(remoteItems.map((r) => r.id));
+          const localOnly = inMemoryNotifications.filter((l) => !existingIds.has(l.id));
+          inMemoryNotifications = [...remoteItems, ...localOnly].sort(
+            (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          );
+          persistStore();
+          if (onUpdate) onUpdate(inMemoryNotifications);
+        }
+      },
+      (err) => {
+        console.warn('[PushNotificationService] Live notifications listener fallback:', err.message);
+      }
+    );
+  } catch (err) {
+    console.warn('[PushNotificationService] Failed to attach live notifications listener:', err);
+    return () => {};
+  }
 }
 
 export function markMultiplePushNotificationsAsRead(ids: string[]): void {
   const idSet = new Set(ids);
   inMemoryNotifications = inMemoryNotifications.map((n) => (idSet.has(n.id) ? { ...n, read: true } : n));
   persistStore();
+  if (typeof window !== 'undefined' && ids.length > 0) {
+    try {
+      const batch = writeBatch(db);
+      ids.forEach((id) => {
+        const docRef = doc(db, 'notifications', id);
+        batch.set(docRef, { read: true }, { merge: true });
+      });
+      withFirestoreTimeout(batch.commit(), 2500).catch(() => {});
+    } catch {
+      // Offline resilience
+    }
+  }
 }
 
 export function markAllPushNotificationsAsRead(): void {
+  const unreadIds = inMemoryNotifications.filter((n) => !n.read).map((n) => n.id);
   inMemoryNotifications = inMemoryNotifications.map((n) => ({ ...n, read: true }));
   persistStore();
+  if (typeof window !== 'undefined' && unreadIds.length > 0) {
+    try {
+      const batch = writeBatch(db);
+      unreadIds.forEach((id) => {
+        const docRef = doc(db, 'notifications', id);
+        batch.set(docRef, { read: true }, { merge: true });
+      });
+      withFirestoreTimeout(batch.commit(), 2500).catch(() => {});
+    } catch {
+      // Offline resilience
+    }
+  }
 }
 
 export function clearAllPushNotifications(): void {
+  const existingIds = inMemoryNotifications.map((n) => n.id);
   inMemoryNotifications = [];
   persistStore();
+  if (typeof window !== 'undefined' && existingIds.length > 0) {
+    try {
+      const batch = writeBatch(db);
+      existingIds.forEach((id) => {
+        const docRef = doc(db, 'notifications', id);
+        batch.delete(docRef);
+      });
+      withFirestoreTimeout(batch.commit(), 2500).catch(() => {});
+    } catch {
+      // Offline resilience
+    }
+  }
 }

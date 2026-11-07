@@ -15,7 +15,8 @@ import {
   Calendar,
   Send,
   Sparkles,
-  Info
+  Info,
+  Lock
 } from 'lucide-react';
 import { ClientProfile, RescheduleRequest } from '../data/mockData';
 import { UserRole } from '../services/authGatekeeperService';
@@ -318,76 +319,120 @@ export const ReviewRescheduleRequestModal: React.FC<ReviewRescheduleRequestModal
         </div>
 
         {/* Modal Decision Footer */}
-        <div className="px-5 py-4 border-t border-white/[0.08] bg-[#0b101b] flex items-center justify-between gap-2.5 flex-wrap">
-          {canApprove ? (
-            <>
-              <button
-                type="button"
-                onClick={onClose}
-                className="min-h-[46px] px-4 rounded-xl bg-[#232a3a] text-[#bbcabf] hover:text-white text-xs font-semibold transition active:scale-95"
-              >
-                Tutup
-              </button>
-
+        <div className="px-5 py-4 border-t border-white/[0.08] bg-[#0b101b] flex flex-col gap-3">
+          {/* Terminal State Alert if Already Actioned */}
+          {request.status !== 'pending' && (
+            <div className="w-full p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-between text-xs flex-wrap gap-2">
               <div className="flex items-center gap-2">
-                {canReject && (
+                {request.status === 'approved' ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                ) : (
+                  <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                )}
+                <span className="font-semibold text-white">
+                  Permohonan telah {request.status === 'approved' ? 'Disetujui' : request.status === 'rejected' ? 'Ditolak' : 'Dibatalkan'}
+                </span>
+              </div>
+              {request.decidedByName && (
+                <span className="text-[11px] font-mono text-neutral-400">
+                  Oleh: {request.decidedByName} ({formatDateTime(request.decidedAt || '')})
+                </span>
+              )}
+            </div>
+          )}
+
+          <div className="flex items-center justify-between gap-2.5 flex-wrap">
+            {request.status !== 'pending' ? (
+              <>
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      if (!isRejectMode) {
-                        setIsRejectMode(true);
-                      } else {
-                        handleReject();
-                      }
-                    }}
-                    disabled={isSubmitting || (isRejectMode && !decisionNote.trim())}
-                    className="min-h-[46px] px-4 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold flex items-center gap-1.5 transition active:scale-95 disabled:opacity-50"
+                    disabled
+                    className="min-h-[46px] px-4 rounded-xl bg-[#182030] border border-white/[0.08] text-neutral-500 text-xs font-bold flex items-center gap-2 cursor-not-allowed shadow-none"
                   >
-                    <XCircle className="w-4 h-4 text-rose-400" />
-                    <span>{isRejectMode ? 'Konfirmasi Tolak' : 'Tolak Permintaan'}</span>
+                    <Lock className="w-4 h-4 text-neutral-500" />
+                    <span>Sudah Diproses ({request.status.toUpperCase()})</span>
                   </button>
-                )}
+                </div>
 
-                <button
-                  type="button"
-                  onClick={handleApprove}
-                  disabled={isSubmitting}
-                  className="min-h-[46px] px-5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-950 text-xs font-bold flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition active:scale-95 disabled:opacity-50"
-                >
-                  <CheckCircle2 className="w-4 h-4 text-slate-950" />
-                  <span>Setujui Jadwal Baru</span>
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="text-xs text-neutral-400 italic">
-                Permintaan Anda sedang dalam antrean review Coach Panji / Admin.
-              </div>
-
-              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="min-h-[46px] px-4 rounded-xl bg-[#232a3a] text-[#bbcabf] hover:text-white text-xs font-semibold"
+                  className="min-h-[46px] px-5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition active:scale-95 shadow-md shadow-emerald-500/20"
+                >
+                  Tutup
+                </button>
+              </>
+            ) : canApprove ? (
+              <>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="min-h-[46px] px-4 rounded-xl bg-[#232a3a] text-[#bbcabf] hover:text-white text-xs font-semibold transition active:scale-95"
                 >
                   Tutup
                 </button>
 
-                {canCancel && (
+                <div className="flex items-center gap-2">
+                  {canReject && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!isRejectMode) {
+                          setIsRejectMode(true);
+                        } else {
+                          handleReject();
+                        }
+                      }}
+                      disabled={isSubmitting || (isRejectMode && !decisionNote.trim())}
+                      className="min-h-[46px] px-4 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold flex items-center gap-1.5 transition active:scale-95 disabled:opacity-50"
+                    >
+                      <XCircle className="w-4 h-4 text-rose-400" />
+                      <span>{isRejectMode ? 'Konfirmasi Tolak' : 'Tolak Permintaan'}</span>
+                    </button>
+                  )}
+
                   <button
                     type="button"
-                    onClick={handleCancel}
+                    onClick={handleApprove}
                     disabled={isSubmitting}
-                    className="min-h-[46px] px-4 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-rose-300 border border-rose-500/20 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95"
+                    className="min-h-[46px] px-5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-950 text-xs font-bold flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition active:scale-95 disabled:opacity-50"
                   >
-                    <XCircle className="w-4 h-4" />
-                    <span>Batalkan Pengajuan</span>
+                    <CheckCircle2 className="w-4 h-4 text-slate-950" />
+                    <span>Setujui Jadwal Baru</span>
                   </button>
-                )}
-              </div>
-            </>
-          )}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-xs text-neutral-400 italic">
+                  Permintaan Anda sedang dalam antrean review Coach Panji / Admin.
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="min-h-[46px] px-4 rounded-xl bg-[#232a3a] text-[#bbcabf] hover:text-white text-xs font-semibold"
+                  >
+                    Tutup
+                  </button>
+
+                  {canCancel && (
+                    <button
+                      type="button"
+                      onClick={handleCancel}
+                      disabled={isSubmitting}
+                      className="min-h-[46px] px-4 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-rose-300 border border-rose-500/20 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      <span>Batalkan Pengajuan</span>
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

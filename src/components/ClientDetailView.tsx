@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   ArrowLeft,
   Scale,
@@ -34,7 +34,9 @@ import {
   Eye,
   EyeOff,
   Pencil,
-  History
+  History,
+  Printer,
+  Layers
 } from 'lucide-react';
 import { PinChangeHistoryView } from './PinChangeHistoryView';
 import { RescheduleApprovalBanner } from './RescheduleApprovalBanner';
@@ -49,6 +51,8 @@ import {
   ReportResult
 } from '../services/geminiService';
 import { ClientProfile, PRRecord, RescheduleRequest } from '../data/mockData';
+import { calculateEpley1RM } from '../services/sportsScienceDomain';
+import { optimizeAvatarImage } from '../utils/avatarImageOptimizer';
 import {
   UserRole,
   isCoachOrAdmin,
@@ -101,6 +105,8 @@ interface ClientDetailViewProps {
   onRejectReschedule?: (request: RescheduleRequest, reason: string) => void;
   onCancelReschedule?: (request: RescheduleRequest) => void;
   onOpenReviewReschedule?: (request: RescheduleRequest) => void;
+  onOpenProgressReport?: () => void;
+  onOpenBatchSchedule?: () => void;
 }
 
 const DAY_LABELS = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
@@ -125,12 +131,21 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
   onApproveReschedule,
   onRejectReschedule,
   onCancelReschedule,
-  onOpenReviewReschedule
+  onOpenReviewReschedule,
+  onOpenProgressReport,
+  onOpenBatchSchedule
 }) => {
   const [showDetailPin, setShowDetailPin] = useState(false);
   const [activeTab, setActiveTab] = useState<
     'overview' | 'baseline_medis' | 'pr' | 'sessions' | 'photos'
   >('overview');
+
+  // Scroll to top on every cockpit tab transition
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [activeTab]);
   const [sessionFocusFilter, setSessionFocusFilter] = useState<string>('Semua');
   const [showAddPrModal, setShowAddPrModal] = useState(false);
   const [showEditClientModal, setShowEditClientModal] = useState(false);
@@ -151,6 +166,30 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
   const [editPaketTotal, setEditPaketTotal] = useState(String(client.paketTotal));
   const [editPaketTerpakai, setEditPaketTerpakai] = useState(String(client.paketTerpakai));
   const [editPhase, setEditPhase] = useState(client.phase);
+  const avatarFileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isOptimizingAvatar, setIsOptimizingAvatar] = useState(false);
+  const [avatarSizeLabel, setAvatarSizeLabel] = useState<string | null>(null);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsOptimizingAvatar(true);
+    try {
+      const optimized = await optimizeAvatarImage(file, 320, 38 * 1024);
+      onEditClient?.(client.id, { avatarUrl: optimized.dataUrl });
+      setAvatarSizeLabel(`${optimized.width}×${optimized.height}px · ${optimized.sizeKB} KB`);
+    } catch {
+      // handled silently or via toast in parent
+    } finally {
+      setIsOptimizingAvatar(false);
+      if (avatarFileInputRef.current) avatarFileInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    onEditClient?.(client.id, { avatarUrl: '' });
+    setAvatarSizeLabel(null);
+  };
 
   // Supervisor PIN visibility state (Coach & Admin access)
   const [showSupervisorPin, setShowSupervisorPin] = useState(true);
@@ -457,7 +496,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
     e.preventDefault();
     const w = parseFloat(prWeight) || 0;
     const r = parseInt(prReps, 10) || 1;
-    const est1RM = +(w * (1 + r / 30)).toFixed(1);
+    const est1RM = calculateEpley1RM(w, r);
 
     const todayFormatted = new Intl.DateTimeFormat('id-ID', {
       day: '2-digit',
@@ -782,11 +821,36 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
 
       {/* 1. Header Profil Member & Quick Action Thumb Bar */}
       <section className="bg-[#111726]/80 backdrop-blur-2xl border border-white/[0.08] shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_0_0_rgba(255,255,255,0.06)] rounded-3xl p-4 sm:p-6 space-y-4">
+        <input
+          ref={avatarFileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleAvatarUpload}
+          className="hidden"
+        />
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-13 h-13 rounded-2xl bg-[#232a3a] border border-[#4edea3]/30 text-[#4edea3] flex items-center justify-center font-bold text-base shrink-0">
-              {client.initials}
-            </div>
+            <button
+              type="button"
+              onClick={() => avatarFileInputRef.current?.click()}
+              disabled={isOptimizingAvatar}
+              title="Ubah Foto Profil Member"
+              aria-label="Ubah Foto Profil Member"
+              className="relative w-14 h-14 rounded-2xl bg-[#232a3a] border border-[#4edea3]/30 text-[#4edea3] flex items-center justify-center font-bold text-base shrink-0 overflow-hidden transition active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4edea3]"
+            >
+              {client.avatarUrl ? (
+                <img
+                  src={client.avatarUrl}
+                  alt={client.nama_lengkap}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span>{client.initials}</span>
+              )}
+              <span className="absolute bottom-0.5 right-0.5 w-5 h-5 rounded-md bg-[#10b981] text-[#002113] flex items-center justify-center shadow border border-[#111726]">
+                <Camera className="w-3 h-3 stroke-[2.5]" />
+              </span>
+            </button>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-lg font-bold text-white tracking-tight truncate">
@@ -809,72 +873,25 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs font-mono text-[#ffb95f]">
+            <span className="text-xs font-mono text-[#ffb95f] px-2.5 py-1 rounded-lg bg-[#ffb95f]/10 border border-[#ffb95f]/25 whitespace-nowrap tabular-nums">
               Sisa {remainingSessions} Sesi
             </span>
             {isCoachOrAdmin(currentUserRole) && (
               <button
                 type="button"
                 onClick={() => setShowEditClientModal(true)}
-                className="min-h-[44px] px-3 py-1.5 rounded-xl bg-[#232a3a] hover:bg-[#323949] text-white text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 border border-white/[0.08]"
+                className="min-h-[44px] px-3 py-1.5 rounded-xl bg-[#232a3a] hover:bg-[#323949] text-white text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition active:scale-95 border border-white/[0.08]"
                 title="Edit Data Member"
                 aria-label="Edit Data Member"
               >
-                <Edit3 className="w-3.5 h-3.5 text-[#4edea3]" />
-                <span className="hidden sm:inline">Ubah Data</span>
+                <Edit3 className="w-3.5 h-3.5 text-[#4edea3] shrink-0" />
+                <span>Ubah Data</span>
               </button>
             )}
           </div>
         </div>
 
-        {/* Supervisor Access: Latest Member PIN Banner (Coach & Admin Only) */}
-        {isCoachOrAdmin(currentUserRole) && (
-          <div className="bg-[#0b101c] border border-amber-500/30 rounded-xl px-3.5 py-2.5 flex items-center justify-between gap-3 shadow-inner">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
-                <Lock className="w-4 h-4" />
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[10px] text-amber-400/90 font-bold uppercase tracking-wider">
-                    PIN Akses Member Terkini
-                  </span>
-                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-mono font-semibold">
-                    Khusus Coach &amp; Admin
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="font-mono text-sm font-bold text-white tracking-widest">
-                    {showSupervisorPin ? latestClientPin : '••••••••'}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setShowSupervisorPin(!showSupervisorPin)}
-                    className="text-[11px] text-neutral-400 hover:text-white transition underline"
-                  >
-                    {showSupervisorPin ? 'Sembunyikan' : 'Tampilkan'}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                navigator.clipboard?.writeText(latestClientPin);
-                setPinCopied(true);
-                setTimeout(() => setPinCopied(false), 2000);
-              }}
-              className="min-h-[44px] px-3.5 py-2 rounded-xl bg-[#191f2f] hover:bg-[#232a3a] border border-white/[0.08] text-amber-400 hover:text-amber-300 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 shrink-0"
-              title="Salin PIN Akses Member"
-            >
-              <Copy className="w-3.5 h-3.5" />
-              <span>{pinCopied ? 'Tersalin!' : 'Salin PIN'}</span>
-            </button>
-          </div>
-        )}
-
-        {/* Target & Package Progress Banner */}
+        {/* Target & Package Progress Banner (Primary Athletic Anchor) */}
         <div className="bg-[#191f2f] border border-white/[0.06] rounded-xl p-3.5 space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="font-semibold text-white flex items-center gap-1.5">
@@ -913,8 +930,8 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
           </div>
         </div>
 
-        {/* Reschedule Approval Matrix Banner (If pending request exists) */}
-        {client.pendingReschedule && onApproveReschedule && onRejectReschedule && onCancelReschedule && (
+        {/* Reschedule Approval Matrix Banner (Only if pending request exists and is active) */}
+        {client.pendingReschedule && client.pendingReschedule.status === 'pending' && onApproveReschedule && onRejectReschedule && onCancelReschedule && (
           <RescheduleApprovalBanner
             request={client.pendingReschedule}
             currentUserRole={currentUserRole}
@@ -955,34 +972,83 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
           </button>
         </div>
 
-        {/* Quick Action Thumb Bar (Min 44px height) */}
-        <div className="grid grid-cols-12 gap-2">
+        {/* Supervisor Access: Latest Member PIN Banner (Subordinate Administrative Strip for Coach & Admin) */}
+        {isCoachOrAdmin(currentUserRole) && (
+          <div className="bg-[#0b101c] border border-white/[0.08] rounded-xl px-3.5 py-2.5 flex items-center justify-between gap-3 shadow-inner">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0">
+                <Lock className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] text-neutral-300 font-bold uppercase tracking-wider">
+                    PIN Akses Member Terkini
+                  </span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 font-mono font-semibold whitespace-nowrap">
+                    Khusus Coach &amp; Admin
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <span className="font-mono text-sm font-bold text-white tracking-widest tabular-nums">
+                    {showSupervisorPin ? latestClientPin : '••••••••'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowSupervisorPin(!showSupervisorPin)}
+                    className="min-h-[36px] px-2.5 py-1 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-xs font-medium text-neutral-300 hover:text-white transition whitespace-nowrap"
+                  >
+                    {showSupervisorPin ? 'Sembunyikan' : 'Tampilkan'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard?.writeText(latestClientPin);
+                setPinCopied(true);
+                setTimeout(() => setPinCopied(false), 2000);
+              }}
+              className="min-h-[44px] px-3.5 py-2 rounded-xl bg-[#191f2f] hover:bg-[#232a3a] border border-white/[0.08] text-amber-400 hover:text-amber-300 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 shrink-0"
+              title="Salin PIN Akses Member"
+            >
+              <Copy className="w-3.5 h-3.5" />
+              <span>{pinCopied ? 'Tersalin!' : 'Salin PIN'}</span>
+            </button>
+          </div>
+        )}
+
+        {/* Quick Action Thumb Bar (Min 44px height, symmetric single-line typography) */}
+        <div className="grid grid-cols-12 gap-2.5">
           {isCoachOrAdmin(currentUserRole) ? (
             <>
               <button
                 type="button"
                 onClick={onOpenUpdateMetrics}
-                className="col-span-5 min-h-[48px] bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform shadow-md shadow-emerald-500/20"
+                className="col-span-5 min-h-[48px] px-3.5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-md shadow-emerald-500/20"
               >
-                <Scale className="w-4 h-4" />
-                <span>Update Metrik &amp; Timbang</span>
+                <Scale className="w-4 h-4 shrink-0 stroke-[2.2]" />
+                <span className="whitespace-nowrap truncate font-bold">
+                  Timbang &amp; Metrik
+                </span>
               </button>
               <button
                 type="button"
                 onClick={onOpenLogSession}
-                className="col-span-5 min-h-[48px] bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08] text-white rounded-2xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
+                className="col-span-5 min-h-[48px] px-3.5 py-2.5 bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08] text-white rounded-2xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 active:scale-95 transition-all"
               >
-                <Dumbbell className="w-4 h-4 text-emerald-400" />
-                <span>Catat Sesi #{client.paketTerpakai + 1}</span>
+                <Dumbbell className="w-4 h-4 text-emerald-400 shrink-0 stroke-[2.2]" />
+                <span className="whitespace-nowrap truncate font-semibold">Catat Sesi #{client.paketTerpakai + 1}</span>
               </button>
               <a
                 href={`https://wa.me/${client.telepon.replace(/\D/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Chat WhatsApp Member"
-                className="col-span-2 min-h-[48px] bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08] text-emerald-400 rounded-2xl flex items-center justify-center active:scale-95 transition-transform"
+                className="col-span-2 min-h-[48px] bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08] text-emerald-400 rounded-2xl flex items-center justify-center active:scale-95 transition-all"
               >
-                <MessageCircle className="w-5 h-5" />
+                <MessageCircle className="w-5 h-5 shrink-0" />
               </a>
             </>
           ) : (
@@ -1008,17 +1074,44 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
             </>
           )}
         </div>
+
+        {/* Secondary Executive Actions: Cetak/Ekspor PDF & Jadwal Berulang */}
+        <div className="flex items-center gap-2 pt-2 border-t border-white/[0.06]">
+          {onOpenProgressReport && (
+            <button
+              type="button"
+              onClick={onOpenProgressReport}
+              className="flex-1 min-h-[44px] px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm"
+              title="Buka laporan progres dan sertifikat resmi siap cetak / PDF"
+            >
+              <Printer className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span className="truncate">Laporan &amp; Cetak PDF</span>
+            </button>
+          )}
+
+          {isCoachOrAdmin(currentUserRole) && onOpenBatchSchedule && (
+            <button
+              type="button"
+              onClick={onOpenBatchSchedule}
+              className="flex-1 min-h-[44px] px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-neutral-200 hover:text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm"
+              title="Penjadwalan otomatis paket sesi berulang"
+            >
+              <Layers className="w-4 h-4 text-cyan-400 shrink-0" />
+              <span className="truncate">Jadwalkan Paket PT</span>
+            </button>
+          )}
+        </div>
       </section>
 
-      {/* 2. Segmented Navigation Tabs (Functional Filter Controls) */}
+      {/* 2. Segmented Navigation Tabs (Subordinate Tinted Pills so Primary Action Button Dominates) */}
       <div className="flex items-center gap-2 p-1.5 bg-[#0c1322]/85 backdrop-blur-2xl border border-white/[0.08] rounded-2xl overflow-x-auto no-scrollbar select-none touch-pan-x shadow-sm">
         <button
           type="button"
           onClick={() => setActiveTab('overview')}
           className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 active:scale-95 ${
             activeTab === 'overview'
-              ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
           }`}
         >
           <Activity className="w-3.5 h-3.5" />
@@ -1029,8 +1122,8 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
           onClick={() => setActiveTab('baseline_medis')}
           className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 active:scale-95 ${
             activeTab === 'baseline_medis'
-              ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
           }`}
         >
           <HeartPulse className="w-3.5 h-3.5" />
@@ -1041,8 +1134,8 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
           onClick={() => setActiveTab('pr')}
           className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 active:scale-95 ${
             activeTab === 'pr'
-              ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
           }`}
         >
           <Award className="w-3.5 h-3.5" />
@@ -1053,8 +1146,8 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
           onClick={() => setActiveTab('sessions')}
           className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 active:scale-95 ${
             activeTab === 'sessions'
-              ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
           }`}
         >
           <Dumbbell className="w-3.5 h-3.5" />
@@ -1065,8 +1158,8 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
           onClick={() => setActiveTab('photos')}
           className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 active:scale-95 ${
             activeTab === 'photos'
-              ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+              : 'text-neutral-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
           }`}
         >
           <Camera className="w-3.5 h-3.5" />
@@ -1146,10 +1239,10 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
 
                   return (
                     <div className="bg-[#070e1d] border border-white/[0.06] rounded-xl p-3 space-y-2">
-                      <div className="flex items-center justify-between text-[11px] font-mono">
-                        <span className="text-[#4edea3]">Protein: {pPct}% ({pKcal} kcal)</span>
-                        <span className="text-[#06b6d4]">Karbo: {cPct}% ({cKcal} kcal)</span>
-                        <span className="text-[#ffb95f]">Lemak: {fPct}% ({fKcal} kcal)</span>
+                      <div className="flex flex-wrap items-center justify-between gap-1.5 text-[11px] font-mono tabular-nums">
+                        <span className="text-[#4edea3] whitespace-nowrap">Protein: {pPct}% ({pKcal} kcal)</span>
+                        <span className="text-[#06b6d4] whitespace-nowrap">Karbo: {cPct}% ({cKcal} kcal)</span>
+                        <span className="text-[#ffb95f] whitespace-nowrap">Lemak: {fPct}% ({fKcal} kcal)</span>
                       </div>
                       <div className="w-full h-2.5 rounded-full bg-[#191f2f] overflow-hidden flex">
                         <div
@@ -1179,7 +1272,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
                       step="50"
                       value={kaloriTargetInput}
                       onChange={(e) => setKaloriTargetInput(e.target.value)}
-                      className="w-full bg-[#070e1d] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-[#4edea3]"
+                      className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-mono text-white tabular-nums focus:outline-none focus:border-[#4edea3]"
                     />
                   </div>
                   <div>
@@ -1191,7 +1284,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
                       step="50"
                       value={kaloriHarianInput}
                       onChange={(e) => setKaloriHarianInput(e.target.value)}
-                      className="w-full bg-[#070e1d] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-mono text-[#4edea3] focus:outline-none focus:border-[#4edea3]"
+                      className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-mono text-[#4edea3] tabular-nums focus:outline-none focus:border-[#4edea3]"
                     />
                   </div>
                   <div>
@@ -1203,7 +1296,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
                       step="5"
                       value={proteinTargetInput}
                       onChange={(e) => setProteinTargetInput(e.target.value)}
-                      className="w-full bg-[#070e1d] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-[#4edea3]"
+                      className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-mono text-white tabular-nums focus:outline-none focus:border-[#4edea3]"
                     />
                   </div>
                   <div>
@@ -1215,7 +1308,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
                       step="5"
                       value={proteinHarianInput}
                       onChange={(e) => setProteinHarianInput(e.target.value)}
-                      className="w-full bg-[#070e1d] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-mono text-[#4edea3] focus:outline-none focus:border-[#4edea3]"
+                      className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-mono text-[#4edea3] tabular-nums focus:outline-none focus:border-[#4edea3]"
                     />
                   </div>
                   <div>
@@ -1227,7 +1320,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
                       step="5"
                       value={karboTargetInput}
                       onChange={(e) => setKarboTargetInput(e.target.value)}
-                      className="w-full bg-[#070e1d] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-mono text-[#06b6d4] focus:outline-none focus:border-[#4edea3]"
+                      className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-mono text-[#06b6d4] tabular-nums focus:outline-none focus:border-[#4edea3]"
                     />
                   </div>
                   <div>
@@ -1239,7 +1332,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
                       step="2"
                       value={lemakTargetInput}
                       onChange={(e) => setLemakTargetInput(e.target.value)}
-                      className="w-full bg-[#070e1d] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-mono text-[#ffb95f] focus:outline-none focus:border-[#4edea3]"
+                      className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-mono text-[#ffb95f] tabular-nums focus:outline-none focus:border-[#4edea3]"
                     />
                   </div>
                 </div>
@@ -1254,7 +1347,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
                       step="0.1"
                       value={hidrasiTargetInput}
                       onChange={(e) => setHidrasiTargetInput(e.target.value)}
-                      className="w-full bg-[#070e1d] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-[#4edea3]"
+                      className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-mono text-white tabular-nums focus:outline-none focus:border-[#4edea3]"
                     />
                   </div>
                   <div>
@@ -1266,7 +1359,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
                       step="0.1"
                       value={hidrasiLiterInput}
                       onChange={(e) => setHidrasiLiterInput(e.target.value)}
-                      className="w-full bg-[#070e1d] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-mono text-[#06b6d4] focus:outline-none focus:border-[#4edea3]"
+                      className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-mono text-[#06b6d4] tabular-nums focus:outline-none focus:border-[#4edea3]"
                     />
                   </div>
                 </div>
@@ -2517,6 +2610,52 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
             </div>
 
             <form onSubmit={handleSaveEditClient} className="flex-1 overflow-y-auto p-5 space-y-4">
+              {/* Foto Profil Member (HD Hemat Memori) */}
+              <div className="p-3.5 rounded-2xl bg-[#070e1d] border border-white/[0.08] flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-12 h-12 rounded-xl bg-[#232a3a] border border-[#4edea3]/30 text-[#4edea3] flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden">
+                    {client.avatarUrl ? (
+                      <img
+                        src={client.avatarUrl}
+                        alt={client.nama_lengkap}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span>{client.initials}</span>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-white">Foto Profil Member</p>
+                    <p className="text-[10px] text-[#bbcabf] truncate">
+                      {avatarSizeLabel
+                        ? `Teroptimasi: ${avatarSizeLabel}`
+                        : 'Otomatis kompresi tajam HD 320×320px (<38 KB)'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => avatarFileInputRef.current?.click()}
+                    disabled={isOptimizingAvatar}
+                    className="min-h-[38px] px-3 py-1.5 rounded-xl bg-[#10b981]/15 hover:bg-[#10b981]/25 border border-[#10b981]/30 text-[#4edea3] text-xs font-semibold flex items-center gap-1.5 transition active:scale-95"
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                    <span>{isOptimizingAvatar ? 'Proses...' : client.avatarUrl ? 'Ganti' : 'Upload'}</span>
+                  </button>
+                  {client.avatarUrl && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveAvatar}
+                      className="min-h-[38px] px-2.5 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center justify-center transition active:scale-95"
+                      title="Hapus Foto Profil"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs text-[#bbcabf] mb-1">Nama Lengkap *</label>

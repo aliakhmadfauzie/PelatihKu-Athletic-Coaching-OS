@@ -400,11 +400,11 @@ export const BiometricTrendChart: React.FC<BiometricTrendChartProps> = ({
         </div>
 
         {/* Metric Selector Pills - Ergonomically optimized for mobile gym touch */}
-        <div className="flex items-center gap-1.5 p-1 bg-[#070e1d] border border-white/[0.08] rounded-xl overflow-x-auto no-scrollbar touch-pan-x -mx-1 px-1 sm:mx-0">
+        <div className="flex items-center gap-2 p-1 bg-[#070e1d] border border-white/[0.08] rounded-xl overflow-x-auto no-scrollbar touch-pan-x -mx-1 px-1 sm:mx-0">
           <button
             type="button"
             onClick={() => setSelectedMetric('weight')}
-            className={`min-h-[40px] px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition active:scale-95 flex items-center justify-center ${
+            className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold shrink-0 whitespace-nowrap transition active:scale-95 flex items-center justify-center ${
               selectedMetric === 'weight'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
                 : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
@@ -415,7 +415,7 @@ export const BiometricTrendChart: React.FC<BiometricTrendChartProps> = ({
           <button
             type="button"
             onClick={() => setSelectedMetric('bodyFat')}
-            className={`min-h-[40px] px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition active:scale-95 flex items-center justify-center ${
+            className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold shrink-0 whitespace-nowrap transition active:scale-95 flex items-center justify-center ${
               selectedMetric === 'bodyFat'
                 ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
                 : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
@@ -426,7 +426,7 @@ export const BiometricTrendChart: React.FC<BiometricTrendChartProps> = ({
           <button
             type="button"
             onClick={() => setSelectedMetric('muscle')}
-            className={`min-h-[40px] px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition active:scale-95 flex items-center justify-center ${
+            className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold shrink-0 whitespace-nowrap transition active:scale-95 flex items-center justify-center ${
               selectedMetric === 'muscle'
                 ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
                 : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
@@ -437,7 +437,7 @@ export const BiometricTrendChart: React.FC<BiometricTrendChartProps> = ({
           <button
             type="button"
             onClick={() => setSelectedMetric('waist')}
-            className={`min-h-[40px] px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition active:scale-95 flex items-center justify-center ${
+            className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold shrink-0 whitespace-nowrap transition active:scale-95 flex items-center justify-center ${
               selectedMetric === 'waist'
                 ? 'bg-purple-500 text-slate-950 font-bold shadow-sm'
                 : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
@@ -448,7 +448,7 @@ export const BiometricTrendChart: React.FC<BiometricTrendChartProps> = ({
           <button
             type="button"
             onClick={() => setSelectedMetric('comparison')}
-            className={`min-h-[40px] px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition active:scale-95 flex items-center justify-center ${
+            className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold shrink-0 whitespace-nowrap transition active:scale-95 flex items-center justify-center ${
               selectedMetric === 'comparison'
                 ? 'bg-gradient-to-r from-emerald-500 to-amber-500 text-slate-950 font-bold shadow-sm'
                 : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
@@ -460,25 +460,39 @@ export const BiometricTrendChart: React.FC<BiometricTrendChartProps> = ({
         </div>
       </div>
 
-      {/* SVG Canvas Area */}
-      <div className="relative w-full h-48 bg-[#070e1d] border border-white/[0.06] rounded-xl p-3 flex flex-col justify-between overflow-hidden">
-        {/* Y-Axis Reference Guide Lines & Labels */}
-        <div className="absolute inset-x-3 top-3 border-b border-white/[0.05] flex justify-between text-[10px] font-mono text-[#86948a] pointer-events-none">
-          <span>Max: {selectedMetric === 'comparison' ? `${Math.max(...points.map((p) => p.weightKg))}kg / ${Math.max(...points.map((p) => p.bodyFatPct))}%` : `${maxVal} ${metricConfig.unit}`}</span>
-          <span className="text-neutral-600">Plafon Sesi</span>
-        </div>
+      {/* SVG Canvas Area — Separated Plot Zone & X-Axis Selector Bar (Zero Overlap) */}
+      <div className="w-full bg-[#070e1d] border border-white/[0.06] rounded-xl p-3.5 space-y-2.5 overflow-hidden">
+        {/* Dynamic SVG Plot with Scoped Y-Axis Guide Lines */}
+        <div className="relative w-full h-36 pt-4 pb-4">
+          {/* Y-Axis Reference Guide Lines & Labels (Strictly inside plot box above X-Axis) */}
+          <div className="absolute inset-x-0 top-0 border-b border-white/[0.05] pb-0.5 flex justify-between items-center text-[10px] font-mono text-[#86948a] pointer-events-none">
+            <span>
+              Max:{' '}
+              {selectedMetric === 'comparison'
+                ? `${Math.max(...points.map((p) => p.weightKg))}kg / ${Math.max(...points.map((p) => p.bodyFatPct))}%`
+                : `${maxVal} ${metricConfig.unit}`}
+            </span>
+            <span className="text-neutral-500">Plafon Sesi</span>
+          </div>
 
-        <div className="absolute inset-x-3 top-1/2 -translate-y-1/2 border-b border-dashed border-white/[0.06] flex justify-between text-[10px] font-mono text-[#86948a] pointer-events-none">
-          <span>{selectedMetric === 'comparison' ? 'Korelasi Progres' : `Mid: ${((maxVal + minVal) / 2).toFixed(1)} ${metricConfig.unit}`}</span>
-        </div>
+          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-b border-dashed border-white/[0.06] pb-0.5 flex justify-between items-center text-[10px] font-mono text-[#86948a] pointer-events-none">
+            <span>
+              {selectedMetric === 'comparison'
+                ? 'Korelasi Progres'
+                : `Mid: ${((maxVal + minVal) / 2).toFixed(1)} ${metricConfig.unit}`}
+            </span>
+          </div>
 
-        <div className="absolute inset-x-3 bottom-8 border-b border-white/[0.05] flex justify-between text-[10px] font-mono text-[#86948a] pointer-events-none">
-          <span>Min: {selectedMetric === 'comparison' ? `${Math.min(...points.map((p) => p.weightKg))}kg / ${Math.min(...points.map((p) => p.bodyFatPct))}%` : `${minVal} ${metricConfig.unit}`}</span>
-          <span className="text-neutral-600">Lantai Baseline</span>
-        </div>
+          <div className="absolute inset-x-0 bottom-0 border-b border-white/[0.05] pb-0.5 flex justify-between items-center text-[10px] font-mono text-[#86948a] pointer-events-none">
+            <span>
+              Min:{' '}
+              {selectedMetric === 'comparison'
+                ? `${Math.min(...points.map((p) => p.weightKg))}kg / ${Math.min(...points.map((p) => p.bodyFatPct))}%`
+                : `${minVal} ${metricConfig.unit}`}
+            </span>
+            <span className="text-neutral-500">Lantai Baseline</span>
+          </div>
 
-        {/* Dynamic SVG Plot */}
-        <div className="relative w-full h-32 mt-2">
           <svg
             className="w-full h-full overflow-visible"
             viewBox={`0 0 ${svgWidth} ${svgHeight}`}
@@ -600,111 +614,170 @@ export const BiometricTrendChart: React.FC<BiometricTrendChartProps> = ({
           </svg>
         </div>
 
-        {/* Dynamic X-Axis Checkpoint Labels with Thumb-Friendly Tap Zones */}
-        <div className="flex justify-between items-center pt-1.5 text-[10px] font-mono text-[#86948a] border-t border-white/[0.06]">
-          {points.map((p, i) => {
-            const isSelected = i === currentActiveIndex;
-            return (
-              <button
-                key={`lbl-${i}`}
-                type="button"
-                onClick={() => setActivePointIndex(i)}
-                className={`min-h-[36px] min-w-[34px] flex items-center justify-center transition-colors font-semibold px-1 rounded-lg ${
-                  isSelected
-                    ? 'text-white font-bold bg-white/[0.12] ring-1 ring-white/20'
-                    : i === points.length - 1
-                    ? 'text-emerald-400 font-semibold'
-                    : 'text-neutral-400 hover:text-white'
-                }`}
-                title={`Pilih Checkpoint ${p.weekLabel}`}
-              >
-                {p.weekLabel}
-              </button>
-            );
-          })}
+        {/* Dynamic X-Axis Checkpoint Labels with Symmetric Grid Tap Zones */}
+        <div className="pt-3 pb-1 border-t border-white/[0.08]">
+          <div className="grid grid-cols-8 gap-1.5">
+            {points.map((p, i) => {
+              const isSelected = i === currentActiveIndex;
+              return (
+                <button
+                  key={`lbl-${i}`}
+                  type="button"
+                  onClick={() => setActivePointIndex(i)}
+                  className={`min-h-[40px] w-full flex items-center justify-center transition-all font-mono text-[11px] rounded-lg ${
+                    isSelected
+                      ? 'text-white font-bold bg-white/[0.16] border border-white/30 shadow-sm ring-1 ring-white/10'
+                      : i === points.length - 1
+                      ? 'text-emerald-400 font-semibold bg-emerald-500/10 border border-emerald-500/25 hover:bg-emerald-500/20'
+                      : 'text-neutral-400 hover:text-white hover:bg-white/[0.05]'
+                  }`}
+                  title={`Pilih Checkpoint ${p.weekLabel}`}
+                >
+                  {p.weekLabel}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Active Checkpoint Telemetry Inspector Bar (Optimized for One-Handed Gym Floor Mobile Use) */}
-      <div className="bg-[#0b101c] border border-white/[0.08] rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-inner">
-        <div className="flex items-center gap-3">
-          {/* Quick Step Buttons for One-Thumb Navigation */}
-          <div className="flex items-center gap-1 shrink-0">
+      {/* Active Checkpoint Telemetry Inspector Card — Apple HIG Redesign */}
+      <div className="bg-[#0b101c]/90 border border-white/[0.08] rounded-2xl p-3.5 space-y-3 shadow-lg backdrop-blur-md">
+        {/* Row 1: Checkpoint Header & Segmented Stepper */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-xs font-bold text-white tracking-tight shrink-0">
+              Checkpoint {activePoint.weekLabel}
+            </span>
+            {/* Single smart badge */}
+            {points.length === 1 ? (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 shrink-0 whitespace-nowrap">
+                Baseline & Terkini
+              </span>
+            ) : currentActiveIndex === 0 ? (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white/[0.08] border border-white/[0.1] text-neutral-300 shrink-0 whitespace-nowrap">
+                Baseline Awal
+              </span>
+            ) : currentActiveIndex === points.length - 1 ? (
+              <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 shrink-0 whitespace-nowrap">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Terkini
+              </span>
+            ) : (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-white/[0.06] text-neutral-400 shrink-0 whitespace-nowrap">
+                Minggu ke-{currentActiveIndex + 1}
+              </span>
+            )}
+          </div>
+
+          {/* Stepper with clear min-h-[44px] touch targets */}
+          <div className="flex items-center gap-1.5 bg-[#141b2b] border border-white/[0.08] rounded-xl p-1 shrink-0">
             <button
               type="button"
               onClick={handlePrevPoint}
               disabled={currentActiveIndex === 0}
               aria-label="Checkpoint sebelumnya"
-              className="w-8 h-9 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-25 disabled:pointer-events-none text-neutral-300 hover:text-white flex items-center justify-center border border-white/[0.06] transition active:scale-95"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-lg hover:bg-white/[0.08] disabled:opacity-20 disabled:pointer-events-none text-neutral-300 hover:text-white flex items-center justify-center transition active:scale-95"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <div className="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/[0.1] flex items-center justify-center font-mono font-bold text-xs text-white shadow-sm">
+            <span className="px-2 font-mono font-bold text-xs text-white tabular-nums whitespace-nowrap">
               {activePoint.weekLabel}
-            </div>
+            </span>
 
             <button
               type="button"
               onClick={handleNextPoint}
               disabled={currentActiveIndex === points.length - 1}
               aria-label="Checkpoint berikutnya"
-              className="w-8 h-9 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-25 disabled:pointer-events-none text-neutral-300 hover:text-white flex items-center justify-center border border-white/[0.06] transition active:scale-95"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-lg hover:bg-white/[0.08] disabled:opacity-20 disabled:pointer-events-none text-neutral-300 hover:text-white flex items-center justify-center transition active:scale-95"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
+        </div>
 
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-white">
-                Checkpoint {activePoint.weekLabel}
-                {currentActiveIndex === 0 && ' (Baseline Awal)'}
-                {currentActiveIndex === points.length - 1 && ' (Terkini)'}
+        {/* Row 2: 4-Metric Micro Bento Grid (Scannable, Elegant, High-Legibility) */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {/* Berat Badan */}
+          <div className="p-2 sm:p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] flex flex-col items-center justify-center text-center">
+            <span className="text-[9px] uppercase tracking-wider font-semibold text-neutral-400">
+              Berat Badan
+            </span>
+            <div className="flex items-baseline gap-0.5 mt-0.5">
+              <span className="text-sm font-bold font-mono text-emerald-400">
+                {activePoint.weightKg}
               </span>
-              <span className="text-[10px] font-mono px-2 py-0.2 rounded-full bg-white/[0.06] text-neutral-300">
-                {currentActiveIndex === 0 ? 'Titik Awal' : `Minggu ke-${currentActiveIndex + 1}`}
-              </span>
+              <span className="text-[10px] text-neutral-400 font-medium">kg</span>
             </div>
-            <div className="flex items-center gap-2.5 sm:gap-3 mt-1 text-xs font-mono flex-wrap">
-              <span className="text-white font-semibold">
-                BB: <strong className="text-emerald-400">{activePoint.weightKg} kg</strong>
+          </div>
+
+          {/* Body Fat */}
+          <div className="p-2 sm:p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] flex flex-col items-center justify-center text-center">
+            <span className="text-[9px] uppercase tracking-wider font-semibold text-neutral-400">
+              Body Fat
+            </span>
+            <div className="flex items-baseline gap-0.5 mt-0.5">
+              <span className="text-sm font-bold font-mono text-amber-400">
+                {activePoint.bodyFatPct}
               </span>
-              <span className="text-neutral-500">•</span>
-              <span className="text-neutral-300">
-                Fat: <strong className="text-amber-400">{activePoint.bodyFatPct}%</strong>
+              <span className="text-[10px] text-neutral-400 font-medium">%</span>
+            </div>
+          </div>
+
+          {/* Massa Otot */}
+          <div className="p-2 sm:p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] flex flex-col items-center justify-center text-center">
+            <span className="text-[9px] uppercase tracking-wider font-semibold text-neutral-400">
+              Massa Otot
+            </span>
+            <div className="flex items-baseline gap-0.5 mt-0.5">
+              <span className="text-sm font-bold font-mono text-cyan-400">
+                {activePoint.muscleMassKg}
               </span>
-              <span className="text-neutral-500">•</span>
-              <span className="text-neutral-300">
-                Otot: <strong className="text-cyan-400">{activePoint.muscleMassKg} kg</strong>
+              <span className="text-[10px] text-neutral-400 font-medium">kg</span>
+            </div>
+          </div>
+
+          {/* Lingkar Pinggang */}
+          <div className="p-2 sm:p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] flex flex-col items-center justify-center text-center">
+            <span className="text-[9px] uppercase tracking-wider font-semibold text-neutral-400">
+              Pinggang
+            </span>
+            <div className="flex items-baseline gap-0.5 mt-0.5">
+              <span className="text-sm font-bold font-mono text-purple-400">
+                {activePoint.waistCm}
               </span>
-              <span className="text-neutral-500">•</span>
-              <span className="text-neutral-300">
-                Pinggang: <strong className="text-purple-400">{activePoint.waistCm} cm</strong>
-              </span>
+              <span className="text-[10px] text-neutral-400 font-medium">cm</span>
             </div>
           </div>
         </div>
 
-        {/* Delta from baseline for this selected checkpoint (Responsive full-width row on mobile) */}
-        <div className="pt-2.5 sm:pt-0 border-t border-white/[0.06] sm:border-t-0 sm:border-l sm:border-white/[0.08] sm:pl-3 flex items-center justify-between sm:justify-end gap-2">
-          <span className="text-[10px] text-neutral-400 block uppercase tracking-wider sm:hidden">
+        {/* Row 3: Baseline Delta Banner */}
+        <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-xs">
+          <span className="text-[10px] uppercase tracking-wider font-semibold text-neutral-400">
             Perubahan dari Baseline:
           </span>
-          <div className="text-right">
-            <span className="text-[10px] text-neutral-400 hidden sm:block uppercase tracking-wider">
-              Perubahan dari Baseline
-            </span>
-            <div className="flex items-center gap-1 font-mono text-xs font-bold justify-end">
-              {activeDelta.diff <= 0 ? (
-                <TrendingDown className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              ) : (
-                <TrendingUp className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              )}
-              <span className={activeDelta.diff <= 0 ? 'text-emerald-400' : 'text-amber-400'}>
-                {activeDelta.diff > 0 ? `+${activeDelta.diff}` : activeDelta.diff} {metricConfig.unit} ({activeDelta.pct > 0 ? `+${activeDelta.pct}` : activeDelta.pct}%)
+          <div className="flex items-center gap-1.5 font-mono text-xs font-bold">
+            {activeDelta.diff === 0 ? (
+              <span className="px-2 py-0.5 rounded-md bg-white/[0.06] text-neutral-300 text-[11px]">
+                0.0 {metricConfig.unit} (Baseline)
               </span>
-            </div>
+            ) : activeDelta.diff < 0 ? (
+              <div className="flex items-center gap-1 text-emerald-400">
+                <TrendingDown className="w-3.5 h-3.5 shrink-0" />
+                <span>
+                  {activeDelta.diff} {metricConfig.unit} ({activeDelta.pct}%)
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 text-amber-400">
+                <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+                <span>
+                  +{activeDelta.diff} {metricConfig.unit} (+{activeDelta.pct}%)
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

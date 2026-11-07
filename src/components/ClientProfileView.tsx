@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   User,
   ShieldCheck,
@@ -16,9 +16,12 @@ import {
   ArrowLeft,
   Flame,
   Award,
-  CalendarClock
+  CalendarClock,
+  Camera,
+  Trash2
 } from 'lucide-react';
 import { ClientProfile, CoachProfileData, PinChangeLogEntry, GymMasterSettings } from '../data/mockData';
+import { optimizeAvatarImage } from '../utils/avatarImageOptimizer';
 import {
   getClientPin,
   setClientPin,
@@ -33,6 +36,7 @@ export interface ClientProfileViewProps {
   client: ClientProfile;
   coach: CoachProfileData;
   gymSettings?: GymMasterSettings;
+  onUpdateClient?: (payload: Partial<ClientProfile>) => void;
   onNotify?: (msg: string) => void;
   onBackToDashboard?: () => void;
   onLogoutConfirmed?: () => void;
@@ -44,12 +48,40 @@ export const ClientProfileView: React.FC<ClientProfileViewProps> = ({
   client,
   coach,
   gymSettings,
+  onUpdateClient,
   onNotify,
   onBackToDashboard,
   onLogoutConfirmed,
   onOpenRescheduleHistory,
   onOpenRescheduleModal
 }) => {
+  // Avatar Upload State
+  const avatarFileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isOptimizingAvatar, setIsOptimizingAvatar] = useState(false);
+  const [avatarSizeInfo, setAvatarSizeInfo] = useState<string | null>(null);
+
+  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsOptimizingAvatar(true);
+    try {
+      const optimized = await optimizeAvatarImage(file, 320, 38 * 1024);
+      onUpdateClient?.({ avatarUrl: optimized.dataUrl });
+      setAvatarSizeInfo(`${optimized.width}×${optimized.height}px · ${optimized.sizeKB} KB (${optimized.format.toUpperCase()})`);
+      onNotify?.(`Foto profil berhasil diperbarui (${optimized.sizeKB} KB · Tajam HD)!`);
+    } catch (err: any) {
+      onNotify?.(err?.message || 'Gagal memproses foto profil.');
+    } finally {
+      setIsOptimizingAvatar(false);
+      if (avatarFileInputRef.current) avatarFileInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    onUpdateClient?.({ avatarUrl: '' });
+    setAvatarSizeInfo(null);
+    onNotify?.('Foto profil dikembalikan ke inisial standar.');
+  };
   // PIN Form States
   const [currentPinInput, setCurrentPinInput] = useState('');
   const [newPinInput, setNewPinInput] = useState('');
@@ -167,10 +199,10 @@ export const ClientProfileView: React.FC<ClientProfileViewProps> = ({
             )}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="min-h-[38px] px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 shrink-0"
+            className="min-h-[44px] px-3.5 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition active:scale-95 shrink-0"
           >
-            <Phone className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Kontak Gym</span>
+            <Phone className="w-3.5 h-3.5 shrink-0" />
+            <span>Kontak Gym</span>
           </a>
         </div>
       )}
@@ -179,12 +211,40 @@ export const ClientProfileView: React.FC<ClientProfileViewProps> = ({
       <div className="bg-[#111726]/85 backdrop-blur-xl border border-white/[0.08] rounded-3xl p-5 shadow-xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-44 h-44 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
+        <input
+          ref={avatarFileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleAvatarFileChange}
+          className="hidden"
+        />
+
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
           <div className="flex items-center gap-3.5">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-emerald-400 p-[2px] shadow-lg shadow-blue-500/20 shrink-0">
-              <div className="w-full h-full rounded-2xl bg-slate-900 flex items-center justify-center text-lg font-bold text-white">
-                {client.initials || 'BS'}
-              </div>
+            <div className="relative group shrink-0">
+              <button
+                type="button"
+                onClick={() => avatarFileInputRef.current?.click()}
+                disabled={isOptimizingAvatar}
+                title="Klik untuk mengganti foto profil"
+                aria-label="Ubah Foto Profil"
+                className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-emerald-400 p-[2px] shadow-lg shadow-blue-500/20 block relative overflow-hidden transition active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+              >
+                <div className="w-full h-full rounded-[14px] bg-slate-900 flex items-center justify-center text-lg font-bold text-white overflow-hidden">
+                  {client.avatarUrl ? (
+                    <img
+                      src={client.avatarUrl}
+                      alt={client.nama_lengkap}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span>{client.initials || 'BS'}</span>
+                  )}
+                </div>
+                <span className="absolute bottom-0.5 right-0.5 w-6 h-6 rounded-lg bg-emerald-500 text-slate-950 flex items-center justify-center shadow-md border border-slate-900">
+                  <Camera className="w-3.5 h-3.5 stroke-[2.4]" />
+                </span>
+              </button>
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
@@ -205,6 +265,32 @@ export const ClientProfileView: React.FC<ClientProfileViewProps> = ({
                 <span>•</span>
                 <span className="font-mono text-neutral-300">{client.telepon}</span>
               </p>
+              <div className="flex items-center gap-2 mt-2.5 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => avatarFileInputRef.current?.click()}
+                  disabled={isOptimizingAvatar}
+                  className="min-h-[44px] px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition active:scale-95"
+                >
+                  <Camera className="w-3.5 h-3.5 shrink-0" />
+                  <span>{isOptimizingAvatar ? 'Mengoptimalkan...' : client.avatarUrl ? 'Ganti Foto Profil' : 'Upload Foto Profil'}</span>
+                </button>
+                {client.avatarUrl && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveAvatar}
+                    className="min-h-[44px] px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 text-rose-300 text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition active:scale-95"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 shrink-0" />
+                    <span>Hapus Foto</span>
+                  </button>
+                )}
+                {avatarSizeInfo && (
+                  <span className="text-[10px] font-mono text-emerald-400/90 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 whitespace-nowrap">
+                    ✓ Hemat Memori: {avatarSizeInfo}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -245,8 +331,12 @@ export const ClientProfileView: React.FC<ClientProfileViewProps> = ({
         {/* Coach Lead Profile Snippet */}
         <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-between text-xs">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
-              {coach.initials || 'PAS'}
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
+              {coach.avatarUrl ? (
+                <img src={coach.avatarUrl} alt={coach.name} className="w-full h-full object-cover" />
+              ) : (
+                <span>{coach.initials || 'PAS'}</span>
+              )}
             </div>
             <div className="truncate">
               <span className="text-[10px] text-neutral-400 block">Lead Coach &amp; Master Trainer:</span>
@@ -271,14 +361,14 @@ export const ClientProfileView: React.FC<ClientProfileViewProps> = ({
               <p className="text-[11px] text-neutral-400">Pantau permohonan pergantian jadwal sesi PT Anda</p>
             </div>
           </div>
-          {client.pendingReschedule && (
+          {client.pendingReschedule && client.pendingReschedule.status === 'pending' && (
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
               1 Pending Review
             </span>
           )}
         </div>
 
-        {client.pendingReschedule ? (
+        {client.pendingReschedule && client.pendingReschedule.status === 'pending' ? (
           <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="font-bold text-amber-300">Pengajuan Sedang Ditinjau:</span>

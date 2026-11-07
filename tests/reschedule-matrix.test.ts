@@ -100,6 +100,21 @@ describe('PelatihKu PRO — Reschedule Approval Matrix & Push Notification Audit
       'Admin must have clearance to approve member reschedule requests'
     );
 
+    // E: Terminal state enforcement - Once actioned, cannot be re-approved or re-rejected
+    const approvedReq: RescheduleRequest = { ...memberRequest, status: 'approved' };
+    const rejectedReq: RescheduleRequest = { ...memberRequest, status: 'rejected' };
+    const cancelledReq: RescheduleRequest = { ...memberRequest, status: 'cancelled' };
+
+    assert.strictEqual(canApproveReschedule('coach', approvedReq), false, 'Cannot approve already approved request');
+    assert.strictEqual(canApproveReschedule('admin', approvedReq), false, 'Admin cannot approve already approved request');
+    assert.strictEqual(canRejectReschedule('coach', approvedReq), false, 'Cannot reject already approved request');
+
+    assert.strictEqual(canApproveReschedule('coach', rejectedReq), false, 'Cannot approve already rejected request');
+    assert.strictEqual(canRejectReschedule('coach', rejectedReq), false, 'Cannot reject already rejected request');
+
+    assert.strictEqual(canApproveReschedule('coach', cancelledReq), false, 'Cannot approve already cancelled request');
+    assert.strictEqual(canRejectReschedule('coach', cancelledReq), false, 'Cannot reject already cancelled request');
+
     // D: Cancellation clearances
     assert.strictEqual(
       canCancelReschedule('client', memberRequest),

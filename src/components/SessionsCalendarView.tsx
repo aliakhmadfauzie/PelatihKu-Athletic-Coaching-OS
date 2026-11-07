@@ -18,7 +18,8 @@ import {
   ArrowRight,
   Check,
   X,
-  Sparkles
+  Sparkles,
+  Layers
 } from 'lucide-react';
 import { ClientProfile, RescheduleRequest, INITIAL_COACH_PROFILE } from '../data/mockData';
 import { UserRole, isCoachOrAdmin } from '../services/authGatekeeperService';
@@ -68,6 +69,7 @@ interface SessionsCalendarViewProps {
   onCancelReschedule?: (request: RescheduleRequest) => void;
   onOpenReviewReschedule?: (request: RescheduleRequest) => void;
   onOpenRescheduleHub?: () => void;
+  onOpenBatchSchedule?: (clientId?: string) => void;
 }
 
 export type CalendarViewMode = 'day' | 'week' | 'month';
@@ -78,6 +80,26 @@ const INDO_MONTHS = [
   'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
   'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
 ];
+
+const INDO_MONTHS_SHORT = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+  'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+];
+
+function formatShortDateIndo(dateStr: string): string {
+  try {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const year = parts[0];
+      const monthIdx = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      return `${day} ${INDO_MONTHS_SHORT[monthIdx] || parts[1]} ${year}`;
+    }
+    return dateStr;
+  } catch {
+    return dateStr;
+  }
+}
 
 function formatDateKey(d: Date): string {
   const y = d.getFullYear();
@@ -153,9 +175,17 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
   onRejectReschedule,
   onCancelReschedule,
   onOpenReviewReschedule,
-  onOpenRescheduleHub
+  onOpenRescheduleHub,
+  onOpenBatchSchedule
 }) => {
   const [viewMode, setViewMode] = useState<CalendarViewMode>('week');
+
+  // Scroll to top on calendar view mode switch (day / week / month)
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [viewMode]);
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => {
     return new Date(2026, 10, 2); // Monday, 2 Nov 2026
   });
@@ -165,6 +195,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
   const [selectedDayKey, setSelectedDayKey] = useState<string>('all');
   const [currentDayIndex, setCurrentDayIndex] = useState<number>(3); // default index 3 (Kamis / today)
   const [selectedMonthDate, setSelectedMonthDate] = useState<string | null>(null);
+  const [activeMonthPopupDate, setActiveMonthPopupDate] = useState<string | null>(null);
   const [clientFilter, setClientFilter] = useState<string>('Semua');
   const [locationFilter, setLocationFilter] = useState<string>('Semua');
   const [statusFilter, setStatusFilter] = useState<string>('Semua');
@@ -511,6 +542,11 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
     searchQuery
   ]);
 
+  const popupSessions = useMemo(() => {
+    if (!activeMonthPopupDate) return [];
+    return allWeeklySessions.filter((s) => s.date === activeMonthPopupDate);
+  }, [activeMonthPopupDate, allWeeklySessions]);
+
   const handleQuickScheduleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formClientId || !formDate || !formTime || !formFocus) return;
@@ -613,14 +649,29 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
           )}
 
           {isCoachOrAdmin(currentUserRole) && (
-            <button
-              type="button"
-              onClick={() => setShowQuickScheduleModal(true)}
-              className="min-h-[44px] px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20 active:scale-95 transition"
-            >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span>+ Jadwalkan Sesi Baru</span>
-            </button>
+            <div className="flex items-center gap-2">
+              {onOpenBatchSchedule && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    onOpenBatchSchedule(clientFilter !== 'Semua' ? clientFilter : undefined)
+                  }
+                  className="min-h-[44px] px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition"
+                  title="Plot paket 12/24/36 sesi berulang otomatis"
+                >
+                  <Layers className="w-4 h-4 text-emerald-400" />
+                  <span>+ Jadwal Berulang</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowQuickScheduleModal(true)}
+                className="min-h-[44px] px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20 active:scale-95 transition"
+              >
+                <Plus className="w-4 h-4 stroke-[2.5]" />
+                <span>+ Jadwalkan Sesi Baru</span>
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -847,7 +898,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
             </div>
           </div>
 
-          {/* Segmented View Mode Tabs: Day, Week, Month */}
+          {/* Segmented View Mode Tabs: Day, Week, Month (Subordinate Tinted Pill so Primary +Jadwalkan CTA Dominates) */}
           <div className="flex items-center p-1 bg-[#070e1d]/90 border border-white/[0.08] rounded-2xl w-full sm:w-auto shadow-inner">
             <button
               type="button"
@@ -857,8 +908,8 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
               }}
               className={`flex-1 sm:flex-none min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold transition active:scale-95 flex items-center justify-center gap-1.5 ${
                 viewMode === 'day'
-                  ? 'bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                  : 'text-neutral-400 hover:text-white'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold shadow-sm'
+                  : 'text-neutral-400 hover:text-white border border-transparent'
               }`}
             >
               Hari
@@ -871,8 +922,8 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
               }}
               className={`flex-1 sm:flex-none min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold transition active:scale-95 flex items-center justify-center gap-1.5 ${
                 viewMode === 'week'
-                  ? 'bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                  : 'text-neutral-400 hover:text-white'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold shadow-sm'
+                  : 'text-neutral-400 hover:text-white border border-transparent'
               }`}
             >
               Minggu
@@ -885,8 +936,8 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
               }}
               className={`flex-1 sm:flex-none min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold transition active:scale-95 flex items-center justify-center gap-1.5 ${
                 viewMode === 'month'
-                  ? 'bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                  : 'text-neutral-400 hover:text-white'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold shadow-sm'
+                  : 'text-neutral-400 hover:text-white border border-transparent'
               }`}
             >
               Bulan
@@ -947,18 +998,18 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
             </div>
 
             {/* Quick Time Slots Jump Strip for the Day */}
-            <div className="grid grid-cols-3 gap-2.5 text-center text-xs">
+            <div className="grid grid-cols-3 gap-2 text-center text-xs">
               <div className="bg-[#141b2b] border border-white/[0.06] rounded-2xl p-2.5">
-                <span className="text-[10px] text-neutral-400 uppercase font-medium block">Pagi (07:00 - 11:59)</span>
-                <span className="text-xs font-mono font-bold text-white mt-0.5 block">{morningCount} Sesi Latihan</span>
+                <span className="text-[10px] text-neutral-400 uppercase font-medium block whitespace-nowrap">Pagi · 07–12</span>
+                <span className="text-xs font-mono font-bold text-white mt-0.5 block tabular-nums whitespace-nowrap">{morningCount} Sesi PT</span>
               </div>
               <div className="bg-[#141b2b] border border-white/[0.06] rounded-2xl p-2.5">
-                <span className="text-[10px] text-neutral-400 uppercase font-medium block">Siang (12:00 - 15:59)</span>
-                <span className="text-xs font-mono font-bold text-[#ffb95f] mt-0.5 block">{afternoonCount} Sesi Latihan</span>
+                <span className="text-[10px] text-neutral-400 uppercase font-medium block whitespace-nowrap">Siang · 12–16</span>
+                <span className="text-xs font-mono font-bold text-[#ffb95f] mt-0.5 block tabular-nums whitespace-nowrap">{afternoonCount} Sesi PT</span>
               </div>
               <div className="bg-[#141b2b] border border-white/[0.06] rounded-2xl p-2.5">
-                <span className="text-[10px] text-neutral-400 uppercase font-medium block">Sore/Malam (16:00+)</span>
-                <span className="text-xs font-mono font-bold text-emerald-400 mt-0.5 block">{eveningCount} Sesi Latihan</span>
+                <span className="text-[10px] text-neutral-400 uppercase font-medium block whitespace-nowrap">Sore · 16+</span>
+                <span className="text-xs font-mono font-bold text-emerald-400 mt-0.5 block tabular-nums whitespace-nowrap">{eveningCount} Sesi PT</span>
               </div>
             </div>
           </div>
@@ -1083,7 +1134,10 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
               </div>
               <button
                 type="button"
-                onClick={() => setSelectedMonthDate(null)}
+                onClick={() => {
+                  setSelectedMonthDate(null);
+                  setActiveMonthPopupDate(null);
+                }}
                 className={`min-h-[44px] text-xs px-3.5 py-2 rounded-xl font-bold transition active:scale-95 ${
                   selectedMonthDate === null
                     ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
@@ -1117,7 +1171,15 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                   <button
                     key={mDay.dateStr}
                     type="button"
-                    onClick={() => setSelectedMonthDate(isSelected ? null : mDay.dateStr)}
+                    onClick={() => {
+                      if (isSelected && activeMonthPopupDate === mDay.dateStr) {
+                        setSelectedMonthDate(null);
+                        setActiveMonthPopupDate(null);
+                      } else {
+                        setSelectedMonthDate(mDay.dateStr);
+                        setActiveMonthPopupDate(mDay.dateStr);
+                      }
+                    }}
                     className={`min-h-[48px] sm:min-h-[54px] rounded-2xl flex flex-col items-center justify-between p-1.5 transition border text-left active:scale-95 ${
                       isSelected
                         ? 'bg-gradient-to-b from-emerald-500 to-teal-400 text-slate-950 border-emerald-300 font-bold shadow-md shadow-emerald-500/25'
@@ -1170,6 +1232,99 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                 {selectedMonthDate ? `Terpilih: ${selectedMonthDate}` : 'Menampilkan Semua'}
               </span>
             </div>
+
+            {/* Interactive Month Session Popover Modal (Apple HIG & Material Design 3) */}
+            {activeMonthPopupDate && (
+              <div
+                className="fixed inset-0 z-40 bg-black/25 flex items-center justify-center p-4 animate-in fade-in duration-100"
+                onClick={() => setActiveMonthPopupDate(null)}
+              >
+                <div
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="month-popup-title"
+                  className="w-full max-w-sm bg-[#141c2b] border border-white/[0.12] rounded-3xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.6)] space-y-3 animate-in zoom-in-95 duration-100"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Header: Sesi: 5 Nov 2026 and Clean Close Button */}
+                  <div className="flex items-center justify-between">
+                    <h3 id="month-popup-title" className="text-base font-bold text-white">
+                      Sesi: {formatShortDateIndo(activeMonthPopupDate)}
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setActiveMonthPopupDate(null)}
+                      className="p-1 text-neutral-400 hover:text-white transition active:scale-90"
+                      aria-label="Tutup detail sesi tanggal ini"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Subheader: Clean White/Neutral Session Count */}
+                  <div className="text-xs font-semibold text-neutral-300">
+                    {popupSessions.length === 1
+                      ? '1 Sesi'
+                      : popupSessions.length > 1
+                      ? `${popupSessions.length} Sesi Terjadwal`
+                      : 'Tidak Ada Sesi Terjadwal'}
+                  </div>
+
+                  {/* Session Items */}
+                  <div className="space-y-3 max-h-[48vh] overflow-y-auto pr-1">
+                    {popupSessions.length === 0 ? (
+                      <div className="text-center py-6 text-xs text-neutral-400 space-y-1">
+                        <CalendarIcon className="w-8 h-8 text-neutral-500 mx-auto opacity-40 mb-2" />
+                        <p className="font-semibold text-neutral-300">Belum Ada Sesi</p>
+                        <p className="text-[11px] text-neutral-500">Tidak ada sesi latihan PT terjadwal untuk tanggal ini.</p>
+                      </div>
+                    ) : (
+                      popupSessions.map((ses, idx) => (
+                        <div
+                          key={ses.id}
+                          className={`${idx > 0 ? 'pt-3 border-t border-white/[0.08]' : ''} space-y-1`}
+                        >
+                          <h4 className="text-sm font-bold text-white">{ses.focus}</h4>
+                          <p className="text-xs font-mono text-neutral-300">
+                            {ses.time} WIB
+                          </p>
+                          <p className="text-xs text-neutral-400">
+                            {currentUserRole === 'client'
+                              ? `Coach: ${INITIAL_COACH_PROFILE.name}`
+                              : `Member: ${ses.clientName} · Coach: ${INITIAL_COACH_PROFILE.name}`}
+                          </p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Action CTA Button */}
+                  {popupSessions.length > 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveMonthPopupDate(null);
+                        const targetEl = document.getElementById('scheduledSessionsList');
+                        if (targetEl) {
+                          targetEl.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }}
+                      className="w-full min-h-[46px] py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-bold text-sm flex items-center justify-center shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition"
+                    >
+                      {popupSessions.length <= 1 ? 'Lihat Detail' : 'Lihat Semua Detail'}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setActiveMonthPopupDate(null)}
+                      className="w-full min-h-[44px] py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-xs font-semibold text-neutral-300 hover:text-white transition"
+                    >
+                      Tutup
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </section>
@@ -1232,7 +1387,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
       </div>
 
       {/* 5. Scheduled Session Cards List */}
-      <section className="space-y-3">
+      <section id="scheduledSessionsList" className="space-y-3 scroll-mt-6">
         <div className="flex items-center justify-between text-xs text-[#bbcabf] px-1">
           <span className="font-semibold text-white">
             {selectedDayKey === 'all'
@@ -1405,19 +1560,19 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                           <button
                             type="button"
                             onClick={() => onOpenLogSession(ses.clientId)}
-                            className="flex-1 min-h-[44px] px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20 active:scale-95 transition"
+                            className="flex-1 min-h-[44px] px-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 text-xs font-bold whitespace-nowrap flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20 active:scale-95 transition"
                           >
-                            <Dumbbell className="w-4 h-4" />
+                            <Dumbbell className="w-4 h-4 shrink-0" />
                             <span>Catat Sesi #{ses.sessionNumber}</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => onOpenReschedule(ses.clientId)}
-                            className="min-h-[44px] px-3.5 rounded-xl bg-[#1e2638] hover:bg-[#283248] border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm"
+                            className="min-h-[44px] px-3 rounded-xl bg-[#1e2638] hover:bg-[#283248] border border-amber-500/30 text-amber-300 text-xs font-semibold whitespace-nowrap flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm"
                             title="Reschedule sesi ini"
                           >
-                            <CalendarClock className="w-4 h-4" />
-                            <span className="hidden sm:inline">Pindah Jadwal</span>
+                            <CalendarClock className="w-4 h-4 shrink-0" />
+                            <span>Reschedule</span>
                           </button>
                         </>
                       ) : (

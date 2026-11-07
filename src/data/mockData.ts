@@ -5,6 +5,9 @@ export interface SetLog {
   weightKg: number;
   reps: number;
   isPR?: boolean;
+  completed?: boolean;
+  limbSide?: 'L' | 'R' | 'Both';
+  previousGhost?: { weightKg: number; reps: number };
 }
 
 export interface ExerciseLog {
@@ -15,6 +18,8 @@ export interface ExerciseLog {
   restSeconds: number;
   historicalBestKg: number;
   sets: SetLog[];
+  isUnilateral?: boolean;
+  swappedFrom?: string;
 }
 
 export interface SessionRecord {
@@ -127,6 +132,7 @@ export interface ClientProfile {
   status: 'Aktif' | 'Cuti';
   initials: string;
   avatarBg: string;
+  avatarUrl?: string;
   // Package & Adherence
   paketTotal: number;
   paketTerpakai: number;
@@ -223,6 +229,7 @@ export interface CoachCertification {
 export interface CoachProfileData {
   name: string;
   initials: string;
+  avatarUrl?: string;
   roleTitle: string;
   email: string;
   whatsapp: string;

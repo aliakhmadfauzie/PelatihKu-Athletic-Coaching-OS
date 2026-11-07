@@ -179,12 +179,13 @@ export const ChangePinModal: React.FC<ChangePinModalProps> = ({
                   onChange={(e) => setCurrentPinInput(e.target.value.replace(/\D/g, ''))}
                   placeholder="Masukkan PIN saat ini"
                   required
-                  className="w-full bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 pr-10 py-2.5 text-xs text-white font-mono tracking-widest placeholder:tracking-normal placeholder:text-neutral-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50"
+                  className="w-full min-h-[46px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3.5 pr-11 py-2.5 text-xs text-white font-mono tracking-widest placeholder:tracking-normal placeholder:text-neutral-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50"
                 />
                 <button
                   type="button"
                   onClick={() => setShowCurrentPin(!showCurrentPin)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                  aria-label={showCurrentPin ? 'Sembunyikan PIN saat ini' : 'Tampilkan PIN saat ini'}
+                  className="w-11 h-11 min-w-[44px] min-h-[44px] absolute right-0.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white flex items-center justify-center rounded-xl"
                 >
                   {showCurrentPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -217,12 +218,13 @@ export const ChangePinModal: React.FC<ChangePinModalProps> = ({
                 onChange={(e) => setNewPinInput(e.target.value.replace(/\D/g, ''))}
                 placeholder="6-8 digit angka numerik"
                 required
-                className="w-full bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 pr-10 py-2.5 text-xs text-white font-mono tracking-widest placeholder:tracking-normal placeholder:text-neutral-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50"
+                className="w-full min-h-[46px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3.5 pr-11 py-2.5 text-xs text-white font-mono tracking-widest placeholder:tracking-normal placeholder:text-neutral-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50"
               />
               <button
                 type="button"
                 onClick={() => setShowNewPin(!showNewPin)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                aria-label={showNewPin ? 'Sembunyikan PIN baru' : 'Tampilkan PIN baru'}
+                className="w-11 h-11 min-w-[44px] min-h-[44px] absolute right-0.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white flex items-center justify-center rounded-xl"
               >
                 {showNewPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -244,12 +246,13 @@ export const ChangePinModal: React.FC<ChangePinModalProps> = ({
                 onChange={(e) => setConfirmPinInput(e.target.value.replace(/\D/g, ''))}
                 placeholder="Ketik ulang PIN baru"
                 required
-                className="w-full bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 pr-10 py-2.5 text-xs text-white font-mono tracking-widest placeholder:tracking-normal placeholder:text-neutral-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50"
+                className="w-full min-h-[46px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3.5 pr-11 py-2.5 text-xs text-white font-mono tracking-widest placeholder:tracking-normal placeholder:text-neutral-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPin(!showConfirmPin)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                aria-label={showConfirmPin ? 'Sembunyikan konfirmasi PIN' : 'Tampilkan konfirmasi PIN'}
+                className="w-11 h-11 min-w-[44px] min-h-[44px] absolute right-0.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white flex items-center justify-center rounded-xl"
               >
                 {showConfirmPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>

@@ -13,7 +13,8 @@ import {
   Calendar,
   ArrowRight,
   ShieldAlert,
-  RotateCcw
+  RotateCcw,
+  Lock
 } from 'lucide-react';
 import { ClientProfile, RescheduleRequest } from '../data/mockData';
 import { UserRole } from '../services/authGatekeeperService';
@@ -52,8 +53,12 @@ export const RescheduleRequestsHubModal: React.FC<RescheduleRequestsHubModalProp
       : clients;
 
     targetClients.forEach((c) => {
-      // Pending request
-      if (c.pendingReschedule && !seenRequestIds.has(c.pendingReschedule.id)) {
+      // Pending request (strictly filter only active 'pending' status)
+      if (
+        c.pendingReschedule &&
+        c.pendingReschedule.status === 'pending' &&
+        !seenRequestIds.has(c.pendingReschedule.id)
+      ) {
         seenRequestIds.add(c.pendingReschedule.id);
         list.push({ client: c, request: c.pendingReschedule });
       }
@@ -424,6 +429,17 @@ export const RescheduleRequestsHubModal: React.FC<RescheduleRequestsHubModalProp
                     >
                       <XCircle className="w-3.5 h-3.5" />
                       <span>Batalkan Pengajuan Ini</span>
+                    </button>
+                  )}
+
+                  {request.status !== 'pending' && (
+                    <button
+                      type="button"
+                      disabled
+                      className="min-h-[40px] px-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-neutral-500 text-xs font-mono font-medium flex items-center gap-1.5 cursor-not-allowed shadow-none"
+                    >
+                      <Lock className="w-3.5 h-3.5 text-neutral-500" />
+                      <span>Sudah Diproses ({request.status.toUpperCase()})</span>
                     </button>
                   )}
                 </div>

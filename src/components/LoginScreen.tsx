@@ -351,46 +351,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             </div>
           </div>
 
-          {/* Quick-Access 1-Tap Persona Bar (iOS Testing & High-Speed Gym-Floor Access) */}
-          <div className="flex flex-col gap-1.5 bg-black/40 border border-white/[0.06] rounded-2xl p-2.5">
-            <span className="text-[10px] uppercase font-semibold text-neutral-400 tracking-wider flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-emerald-400" />
-              <span>Akses Cepat Pengujian Persona (1-Tap):</span>
-            </span>
-            <div className="grid grid-cols-3 gap-1.5">
-              <button
-                type="button"
-                onClick={() => handleQuickFill('123456')}
-                disabled={isVerifyingDb}
-                className="min-h-[44px] py-1.5 px-2 rounded-xl bg-white/[0.04] hover:bg-emerald-500/15 border border-white/[0.08] hover:border-emerald-500/40 text-[11px] text-neutral-200 hover:text-emerald-300 transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight"
-                title="Login Cepat sebagai Head Coach Panji (PIN: 123456)"
-              >
-                <span className="font-bold text-white text-[10px]">🏋️ Coach</span>
-                <span className="font-mono text-[9px] text-emerald-400">123456</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill('34567801')}
-                disabled={isVerifyingDb}
-                className="min-h-[44px] py-1.5 px-2 rounded-xl bg-white/[0.04] hover:bg-blue-500/15 border border-white/[0.08] hover:border-blue-500/40 text-[11px] text-neutral-200 hover:text-blue-300 transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight"
-                title="Login Cepat sebagai Member Budi Santoso (PIN: 34567801)"
-              >
-                <span className="font-bold text-white text-[10px]">🏃 Member</span>
-                <span className="font-mono text-[9px] text-blue-400">34567801</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill('999888')}
-                disabled={isVerifyingDb}
-                className="min-h-[44px] py-1.5 px-2 rounded-xl bg-white/[0.04] hover:bg-amber-500/15 border border-white/[0.08] hover:border-amber-500/40 text-[11px] text-neutral-200 hover:text-amber-300 transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight"
-                title="Login Cepat sebagai Admin Operasional (PIN: 999888)"
-              >
-                <span className="font-bold text-white text-[10px]">🏢 Admin</span>
-                <span className="font-mono text-[9px] text-amber-400">999888</span>
-              </button>
-            </div>
-          </div>
-
           {/* Success Banner when User is Identified */}
           {verifiedUser && (
             <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-3 animate-in fade-in duration-200">
@@ -411,7 +371,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             </div>
           )}
 
-          {/* iOS Segmented Tab Selector */}
+          {/* iOS Segmented Tab Selector (Subordinate Tinted Pill so Primary CTA Dominates) */}
           <div className="grid grid-cols-2 p-1 rounded-2xl bg-black/50 border border-white/[0.06] text-xs font-semibold">
             <button
               type="button"
@@ -421,8 +381,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               }}
               className={`min-h-[44px] py-2.5 px-3 rounded-xl text-center transition-all flex items-center justify-center gap-1.5 ${
                 activeTab === 'pin'
-                  ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                  : 'text-neutral-400 hover:text-white'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold shadow-sm'
+                  : 'text-neutral-400 hover:text-white border border-transparent'
               }`}
             >
               <KeyRound className="w-3.5 h-3.5" />
@@ -436,8 +396,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               }}
               className={`min-h-[44px] py-2.5 px-3 rounded-xl text-center transition-all flex items-center justify-center gap-1.5 ${
                 activeTab === 'email'
-                  ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                  : 'text-neutral-400 hover:text-white'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold shadow-sm'
+                  : 'text-neutral-400 hover:text-white border border-transparent'
               }`}
             >
               <Mail className="w-3.5 h-3.5" />
@@ -647,6 +607,46 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               <span className="flex-1 leading-relaxed">{statusMessage}</span>
             </div>
           )}
+
+          {/* Subordinate Quick-Access 1-Tap Persona Bar (Testing & High-Speed Gym-Floor Access) */}
+          <div className="flex flex-col gap-1.5 pt-2 border-t border-white/[0.06]">
+            <span className="text-[10px] uppercase font-semibold text-neutral-400 tracking-wider flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-emerald-400" />
+              <span>Akses Cepat Pengujian Persona (1-Tap):</span>
+            </span>
+            <div className="grid grid-cols-3 gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleQuickFill('123456')}
+                disabled={isVerifyingDb}
+                className="min-h-[44px] py-1.5 px-2 rounded-xl bg-white/[0.03] hover:bg-emerald-500/15 border border-white/[0.06] hover:border-emerald-500/40 text-[11px] text-neutral-300 hover:text-emerald-300 transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight"
+                title="Login Cepat sebagai Head Coach Panji (PIN: 123456)"
+              >
+                <span className="font-semibold text-white text-[10px]">🏋️ Coach</span>
+                <span className="font-mono text-[9px] text-emerald-400">123456</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickFill('34567801')}
+                disabled={isVerifyingDb}
+                className="min-h-[44px] py-1.5 px-2 rounded-xl bg-white/[0.03] hover:bg-blue-500/15 border border-white/[0.06] hover:border-blue-500/40 text-[11px] text-neutral-300 hover:text-blue-300 transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight"
+                title="Login Cepat sebagai Member Budi Santoso (PIN: 34567801)"
+              >
+                <span className="font-semibold text-white text-[10px]">🏃 Member</span>
+                <span className="font-mono text-[9px] text-blue-400">34567801</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickFill('999888')}
+                disabled={isVerifyingDb}
+                className="min-h-[44px] py-1.5 px-2 rounded-xl bg-white/[0.03] hover:bg-amber-500/15 border border-white/[0.06] hover:border-amber-500/40 text-[11px] text-neutral-300 hover:text-amber-300 transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight"
+                title="Login Cepat sebagai Admin Operasional (PIN: 999888)"
+              >
+                <span className="font-semibold text-white text-[10px]">🏢 Admin</span>
+                <span className="font-mono text-[9px] text-amber-400">999888</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Security & Offline-First Footer */}
