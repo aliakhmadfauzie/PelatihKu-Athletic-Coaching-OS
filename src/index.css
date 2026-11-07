@@ -3,10 +3,11 @@
 
 /* ==========================================================================
    PRODUCTION-GRADE 60-30-10 DESIGN TOKEN SYSTEM
-   - Login Screen: Horizon Sky-to-Peach Liquid Glass (.horizon-canvas)
-   - App Screens (Light Mode): Warm Ivory (#FAF6F0), Crisp White (#FFFFFF),
-     Soft Peach-Sand (#FDF3E7), Peach Badges (#FDE8D0) & Terracotta-Orange (#EA6A20)
-   - App Screens (Dark Mode): Layered OLED Slate/Navy & Calibrated Accents
+   - Login Screen (Light): Horizon Sky-to-Peach Liquid Glass (.horizon-canvas)
+   - App Screens (Light Mode — "SwiftGo" Kit): Warm Ivory (#FAF6F0),
+     Crisp White (#FFFFFF), Soft Peach-Sand (#FDF3E7) & Terracotta-Orange (#EA6A20)
+   - App Screens (Dark Mode — "Gym Mobile App UI Kit"): Pitch Obsidian (#0A0B0E),
+     Matte Charcoal (#15181E), Graphite (#1C2028) & Electric Volt-Lime (#8CE211)
    ========================================================================== */
 @theme {
   --color-canvas-deep: var(--bg-canvas-deep);
@@ -72,22 +73,22 @@
     --interactive-primary-hover: #d45812;
     --interactive-primary-fg: #ffffff;
 
-    /* Semantic Status (Light Mode) */
-    --status-success-bg: #fdf3e7;
-    --status-success-border: #f7d1a8;
-    --status-success-text: #c24e0e;
+    /* Semantic Status (Light Mode) — Differentiated for Instant Scanability */
+    --status-success-bg: #ecfdf5;
+    --status-success-border: #a7f3d0;
+    --status-success-text: #047857;
 
-    --status-warning-bg: #fff7ed;
-    --status-warning-border: #fed7aa;
-    --status-warning-text: #c2410c;
+    --status-warning-bg: #fffbeb;
+    --status-warning-border: #fcd34d;
+    --status-warning-text: #b45309;
 
     --status-danger-bg: #fef2f2;
     --status-danger-border: #fecaca;
     --status-danger-text: #b91c1c;
 
-    --status-info-bg: #fdf3e7;
-    --status-info-border: #f7d1a8;
-    --status-info-text: #ea6a20;
+    --status-info-bg: #eff6ff;
+    --status-info-border: #bfdbfe;
+    --status-info-text: #1d4ed8;
 
     /* Legacy Token Aliases */
     --color-bg-base: var(--bg-canvas);
@@ -107,44 +108,44 @@
   }
 
   .dark {
-    /* 60% Neutral Foundation (OLED Layered Depth) */
-    --bg-canvas-deep: oklch(0.120 0.012 240);
-    --bg-canvas: oklch(0.120 0.012 240);
-    --bg-surface: oklch(0.180 0.018 240);
-    --bg-surface-elevated: oklch(0.230 0.020 240);
-    --bg-surface-overlay: oklch(0.280 0.022 240);
-    --bg-surface-subtle: oklch(0.150 0.015 240);
+    /* 60% Pitch Obsidian & Matte Charcoal Foundation (Gym Mobile App UI Kit) */
+    --bg-canvas-deep: #0a0b0e;
+    --bg-canvas: #0d0f12;
+    --bg-surface: #15181e;
+    --bg-surface-elevated: #1c2028;
+    --bg-surface-overlay: #242933;
+    --bg-surface-subtle: #111318;
 
-    /* 30% Structural Support (Dark Mode) */
-    --border-hairline: rgba(255, 255, 255, 0.08);
-    --border-subtle: rgba(255, 255, 255, 0.08);
-    --border-strong: rgba(255, 255, 255, 0.16);
+    /* 30% Graphite Borders & Crisp White / Cool Silver Typography */
+    --border-hairline: #232730;
+    --border-subtle: #242832;
+    --border-strong: #323846;
 
-    --text-primary: oklch(0.985 0.005 240);
-    --text-secondary: oklch(0.850 0.015 155);
-    --text-muted: oklch(0.700 0.020 240);
+    --text-primary: #ffffff;
+    --text-secondary: #a0a6b2;
+    --text-muted: #6b7280;
 
-    /* 10% Primary Action Driver (CTA - Calibrated Dark Mode Saturation) */
-    --interactive-primary: oklch(0.750 0.160 155);
-    --interactive-primary-hover: oklch(0.680 0.150 155);
-    --interactive-primary-fg: oklch(0.120 0.020 155);
+    /* 10% Electric Volt / Athletic Chartreuse-Lime Action Driver (CTA) */
+    --interactive-primary: #8ce211;
+    --interactive-primary-hover: #9fef1b;
+    --interactive-primary-fg: #0a0b0e;
 
     /* Semantic Status (Dark Mode) */
-    --status-success-bg: rgba(78, 222, 163, 0.12);
-    --status-success-border: rgba(78, 222, 163, 0.28);
-    --status-success-text: oklch(0.750 0.160 155);
+    --status-success-bg: rgba(140, 226, 17, 0.14);
+    --status-success-border: rgba(140, 226, 17, 0.32);
+    --status-success-text: #9fef1b;
 
-    --status-warning-bg: rgba(255, 185, 95, 0.12);
-    --status-warning-border: rgba(255, 185, 95, 0.28);
-    --status-warning-text: oklch(0.820 0.150 75);
+    --status-warning-bg: rgba(249, 115, 22, 0.14);
+    --status-warning-border: rgba(249, 115, 22, 0.32);
+    --status-warning-text: #fb923c;
 
-    --status-danger-bg: rgba(248, 113, 113, 0.12);
-    --status-danger-border: rgba(248, 113, 113, 0.28);
-    --status-danger-text: oklch(0.750 0.180 25);
+    --status-danger-bg: rgba(248, 113, 113, 0.14);
+    --status-danger-border: rgba(248, 113, 113, 0.32);
+    --status-danger-text: #f87171;
 
-    --status-info-bg: rgba(56, 189, 248, 0.12);
-    --status-info-border: rgba(56, 189, 248, 0.28);
-    --status-info-text: oklch(0.780 0.140 235);
+    --status-info-bg: rgba(168, 85, 247, 0.14);
+    --status-info-border: rgba(168, 85, 247, 0.32);
+    --status-info-text: #c084fc;
 
     /* Legacy Token Aliases */
     --color-bg-base: var(--bg-canvas);
@@ -183,7 +184,6 @@
 
 /* ==========================================================================
    LOGIN SCREEN EXCLUSIVES: HORIZON LIQUID GLASS PRIMITIVES
-   Preserves the Sky-Blue to Sunset-Peach Horizon & Refractive Glass on Login
    ========================================================================== */
 .horizon-canvas {
   background: linear-gradient(
@@ -198,13 +198,12 @@
 }
 
 .dark .horizon-canvas {
-  background: linear-gradient(
-    180deg,
-    #08101f 0%,
-    #0d172a 38%,
-    #151729 72%,
-    #231722 100%
-  ) !important;
+  background: radial-gradient(
+      circle at 50% 0%,
+      rgba(140, 226, 17, 0.12) 0%,
+      transparent 55%
+    ),
+    linear-gradient(180deg, #0a0b0e 0%, #0f1217 50%, #0a0b0e 100%) !important;
   background-attachment: fixed !important;
 }
 
@@ -229,18 +228,16 @@
 .dark .liquid-glass-card {
   background: linear-gradient(
     145deg,
-    rgba(255, 255, 255, 0.11) 0%,
-    rgba(17, 24, 39, 0.68) 48%,
-    rgba(11, 15, 23, 0.82) 100%
+    rgba(28, 32, 40, 0.92) 0%,
+    rgba(21, 24, 30, 0.96) 52%,
+    rgba(15, 17, 22, 0.98) 100%
   );
   backdrop-filter: blur(28px) saturate(180%);
   -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  border: 1.5px solid rgba(140, 226, 17, 0.28);
   box-shadow:
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.32),
-    inset 0 -1px 2px rgba(255, 255, 255, 0.12),
-    inset 1px 0 2px rgba(255, 255, 255, 0.18),
-    0 28px 64px -12px rgba(0, 0, 0, 0.65);
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.12),
+    0 28px 64px -12px rgba(0, 0, 0, 0.75);
 }
 
 .liquid-glass-input-pill {
@@ -264,11 +261,15 @@
 }
 
 .dark .liquid-glass-input-pill {
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow:
-    inset 0 1px 1.5px rgba(255, 255, 255, 0.12),
-    0 4px 12px -2px rgba(0, 0, 0, 0.35);
+  background: #15181e;
+  border: 1px solid #262b36;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.dark .liquid-glass-input-pill:focus-within {
+  background: #1c2028;
+  border-color: #8ce211;
+  box-shadow: 0 0 0 3px rgba(140, 226, 17, 0.20);
 }
 
 .liquid-coral-btn {
@@ -284,12 +285,30 @@
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.dark .liquid-coral-btn {
+  background: linear-gradient(180deg, #9fef1b 0%, #80d60a 100%) !important;
+  color: #0a0b0e !important;
+  border: 1px solid #b4f83c !important;
+  box-shadow:
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.55),
+    0 10px 24px -4px rgba(140, 226, 17, 0.40) !important;
+  text-shadow: none !important;
+  font-weight: 700;
+}
+
 .liquid-coral-btn:hover:not(:disabled) {
   background: linear-gradient(180deg, #ffc399 0%, #ff9666 46%, #f87442 100%);
   box-shadow:
     inset 0 2px 4px rgba(255, 255, 255, 0.95),
     0 12px 28px -4px rgba(245, 106, 53, 0.58);
   transform: translateY(-0.5px);
+}
+
+.dark .liquid-coral-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #acff2c 0%, #8ce211 100%) !important;
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.65),
+    0 12px 28px -4px rgba(140, 226, 17, 0.52) !important;
 }
 
 /* ==========================================================================
@@ -398,23 +417,26 @@
   box-shadow: 0 8px 24px -6px rgba(234, 106, 32, 0.20);
 }
 .dark .linear-glow {
-  box-shadow: 0 0 24px -6px rgba(16, 185, 129, 0.22);
+  box-shadow: 0 8px 24px -6px rgba(140, 226, 17, 0.25);
 }
 
 .gold-glow {
   box-shadow: 0 8px 24px -6px rgba(234, 106, 32, 0.24);
 }
+.dark .gold-glow {
+  box-shadow: 0 8px 24px -6px rgba(249, 115, 22, 0.24);
+}
 
-/* Surface Levels (Warm Editorial White & Soft Peach-Sand in Light Mode) */
+/* Surface Levels (Light: Warm White/Peach | Dark: Matte Charcoal/Graphite) */
 .card-glass {
   background: #ffffff;
   border: 1px solid #ede4d8;
   box-shadow: 0 8px 24px -6px rgba(120, 82, 45, 0.06);
 }
 .dark .card-glass {
-  background: rgba(17, 24, 39, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: none;
+  background: #15181e;
+  border: 1px solid #242832;
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.45);
 }
 
 .surface-glass-1 {
@@ -423,9 +445,9 @@
   box-shadow: 0 6px 20px -6px rgba(120, 82, 45, 0.05);
 }
 .dark .surface-glass-1 {
-  background: rgba(17, 24, 39, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: none;
+  background: #15181e;
+  border: 1px solid #242832;
+  box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.40);
 }
 
 .surface-glass-2 {
@@ -434,8 +456,8 @@
   box-shadow: 0 6px 18px -6px rgba(180, 105, 40, 0.06);
 }
 .dark .surface-glass-2 {
-  background: rgba(20, 27, 43, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #1c2028;
+  border: 1px solid #2a2f3b;
 }
 
 .surface-glass-modal {
@@ -444,9 +466,9 @@
   box-shadow: 0 24px 48px -12px rgba(80, 50, 20, 0.16);
 }
 .dark .surface-glass-modal {
-  background: rgba(16, 23, 38, 0.94);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  background: #15181e;
+  border: 1px solid #2a2f3b;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
 }
 
 /* Touch Target Standard */
@@ -460,7 +482,7 @@
   outline: none;
 }
 .focus-ring:focus-visible {
-  outline: 2px solid #ea6a20;
+  outline: 2px solid var(--interactive-primary);
   outline-offset: 2px;
 }
 
@@ -487,12 +509,198 @@
   border-radius: 9999px;
 }
 .dark ::-webkit-scrollbar-thumb {
-  background: #1F2937;
+  background: #262b36;
 }
 
 /* ==========================================================================
-   WARM IVORY, SOFT PEACH-SAND & TERRACOTTA-ORANGE ENGINE (ALL APP SCREENS)
-   Replicates the "SwiftGo" Warm Editorial UI Kit across post-login screens
+   DARK MODE ENGINE ("GYM MOBILE APP UI KIT" — Pitch Obsidian & Volt-Lime)
+   Maps all dark surfaces to Pitch Obsidian (#0A0B0E), Matte Charcoal (#15181E),
+   Graphite (#1C2028), and Electric Volt-Lime (#8CE211 / #9FEF1B)
+   ========================================================================== */
+html.dark body {
+  background-color: #0a0b0e !important;
+  color: #ffffff;
+}
+
+/* ── 60% Pitch Obsidian Canvas (Surface 0) ───────────────────────────────── */
+html.dark .bg-\[\#0B0F17\]:not(.horizon-canvas),
+html.dark .bg-\[\#0b0f17\]:not(.horizon-canvas),
+html.dark .bg-\[\#070e1d\]:not(.horizon-canvas),
+html.dark .bg-\[\#090f1d\]:not(.horizon-canvas),
+html.dark .bg-\[\#0a0f1d\]:not(.horizon-canvas),
+html.dark .bg-\[\#0a101d\]:not(.horizon-canvas),
+html.dark .bg-\[\#0b1220\]:not(.horizon-canvas),
+html.dark .bg-\[\#0b101c\]:not(.horizon-canvas),
+html.dark .bg-\[\#0b101b\]:not(.horizon-canvas),
+html.dark .bg-\[\#0b0f19\]:not(.horizon-canvas),
+html.dark .bg-\[\#0c1220\]:not(.horizon-canvas),
+html.dark .bg-\[\#0c1322\]:not(.horizon-canvas),
+html.dark .dark\:bg-\[\#0B0F17\]:not(.horizon-canvas) {
+  background-color: #0a0b0e !important;
+}
+
+/* ── Matte Dark Charcoal Primary Cards (Surface 1: #15181E) ──────────────── */
+html.dark .bg-\[\#111726\],
+html.dark .bg-\[\#141b2b\],
+html.dark .bg-\[\#141c2b\],
+html.dark .bg-\[\#141b28\],
+html.dark .bg-\[\#101726\],
+html.dark .bg-\[\#0d1424\],
+html.dark .bg-\[\#0e1626\],
+html.dark .bg-\[\#141d30\],
+html.dark .bg-\[\#101827\],
+html.dark .bg-\[\#121a2c\],
+html.dark .bg-\[\#121c2e\],
+html.dark .bg-\[\#111927\],
+html.dark .bg-\[\#121928\],
+html.dark .bg-\[\#0c1629\],
+html.dark .bg-\[\#111827\],
+html.dark .dark\:bg-\[\#111726\],
+html.dark .dark\:bg-\[\#111726\]\/95,
+html.dark .dark\:bg-\[\#111726\]\/80 {
+  background-color: #15181e !important;
+  border-color: #242832 !important;
+}
+
+/* ── Sticky Top Header & Modals in Dark Mode ─────────────────────────────── */
+html.dark .dark\:bg-\[\#0B0F17\]\/90,
+html.dark .bg-\[\#111726\]\/85,
+html.dark .bg-\[\#111726\]\/90,
+html.dark .bg-\[\#111726\]\/95 {
+  background-color: rgba(15, 17, 22, 0.94) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-color: #232730 !important;
+}
+
+/* ── Dark Graphite Elevated Sub-Tiles & Exercise Rows (Surface 2: #1C2028) ─ */
+html.dark .bg-\[\#1e2638\],
+html.dark .bg-\[\#191f2f\],
+html.dark .bg-\[\#182338\],
+html.dark .bg-\[\#141f33\],
+html.dark .bg-\[\#172138\],
+html.dark .bg-\[\#141e33\],
+html.dark .bg-\[\#162032\],
+html.dark .bg-\[\#162035\],
+html.dark .bg-\[\#1a2336\],
+html.dark .bg-\[\#111e38\],
+html.dark .bg-\[\#141f36\],
+html.dark .bg-\[\#182030\],
+html.dark .bg-\[\#17223b\] {
+  background-color: #1c2028 !important;
+  border-color: #2a2f3b !important;
+}
+
+/* ── 10% Electric Volt-Lime (#8CE211 / #9FEF1B) Action Driver in Dark Mode ─ */
+/* Solid Primary CTA Buttons, Start Workout Pills & Circular FAB */
+html.dark .bg-emerald-500,
+html.dark .bg-emerald-600,
+html.dark .bg-teal-500,
+html.dark .from-emerald-500,
+html.dark .from-emerald-400 {
+  background: linear-gradient(180deg, #9fef1b 0%, #80d60a 100%) !important;
+  color: #0a0b0e !important;
+  border-color: #a8f52c !important;
+  box-shadow: 0 8px 24px -4px rgba(140, 226, 17, 0.35) !important;
+}
+
+html.dark .bg-emerald-500 *,
+html.dark .bg-emerald-600 *,
+html.dark .from-emerald-500 *,
+html.dark .from-emerald-400 * {
+  color: #0a0b0e !important;
+}
+
+html.dark .hover\:bg-emerald-400:hover,
+html.dark .hover\:bg-emerald-500:hover,
+html.dark .hover\:bg-emerald-600:hover {
+  background: linear-gradient(180deg, #acff2c 0%, #8ce211 100%) !important;
+  color: #0a0b0e !important;
+}
+
+/* Tinted Volt-Lime Badges, Active Nav Pills & Quick Action Icons */
+html.dark .bg-emerald-500\/10,
+html.dark .bg-emerald-500\/15,
+html.dark .bg-emerald-500\/20,
+html.dark .bg-emerald-500\/25,
+html.dark .bg-emerald-400\/10,
+html.dark .bg-emerald-400\/15,
+html.dark .bg-teal-500\/10,
+html.dark .bg-teal-500\/15,
+html.dark .dark\:bg-emerald-500\/15,
+html.dark .dark\:bg-emerald-500\/20 {
+  background-color: rgba(140, 226, 17, 0.14) !important;
+  border-color: rgba(140, 226, 17, 0.32) !important;
+  color: #9fef1b !important;
+}
+
+/* Accent Typography, Progress Sparklines & Icons -> Electric Volt-Lime */
+html.dark .text-emerald-300,
+html.dark .text-emerald-400,
+html.dark .text-emerald-500,
+html.dark .text-teal-300,
+html.dark .text-teal-400,
+html.dark .dark\:text-emerald-300,
+html.dark .dark\:text-emerald-400 {
+  color: #9fef1b !important;
+}
+
+/* Active Volt-Lime Borders */
+html.dark .border-emerald-500,
+html.dark .border-emerald-400,
+html.dark .border-emerald-500\/20,
+html.dark .border-emerald-500\/25,
+html.dark .border-emerald-500\/30,
+html.dark .border-emerald-500\/40,
+html.dark .border-emerald-500\/50,
+html.dark .dark\:border-emerald-500\/30,
+html.dark .dark\:border-emerald-500\/40 {
+  border-color: rgba(140, 226, 17, 0.38) !important;
+}
+
+/* Indicator Dots & Live Pulse Dots */
+html.dark span.rounded-full.bg-emerald-400,
+html.dark span.rounded-full.bg-emerald-500 {
+  background: #9fef1b !important;
+  box-shadow: 0 0 10px rgba(159, 239, 27, 0.75) !important;
+}
+
+/* Secondary Multi-Accent Analytics (Calories Coral-Orange & Active Time Violet) */
+html.dark .text-amber-400,
+html.dark .dark\:text-amber-400 {
+  color: #fb923c !important;
+}
+
+html.dark .bg-amber-500\/10,
+html.dark .bg-amber-500\/15 {
+  background-color: rgba(249, 115, 22, 0.14) !important;
+  border-color: rgba(249, 115, 22, 0.30) !important;
+}
+
+/* Form Inputs, Search Bars & Selects in Dark Mode (#111318 Deep Carbon) */
+html.dark input:not([type="checkbox"]):not([type="radio"]):not(.liquid-raw-input),
+html.dark select,
+html.dark textarea {
+  background-color: #111318 !important;
+  color: #ffffff !important;
+  border: 1px solid #262b36 !important;
+}
+
+html.dark input:not([type="checkbox"]):not([type="radio"]):not(.liquid-raw-input):focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  background-color: #15181e !important;
+  border-color: #8ce211 !important;
+  box-shadow: 0 0 0 3px rgba(140, 226, 17, 0.18) !important;
+}
+
+html.dark select option {
+  background-color: #15181e;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   LIGHT MODE ENGINE ("SWIFTGO" WARM IVORY, SOFT PEACH-SAND & TERRACOTTA)
    ========================================================================== */
 html.light body {
   background-color: #faf6f0 !important;
@@ -546,6 +754,9 @@ html.light header.bg-white\/90,
 html.light .bg-\[\#111726\]\/85,
 html.light .bg-\[\#111726\]\/90,
 html.light .bg-\[\#111726\]\/95,
+html.light .bg-\[\#111827\]\/80,
+html.light .bg-\[\#111827\]\/90,
+html.light .bg-\[\#111827\]\/95,
 html.light .bg-\[\#0B0F17\]\/80,
 html.light .bg-\[\#0B0F17\]\/90,
 html.light .bg-\[\#0b0f17\]\/80,
@@ -555,6 +766,15 @@ html.light .bg-\[\#0b0f17\]\/90 {
   -webkit-backdrop-filter: blur(20px) !important;
   border-color: #ede4d8 !important;
   box-shadow: 0 6px 20px -6px rgba(120, 82, 45, 0.06) !important;
+}
+
+/* ── Dark Gradient Headers in Modals & Banners -> Warm Sand Gradient ─────── */
+html.light .from-\[\#111827\],
+html.light .via-\[\#132226\],
+html.light .via-\[\#111827\],
+html.light .to-\[\#111827\] {
+  background-image: linear-gradient(135deg, #fdf3e7 0%, #faf6f0 50%, #ffffff 100%) !important;
+  border-color: #ede4d8 !important;
 }
 
 /* ── Modal Overlay Backdrops ─────────────────────────────────────────────── */
@@ -621,7 +841,6 @@ html.light .bg-white\/10 {
 }
 
 /* ── 10% Terracotta-Orange (#EA6A20) & Soft Peach Badge (#FDE8D0) Mapping ── */
-/* Solid Primary CTA Buttons & Active Pills */
 html.light .bg-emerald-500,
 html.light .bg-emerald-600,
 html.light .bg-teal-500,
@@ -640,7 +859,6 @@ html.light .hover\:bg-emerald-600:hover {
   color: #ffffff !important;
 }
 
-/* Tinted Icon Badges, Active Nav Pills & Feature Chips (#FDE8D0) */
 html.light .bg-emerald-500\/10,
 html.light .bg-emerald-500\/15,
 html.light .bg-emerald-500\/20,
@@ -654,35 +872,86 @@ html.light .bg-teal-500\/15 {
   color: #c24e0e !important;
 }
 
-/* Accent Typography & Icon Colors -> Terracotta-Orange (#EA6A20) */
+/* ── Semantic Status Differentiators (Success / Warning / Info in Light Mode) ─ */
+html.light .bg-emerald-100 {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #047857 !important;
+}
+
+html.light .text-emerald-700,
+html.light .text-emerald-800 {
+  color: #047857 !important;
+}
+
+html.light .bg-amber-500\/10,
+html.light .bg-amber-500\/15,
+html.light .bg-amber-500\/20,
+html.light .bg-amber-500\/25,
+html.light .bg-amber-400\/10,
+html.light .bg-amber-400\/15 {
+  background-color: #fef3c7 !important;
+  border-color: #fcd34d !important;
+  color: #92400e !important;
+}
+
+html.light .text-amber-200,
+html.light .text-amber-300,
+html.light .text-amber-400,
+html.light .text-amber-500,
+html.light .text-\[\#ffb95f\] {
+  color: #b45309 !important;
+}
+
+html.light .border-amber-500\/20,
+html.light .border-amber-500\/25,
+html.light .border-amber-500\/30,
+html.light .border-amber-500\/35,
+html.light .border-amber-500\/40 {
+  border-color: #fcd34d !important;
+}
+
+html.light .bg-blue-500\/10,
+html.light .bg-blue-500\/15,
+html.light .bg-blue-500\/20 {
+  background-color: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #1d4ed8 !important;
+}
+
+html.light .text-blue-300,
+html.light .text-blue-400,
+html.light .text-blue-500 {
+  color: #1d4ed8 !important;
+}
+
 html.light .text-emerald-300,
 html.light .text-emerald-400,
 html.light .text-emerald-500,
 html.light .text-emerald-600,
 html.light .text-teal-300,
-html.light .text-teal-400 {
-  color: #ea6a20 !important;
+html.light .text-teal-400,
+html.light .text-\[\#4edea3\] {
+  color: #c24e0e !important;
 }
 
-/* Active & Accent Borders -> Warm Terracotta / Apricot */
 html.light .border-emerald-500,
 html.light .border-emerald-400,
 html.light .border-emerald-500\/20,
 html.light .border-emerald-500\/25,
 html.light .border-emerald-500\/30,
+html.light .border-emerald-500\/35,
 html.light .border-emerald-500\/40,
 html.light .border-emerald-500\/50 {
   border-color: #f3b57a !important;
 }
 
-/* Pulse Dots & Indicator Dots */
 html.light span.rounded-full.bg-emerald-400,
 html.light span.rounded-full.bg-emerald-500 {
   background: #ea6a20 !important;
   box-shadow: none !important;
 }
 
-/* ── Structural Warm Sand Borders ────────────────────────────────────────── */
 html.light [class*="border-white\/"],
 html.light .border-slate-200,
 html.light .border-slate-200\/90,
@@ -691,18 +960,26 @@ html.light .border-slate-300\/80 {
   border-color: #ede4d8 !important;
 }
 
-/* ── Warm Espresso & Umber Typography ────────────────────────────────────── */
-html.light .text-white:not(.liquid-coral-btn):not(.liquid-coral-btn *):not([class*="bg-emerald-500"]):not([class*="bg-emerald-600"]):not([class*="bg-rose-500"]):not([class*="bg-red-500"]):not([class*="from-emerald"]):not([class*="from-[#FF8C42]"]):not([class*="rounded-full"]) {
+html.light .text-white:not(.liquid-coral-btn):not(.liquid-coral-btn *):not([class*="bg-emerald-500"]):not([class*="bg-emerald-600"]):not([class*="bg-rose-500"]):not([class*="bg-red-500"]):not([class*="bg-blue-600"]):not([class*="from-emerald"]):not([class*="from-blue-500"]):not([class*="from-purple-500"]):not([class*="from-[#FF8C42]"]) {
   color: #1c1917 !important;
 }
 
-/* Ensure white text stays white inside solid Terracotta-Orange CTA buttons */
 html.light .bg-emerald-500,
 html.light .bg-emerald-500 *,
 html.light .bg-emerald-600,
 html.light .bg-emerald-600 *,
 html.light .from-emerald-500,
-html.light .from-emerald-500 * {
+html.light .from-emerald-500 *,
+html.light .from-emerald-600,
+html.light .from-emerald-600 *,
+html.light .from-blue-500,
+html.light .from-blue-500 *,
+html.light .from-purple-500,
+html.light .from-purple-500 *,
+html.light .bg-rose-500,
+html.light .bg-rose-500 *,
+html.light .bg-red-500,
+html.light .bg-red-500 * {
   color: #ffffff !important;
 }
 
@@ -729,7 +1006,6 @@ html.light .text-slate-400 {
   color: #8c7e72 !important;
 }
 
-/* ── Form Inputs, Search Bars, Selects & Textareas ───────────────────────── */
 html.light input:not([type="checkbox"]):not([type="radio"]):not(.liquid-raw-input),
 html.light select,
 html.light textarea {

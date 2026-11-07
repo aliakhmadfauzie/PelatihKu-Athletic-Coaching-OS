@@ -1,7 +1,7 @@
 # Dokumen Spesifikasi Kebutuhan Aplikasi (PRD) — PelatihKu PRO
 **Sistem Operasi Manajemen Member & Personal Training (PT) Fitness Center**  
 **Lead Coach:** Panji Akbar Syamsi, S.Or. (Master Fitness Trainer)  
-**Versi Dokumen:** 2.7.7  
+**Versi Dokumen:** 2.8.0  
 **Status:** Aktif & Terverifikasi
 
 ---
@@ -126,6 +126,14 @@ Aplikasi ini mendigitalkan dan mengintegrasikan seluruh alur operasional kepelat
 - **Aksi Cepat Jadwal:** Konfirmasi sesi, reschedule sesi via modal interaktif, atau navigasi langsung ke profil member terkait.
 
 ### Modul 8: Profil & Portofolio Coach Panji (CoachProfileView.tsx)
+- **Kredensial & Lisensi:** Nomor Registrasi Kemenpora RI, Lisensi PB PABSI, CSCS, dan sertifikasi nutrisi kebugaran terverifikasi.
+- **Manajemen Beban Kerja:** Indikator visual utilisasi kuota (contoh: 24/27 slot terisi = 89%), tombol toggle buka/tutup kuota member baru.
+- **Keamanan & Sinkronisasi:** Modal konfirmasi keluar akun dengan visual check integritas enkripsi cache lokal sebelum kembali ke LoginScreen.
+
+### Modul 9: Koneksi & Sinkronisasi Otomatis Kalender HP (PhoneCalendarSyncModal.tsx & phoneCalendarSyncService.ts)
+- **Auto-Sync Saat Buat & Ubah Jadwal (`triggerAutoPhoneCalendarSync`):** Setiap jadwal Sesi PT baru, paket sesi berulang (12/24/36 Sesi), maupun persetujuan Reschedule otomatis memperbarui kalender HP menggunakan `UID` deterministik (`pelatihku-pt-{clientId}-s{sessionNumber}@pelatihku.id`) dan kenaikan nomor revisi `SEQUENCE` berstandar RFC 5545 agar jadwal lama di Kalender HP diperbarui langsung tanpa duplikasi.
+- **Live Subscribed iCalendar Feed (`webcal://` & `/api/v1/calendar/feed.ics`):** Langganan satu ketukan untuk Apple Calendar (iOS), Google Calendar (Android), Samsung Calendar, dan Outlook dengan pemisahan hak akses RBAC (Coach/Admin melihat seluruh jadwal member; Member hanya melihat jadwal Sesi PT miliknya).
+- **Log Perubahan Sinkronisasi (Sync Ledger):** Pencatatan real-time riwayat pembuatan jadwal (`CREATED`), paket berulang (`BATCH_CREATED`), dan perubahan tanggal sesi (`UPDATED` beserta riwayat tanggal lama ke tanggal baru dan nomor `SEQUENCE`).
 - **Kredensial & Lisensi:** Nomor Registrasi Kemenpora RI, Lisensi PB PABSI, CSCS, dan sertifikasi nutrisi kebugaran terverifikasi.
 - **Manajemen Beban Kerja:** Indikator visual utilisasi kuota (contoh: 24/27 slot terisi = 89%), tombol toggle buka/tutup kuota member baru.
 - **Keamanan & Sinkronisasi:** Modal konfirmasi keluar akun dengan visual check integritas enkripsi cache lokal sebelum kembali ke LoginScreen.
