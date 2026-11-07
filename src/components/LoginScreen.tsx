@@ -318,35 +318,35 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   };
 
   return (
-    <div className="bg-slate-50 text-slate-900 dark:bg-[#0B0F17] dark:text-neutral-200 font-sans antialiased min-h-[100dvh] pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] px-4 flex flex-col justify-center items-center selection:bg-emerald-500/20 selection:text-emerald-400 relative overflow-x-hidden transition-colors duration-200">
-      {/* iOS Refined Translucent Ambient Mesh */}
+    <div className="horizon-canvas text-slate-900 dark:text-neutral-200 font-sans antialiased min-h-[100dvh] pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] px-4 flex flex-col justify-center items-center selection:bg-orange-500/20 selection:text-orange-600 relative overflow-x-hidden transition-colors duration-300">
+      {/* Atmospheric Horizon Ambient Light Blooms */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-96 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.12),transparent_70%)]" />
-        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-[radial-gradient(ellipse_at_bottom,rgba(59,130,246,0.06),transparent_70%)]" />
+        <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[36rem] h-80 rounded-full bg-white/25 dark:bg-sky-400/[0.08] blur-3xl" />
+        <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-[38rem] h-96 rounded-full bg-orange-300/30 dark:bg-orange-500/[0.10] blur-3xl" />
       </div>
 
-      <div className="w-full max-w-sm flex flex-col gap-3.5 relative z-10">
-        {/* Top Control Bar: Brand Status & Theme Switcher */}
-        <div className="flex items-center justify-between px-1 gap-2">
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-neutral-400 font-medium">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Athletic OS • v2.7.5</span>
+      <div className="w-full max-w-[380px] flex flex-col gap-3.5 relative z-10">
+        {/* Top Control Bar: Brand Status & Single Theme Switcher */}
+        <div className="flex items-center justify-between px-2 gap-2">
+          <div className="flex items-center gap-2 text-xs text-slate-800/85 dark:text-neutral-300 font-semibold drop-shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
+            <span>PelatihKu PRO • v2.7.6</span>
           </div>
 
           <button
             type="button"
             onClick={handleToggleTheme}
             aria-label={currentTheme === 'dark' ? 'Ganti ke Mode Terang' : 'Ganti ke Mode Gelap'}
-            className="min-h-[44px] px-3.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-xs font-semibold flex items-center gap-2 transition active:scale-95 shadow-xs cursor-pointer"
+            className="min-h-[44px] px-3.5 py-1.5 rounded-2xl liquid-glass-input-pill text-xs font-semibold flex items-center gap-2 transition active:scale-95 cursor-pointer"
           >
             {currentTheme === 'dark' ? (
               <>
                 <Sun className="w-4 h-4 text-amber-400" />
-                <span className="text-amber-300 text-xs font-semibold">Mode Terang</span>
+                <span className="text-amber-200 text-xs font-semibold">Mode Terang</span>
               </>
             ) : (
               <>
-                <Moon className="w-4 h-4 text-slate-700" />
+                <Moon className="w-4 h-4 text-slate-800" />
                 <span className="text-slate-900 text-xs font-semibold">Mode Gelap</span>
               </>
             )}
@@ -355,80 +355,77 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
         {/* PWA Install Banner */}
         {isInstallable && (
-          <div className="bg-white/90 dark:bg-[#141B28]/90 backdrop-blur-xl border border-emerald-500/30 rounded-2xl p-3.5 flex items-center justify-between gap-3 text-xs shadow-lg shadow-black/10 dark:shadow-black/50">
+          <div className="liquid-glass-card rounded-2xl p-3.5 flex items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-white/50 dark:bg-emerald-500/20 text-slate-900 dark:text-emerald-300 border border-white/70 dark:border-emerald-500/30 flex items-center justify-center shrink-0">
                 <Download className="w-4 h-4" />
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="font-semibold text-slate-900 dark:text-white truncate">Install PelatihKu PRO</span>
-                <span className="text-slate-500 dark:text-neutral-400 text-[11px] truncate">Akses instan di lantai gym</span>
+                <span className="text-slate-700 dark:text-neutral-300 text-[11px] truncate">Akses instan di lantai gym</span>
               </div>
             </div>
             <button
               type="button"
               onClick={() => triggerInstall()}
-              className="min-h-[44px] min-w-[64px] bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs shrink-0 active:scale-95 transition-transform flex items-center justify-center shadow-md shadow-emerald-500/20"
+              className="min-h-[44px] min-w-[68px] liquid-coral-btn font-bold px-3.5 py-2 rounded-xl text-xs shrink-0 flex items-center justify-center"
             >
               Install
             </button>
           </div>
         )}
 
-        {/* Main Login Card with Adaptive RGBA Glassmorphism */}
-        <div className="bg-white/90 dark:bg-[#111726]/80 backdrop-blur-2xl border border-slate-200/90 dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex flex-col gap-5">
-          {/* Brand Header */}
-          <div className="flex flex-col items-center text-center gap-2.5">
-            <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-[0_8px_20px_-4px_rgba(16,185,129,0.4)] text-slate-950">
-              <Dumbbell className="w-6 h-6 stroke-[2.3]" />
+        {/* Main Refractive Liquid Glass Login Card */}
+        <div className="liquid-glass-card rounded-[34px] p-7 sm:p-8 flex flex-col gap-4 relative overflow-hidden">
+          {/* Optical Specular Rim Flares (Top, Bottom & Left Edge Glints) */}
+          <div className="pointer-events-none absolute -top-[1px] left-1/2 -translate-x-1/2 w-48 h-[3px] bg-gradient-to-r from-transparent via-white to-transparent opacity-95 blur-[0.3px] shadow-[0_0_14px_2px_rgba(255,255,255,0.95)]" />
+          <div className="pointer-events-none absolute -bottom-[1px] left-1/2 -translate-x-1/2 w-44 h-[2.5px] bg-gradient-to-r from-transparent via-white/95 to-transparent opacity-90 blur-[0.3px] shadow-[0_0_12px_2px_rgba(255,255,255,0.85)]" />
+          <div className="pointer-events-none absolute top-10 bottom-10 -left-[1px] w-[2px] bg-gradient-to-b from-transparent via-white/90 to-transparent opacity-85" />
+          <div className="pointer-events-none absolute inset-0 rounded-[34px] bg-[linear-gradient(135deg,rgba(255,255,255,0.34)_0%,rgba(255,255,255,0.05)_44%,transparent_65%)] dark:bg-[linear-gradient(135deg,rgba(255,255,255,0.10)_0%,transparent_50%)]" />
+
+          {/* Centered Login Header */}
+          <div className="flex flex-col items-center text-center gap-1.5 relative z-10 pt-1">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/45 dark:bg-white/[0.08] border border-white/70 dark:border-white/[0.15] text-[10px] font-bold tracking-wider uppercase text-slate-800 dark:text-neutral-200 shadow-2xs">
+              <Dumbbell className="w-3 h-3 text-orange-600 dark:text-amber-400" />
+              <span>PelatihKu PRO • Athletic OS</span>
             </div>
-            <div>
-              <div className="flex items-center justify-center gap-1.5">
-                <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-                  Pelatih<span className="text-emerald-500 dark:text-emerald-400">Ku</span>
-                </h1>
-                <span className="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30">
-                  PRO
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1 font-medium">
-                Athletic Coaching &amp; Personal Training OS
-              </p>
-            </div>
+            <h1 className="text-[28px] font-bold text-slate-900 dark:text-white tracking-tight leading-tight mt-1">
+              Login
+            </h1>
           </div>
 
           {/* Success Banner when User is Identified */}
           {verifiedUser && (
-            <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-3 animate-in fade-in duration-200">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+            <div className="p-3.5 rounded-2xl bg-emerald-500/20 border border-white/70 dark:border-emerald-500/40 text-slate-900 dark:text-emerald-200 text-xs flex items-center gap-3 animate-in fade-in duration-200 relative z-10">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <div className="flex flex-col min-w-0">
-                <span className="font-semibold text-white truncate">
+                <span className="font-bold text-slate-900 dark:text-white truncate">
                   {verifiedUser.displayName}
                 </span>
-                <span className="text-[11px] text-emerald-400 font-medium">
+                <span className="text-[11px] text-slate-700 dark:text-emerald-300 font-medium">
                   {verifiedUser.role === 'coach'
                     ? '🏋️ Head Coach Panji Akbar Syamsi'
                     : verifiedUser.role === 'client'
                     ? '🏃 Member Personal Training'
                     : '🏢 Administrator Fitness Center'}{' '}
-                  • Mengalihkan ke dashboard...
+                  • Mengalihkan...
                 </span>
               </div>
             </div>
           )}
 
-          {/* iOS Segmented Tab Selector (Subordinate Tinted Pill so Primary CTA Dominates) */}
-          <div className="grid grid-cols-2 p-1 rounded-2xl bg-slate-100 dark:bg-black/50 border border-slate-200 dark:border-white/[0.06] text-xs font-semibold">
+          {/* Frosted Glass Mode Selector Tabs */}
+          <div className="grid grid-cols-2 p-1 rounded-2xl bg-white/35 dark:bg-black/35 border border-white/60 dark:border-white/[0.10] text-xs font-semibold relative z-10">
             <button
               type="button"
               onClick={() => {
                 setActiveTab('pin');
                 setStatusMessage(null);
               }}
-              className={`min-h-[44px] py-2.5 px-3 rounded-xl text-center transition-all flex items-center justify-center gap-1.5 ${
+              className={`min-h-[44px] py-2 px-3 rounded-xl text-center transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeTab === 'pin'
-                  ? 'bg-white text-emerald-600 border border-slate-200 shadow-sm dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40 font-bold'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-neutral-400 dark:hover:text-white border border-transparent'
+                  ? 'bg-white/80 dark:bg-white/[0.14] text-slate-900 dark:text-white border border-white/90 dark:border-white/25 shadow-sm font-bold'
+                  : 'text-slate-700 hover:text-slate-900 dark:text-neutral-300 dark:hover:text-white border border-transparent'
               }`}
             >
               <KeyRound className="w-3.5 h-3.5" />
@@ -440,268 +437,265 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 setActiveTab('email');
                 setStatusMessage(null);
               }}
-              className={`min-h-[44px] py-2.5 px-3 rounded-xl text-center transition-all flex items-center justify-center gap-1.5 ${
+              className={`min-h-[44px] py-2 px-3 rounded-xl text-center transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeTab === 'email'
-                  ? 'bg-white text-emerald-600 border border-slate-200 shadow-sm dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40 font-bold'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-neutral-400 dark:hover:text-white border border-transparent'
+                  ? 'bg-white/80 dark:bg-white/[0.14] text-slate-900 dark:text-white border border-white/90 dark:border-white/25 shadow-sm font-bold'
+                  : 'text-slate-700 hover:text-slate-900 dark:text-neutral-300 dark:hover:text-white border border-transparent'
               }`}
             >
               <Mail className="w-3.5 h-3.5" />
-              <span>Email &amp; Sandi</span>
+              <span>Username &amp; Sandi</span>
             </button>
           </div>
 
-          {/* Tab Content 1: PIN & Biometrik */}
+          {/* Tab Content 1: PIN & Biometrik (Frosted Glass Inline Pills + Coral Sign In) */}
           {activeTab === 'pin' && (
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <label
-                    htmlFor="universal-pin"
-                    className="text-xs text-slate-700 dark:text-neutral-300 font-semibold flex items-center gap-1.5"
-                  >
-                    <span>Masukkan PIN Akun (6–8 Digit)</span>
-                    {isVerifyingDb && (
-                      <span className="text-[10px] text-emerald-500 dark:text-emerald-400 font-mono flex items-center gap-1">
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                        Verifikasi...
-                      </span>
-                    )}
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setStatusMessage(
-                        'Member: 8 digit terakhir no. WhatsApp. Coach: 123456. Admin: 999888.'
-                      )
-                    }
-                    className="min-h-[44px] px-2 flex items-center text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
-                  >
-                    Bantuan PIN?
-                  </button>
-                </div>
-
-                <div className="relative flex items-center">
-                  <input
-                    id="universal-pin"
-                    type={showPin ? 'text' : 'password'}
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={8}
-                    value={pin}
-                    onChange={(e) => handlePinChange(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleVerifyPin(pin);
-                    }}
-                    placeholder="••••••••"
-                    autoFocus
-                    disabled={isVerifyingDb || !!verifiedUser}
-                    className="w-full min-h-[52px] bg-slate-50 dark:bg-black/60 border border-slate-300 dark:border-white/[0.12] rounded-2xl text-center text-2xl font-mono tracking-[0.4em] text-slate-900 dark:text-white py-3 px-12 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-400 dark:placeholder:text-neutral-700 disabled:opacity-50 shadow-inner"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPin((prev) => !prev)}
-                    className="absolute right-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-neutral-400 dark:hover:text-white transition-colors"
-                    aria-label={showPin ? 'Sembunyikan PIN' : 'Tampilkan PIN'}
-                  >
-                    {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-
-                {/* Helpful Instruction Snippet */}
-                <div className="p-2.5 rounded-xl bg-slate-100/80 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.05] text-[11px] text-slate-600 dark:text-neutral-400 flex flex-col gap-1">
-                  <div className="flex items-center gap-1.5 text-slate-800 dark:text-neutral-300 font-semibold">
-                    <Database className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
-                    <span>Autentikasi Cloud Firestore Otomatis:</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-1 text-[10px] text-slate-600 dark:text-neutral-400 pl-4">
-                    <span>• <strong>Pelatih/Admin:</strong> 6 digit PIN</span>
-                    <span>• <strong>Member:</strong> 8 digit no. WA</span>
-                  </div>
-                </div>
+            <div className="flex flex-col gap-3.5 relative z-10">
+              {/* Row 1: Account / Role Indicator Pill */}
+              <div className="liquid-glass-input-pill rounded-2xl min-h-[50px] px-4 py-2.5 flex items-center justify-between gap-3">
+                <span className="text-xs font-semibold text-slate-700 dark:text-neutral-200 shrink-0">
+                  Username
+                </span>
+                <span className="text-xs font-medium text-slate-600/85 dark:text-neutral-300/80 truncate text-right">
+                  {pin === '123456'
+                    ? 'panji.akbar@pelatihku.id'
+                    : pin === '999888'
+                    ? 'admin@pelatihku.id'
+                    : pin.length >= 6
+                    ? `Member ID • ${pin}`
+                    : 'Auto-Deteksi (Coach / Member)'}
+                </span>
               </div>
 
-              {/* Action Button: Masuk / Verifikasi */}
+              {/* Row 2: Frosted Glass Inline Password / PIN Pill */}
+              <div className="liquid-glass-input-pill rounded-2xl min-h-[50px] pl-4 pr-2 py-1.5 flex items-center gap-3">
+                <label
+                  htmlFor="universal-pin"
+                  className="text-xs font-semibold text-slate-700 dark:text-neutral-200 shrink-0 cursor-pointer"
+                >
+                  Password
+                </label>
+                <input
+                  id="universal-pin"
+                  type={showPin ? 'text' : 'password'}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={8}
+                  value={pin}
+                  onChange={(e) => handlePinChange(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleVerifyPin(pin);
+                  }}
+                  placeholder="PIN 6–8 Digit (cth: 123456)"
+                  autoFocus
+                  disabled={isVerifyingDb || !!verifiedUser}
+                  className="liquid-raw-input w-full bg-transparent border-0 text-right sm:text-left font-mono text-sm tracking-widest text-slate-900 dark:text-white focus:outline-none placeholder:font-sans placeholder:tracking-normal placeholder:text-slate-600/65 dark:placeholder:text-neutral-400/70 disabled:opacity-50"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPin((prev) => !prev)}
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-700 hover:text-slate-950 dark:text-neutral-300 dark:hover:text-white transition-colors shrink-0"
+                  aria-label={showPin ? 'Sembunyikan PIN' : 'Tampilkan PIN'}
+                >
+                  {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+
+              {/* Primary Sunset Coral-Orange Glossy Sign In Button */}
               <button
                 type="button"
                 onClick={() => handleVerifyPin(pin)}
                 disabled={isVerifyingDb || pin.length < 6 || !!verifiedUser}
-                className="w-full min-h-[48px] bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-200 dark:disabled:bg-neutral-800 disabled:text-slate-400 dark:disabled:text-neutral-500 text-slate-950 font-bold rounded-2xl py-3 px-4 text-xs flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-lg shadow-emerald-500/20"
+                className="liquid-coral-btn w-full min-h-[50px] rounded-2xl py-3 px-5 text-sm font-semibold flex items-center justify-center gap-2 mt-0.5 cursor-pointer relative overflow-hidden"
               >
+                <span className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-28 h-[2px] bg-gradient-to-r from-transparent via-white to-transparent opacity-95" />
                 {isVerifyingDb ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
-                    <span>Memverifikasi Database...</span>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Memverifikasi...</span>
                   </>
                 ) : verifiedUser ? (
                   <>
-                    <CheckCircle2 className="w-4 h-4 text-slate-950" />
+                    <CheckCircle2 className="w-4 h-4 text-white" />
                     <span>Terverifikasi!</span>
                   </>
                 ) : (
-                  <>
-                    <span>Masuk ke PelatihKu PRO</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
+                  <span>Sign In</span>
                 )}
               </button>
 
-              {/* 1-Tap Biometric Authentication Button */}
-              <button
-                type="button"
-                id="bio-auth-btn"
-                onClick={handleBiometricClick}
-                disabled={bioState !== 'idle' || !!verifiedUser}
-                className="w-full min-h-[48px] bg-slate-100 hover:bg-slate-200 active:bg-slate-300 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] active:dark:bg-white/[0.12] border border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-white rounded-2xl py-3 px-4 flex items-center justify-center gap-2.5 text-xs font-semibold active:scale-[0.98] transition-all shadow-sm"
-              >
-                <Fingerprint
-                  className={`w-4 h-4 text-emerald-500 dark:text-emerald-400 ${
-                    bioState === 'scanning' ? 'animate-pulse scale-110' : ''
-                  }`}
-                />
-                <span>
-                  {bioState === 'scanning'
-                    ? 'Memindai Sensor Biometrik...'
-                    : bioState === 'confirmed'
-                    ? 'Terverifikasi!'
-                    : 'Masuk dengan Sidik Jari / Face ID'}
-                </span>
-              </button>
+              {/* Centered Forgot Password / Bantuan PIN Link + Biometric Trigger */}
+              <div className="flex items-center justify-center gap-3 pt-0.5">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setStatusMessage(
+                      'Member: 8 digit terakhir no. WhatsApp. Coach: 123456. Admin: 999888.'
+                    )
+                  }
+                  className="min-h-[44px] px-2 flex items-center text-xs text-white dark:text-neutral-200 hover:underline font-medium drop-shadow-[0_1px_2px_rgba(15,23,42,0.28)] cursor-pointer"
+                >
+                  Forgot Password?
+                </button>
+                <span className="text-white/60 text-xs">•</span>
+                <button
+                  type="button"
+                  id="bio-auth-btn"
+                  onClick={handleBiometricClick}
+                  disabled={bioState !== 'idle' || !!verifiedUser}
+                  className="min-h-[44px] px-2 flex items-center gap-1.5 text-xs text-white dark:text-emerald-300 hover:underline font-semibold drop-shadow-[0_1px_2px_rgba(15,23,42,0.28)] cursor-pointer"
+                >
+                  <Fingerprint
+                    className={`w-3.5 h-3.5 ${
+                      bioState === 'scanning' ? 'animate-pulse scale-110' : ''
+                    }`}
+                  />
+                  <span>
+                    {bioState === 'scanning'
+                      ? 'Memindai...'
+                      : bioState === 'confirmed'
+                      ? 'Terverifikasi!'
+                      : 'Face ID / Biometrik'}
+                  </span>
+                </button>
+              </div>
             </div>
           )}
 
-          {/* Tab Content 2: Email & Sandi */}
+          {/* Tab Content 2: Username & Sandi (Exact Reference Inline Frosted Pills) */}
           {activeTab === 'email' && (
-            <form onSubmit={handleCredentialsSubmit} className="flex flex-col gap-3.5">
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="cred-email" className="text-xs text-slate-700 dark:text-neutral-300 font-semibold">
-                  Email atau No. WhatsApp
+            <form onSubmit={handleCredentialsSubmit} className="flex flex-col gap-3.5 relative z-10">
+              {/* Row 1: Username Inline Frosted Pill */}
+              <div className="liquid-glass-input-pill rounded-2xl min-h-[50px] px-4 py-2 flex items-center gap-3">
+                <label
+                  htmlFor="cred-email"
+                  className="text-xs font-semibold text-slate-700 dark:text-neutral-200 shrink-0 cursor-pointer"
+                >
+                  Username
                 </label>
-                <div className="relative flex items-center">
-                  <Mail className="w-4 h-4 text-slate-400 dark:text-neutral-500 absolute left-3.5 pointer-events-none" />
-                  <input
-                    id="cred-email"
-                    type="text"
-                    value={credIdentifier}
-                    onChange={(e) => setCredIdentifier(e.target.value)}
-                    placeholder="nama@pelatihku.id atau 081234567801"
-                    className="w-full min-h-[48px] bg-slate-50 dark:bg-black/60 border border-slate-300 dark:border-white/[0.12] rounded-2xl text-xs text-slate-900 dark:text-white pl-10 pr-3 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-400 dark:placeholder:text-neutral-600"
-                  />
-                </div>
+                <input
+                  id="cred-email"
+                  type="text"
+                  value={credIdentifier}
+                  onChange={(e) => setCredIdentifier(e.target.value)}
+                  placeholder="panji.akbar@pelatihku.id / No. WA"
+                  className="liquid-raw-input w-full bg-transparent border-0 text-xs text-slate-900 dark:text-white focus:outline-none placeholder:text-slate-600/65 dark:placeholder:text-neutral-400/70"
+                />
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="cred-pass" className="text-xs text-slate-700 dark:text-neutral-300 font-semibold">
-                    Kata Sandi / PIN Akun
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setStatusMessage('Tautan reset kata sandi dikirim via WhatsApp terdaftar.')
-                    }
-                    className="min-h-[44px] px-2 flex items-center text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
-                  >
-                    Lupa sandi?
-                  </button>
-                </div>
-                <div className="relative flex items-center">
-                  <Lock className="w-4 h-4 text-slate-400 dark:text-neutral-500 absolute left-3.5 pointer-events-none" />
-                  <input
-                    id="cred-pass"
-                    type={showPassword ? 'text' : 'password'}
-                    value={credPass}
-                    onChange={(e) => setCredPass(e.target.value)}
-                    placeholder="Masukkan sandi atau PIN akun"
-                    className="w-full min-h-[48px] bg-slate-50 dark:bg-black/60 border border-slate-300 dark:border-white/[0.12] rounded-2xl text-xs text-slate-900 dark:text-white pl-10 pr-12 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-400 dark:placeholder:text-neutral-600"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-neutral-400 dark:hover:text-white"
-                    aria-label="Toggle password visibility"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
+              {/* Row 2: Password Inline Frosted Pill */}
+              <div className="liquid-glass-input-pill rounded-2xl min-h-[50px] pl-4 pr-2 py-1.5 flex items-center gap-3">
+                <label
+                  htmlFor="cred-pass"
+                  className="text-xs font-semibold text-slate-700 dark:text-neutral-200 shrink-0 cursor-pointer"
+                >
+                  Password
+                </label>
+                <input
+                  id="cred-pass"
+                  type={showPassword ? 'text' : 'password'}
+                  value={credPass}
+                  onChange={(e) => setCredPass(e.target.value)}
+                  placeholder="Masukkan sandi atau PIN"
+                  className="liquid-raw-input w-full bg-transparent border-0 text-xs text-slate-900 dark:text-white focus:outline-none placeholder:text-slate-600/65 dark:placeholder:text-neutral-400/70"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-700 hover:text-slate-950 dark:text-neutral-300 dark:hover:text-white shrink-0"
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
 
+              {/* Primary Sunset Coral-Orange Glossy Sign In Button */}
               <button
                 type="submit"
                 disabled={isVerifyingDb}
-                className="w-full min-h-[48px] bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-2xl py-3 px-4 text-xs flex items-center justify-center gap-2 mt-1 active:scale-[0.98] transition-all shadow-lg shadow-emerald-500/20"
+                className="liquid-coral-btn w-full min-h-[50px] rounded-2xl py-3 px-5 text-sm font-semibold flex items-center justify-center gap-2 mt-0.5 cursor-pointer relative overflow-hidden"
               >
+                <span className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-28 h-[2px] bg-gradient-to-r from-transparent via-white to-transparent opacity-95" />
                 {isVerifyingDb ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
                     <span>Memverifikasi Akun...</span>
                   </>
                 ) : (
-                  <>
-                    <span>Masuk Akun</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
+                  <span>Sign In</span>
                 )}
               </button>
+
+              <div className="flex justify-center">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setStatusMessage('Tautan reset kata sandi dikirim via WhatsApp terdaftar.')
+                  }
+                  className="min-h-[44px] px-3 flex items-center text-xs text-white dark:text-neutral-200 hover:underline font-medium drop-shadow-[0_1px_2px_rgba(15,23,42,0.28)] cursor-pointer"
+                >
+                  Forgot Password?
+                </button>
+              </div>
             </form>
           )}
 
           {/* Status Message Alert */}
           {statusMessage && (
-            <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-xs flex items-center gap-2.5">
-              <AlertCircle className="w-4 h-4 shrink-0 text-amber-500 dark:text-amber-400" />
-              <span className="flex-1 leading-relaxed">{statusMessage}</span>
+            <div className="p-3 rounded-2xl bg-white/60 dark:bg-amber-500/15 border border-white/80 dark:border-amber-500/30 text-slate-900 dark:text-amber-200 text-xs flex items-center gap-2.5 relative z-10">
+              <AlertCircle className="w-4 h-4 shrink-0 text-orange-600 dark:text-amber-400" />
+              <span className="flex-1 leading-relaxed font-medium">{statusMessage}</span>
             </div>
           )}
 
-          {/* Subordinate Quick-Access 1-Tap Persona Bar (Testing & High-Speed Gym-Floor Access) */}
-          <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-200 dark:border-white/[0.06]">
-            <span className="text-[10px] uppercase font-semibold text-slate-500 dark:text-neutral-400 tracking-wider flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-emerald-500 dark:text-emerald-400" />
-              <span>Akses Cepat Pengujian Persona (1-Tap):</span>
+          {/* Quick-Access 1-Tap Persona Bar in Frosted Glass */}
+          <div className="flex flex-col gap-1.5 pt-2 border-t border-white/45 dark:border-white/[0.10] relative z-10">
+            <span className="text-[10px] uppercase font-bold text-slate-700/90 dark:text-neutral-300 tracking-wider flex items-center justify-center gap-1">
+              <Sparkles className="w-3 h-3 text-orange-600 dark:text-amber-400" />
+              <span>1-Tap Demo Login:</span>
             </span>
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => handleQuickFill('123456')}
                 disabled={isVerifyingDb}
-                className="min-h-[48px] py-2 px-2 rounded-xl bg-slate-50 hover:bg-emerald-500/10 dark:bg-white/[0.03] dark:hover:bg-emerald-500/15 border border-slate-200 hover:border-emerald-500/40 dark:border-white/[0.06] dark:hover:border-emerald-500/40 text-[11px] text-slate-700 dark:text-neutral-300 hover:text-emerald-700 dark:hover:text-emerald-300 transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight"
+                className="min-h-[46px] py-1.5 px-2 rounded-xl liquid-glass-input-pill hover:bg-white/65 dark:hover:bg-white/15 text-[11px] transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight cursor-pointer"
                 title="Login Cepat sebagai Head Coach Panji (PIN: 123456)"
               >
-                <span className="font-semibold text-slate-900 dark:text-white text-[10px]">🏋️ Coach</span>
-                <span className="font-mono text-[9px] text-emerald-600 dark:text-emerald-400">123456</span>
+                <span className="font-bold text-slate-900 dark:text-white text-[10px]">🏋️ Coach</span>
+                <span className="font-mono text-[9px] text-slate-700 dark:text-emerald-300 font-semibold">123456</span>
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickFill('34567801')}
                 disabled={isVerifyingDb}
-                className="min-h-[48px] py-2 px-2 rounded-xl bg-slate-50 hover:bg-blue-500/10 dark:bg-white/[0.03] dark:hover:bg-blue-500/15 border border-slate-200 hover:border-blue-500/40 dark:border-white/[0.06] dark:hover:border-blue-500/40 text-[11px] text-slate-700 dark:text-neutral-300 hover:text-blue-700 dark:hover:text-blue-300 transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight"
+                className="min-h-[46px] py-1.5 px-2 rounded-xl liquid-glass-input-pill hover:bg-white/65 dark:hover:bg-white/15 text-[11px] transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight cursor-pointer"
                 title="Login Cepat sebagai Member Budi Santoso (PIN: 34567801)"
               >
-                <span className="font-semibold text-slate-900 dark:text-white text-[10px]">🏃 Member</span>
-                <span className="font-mono text-[9px] text-blue-600 dark:text-blue-400">34567801</span>
+                <span className="font-bold text-slate-900 dark:text-white text-[10px]">🏃 Member</span>
+                <span className="font-mono text-[9px] text-slate-700 dark:text-sky-300 font-semibold">34567801</span>
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickFill('999888')}
                 disabled={isVerifyingDb}
-                className="min-h-[48px] py-2 px-2 rounded-xl bg-slate-50 hover:bg-amber-500/10 dark:bg-white/[0.03] dark:hover:bg-amber-500/15 border border-slate-200 hover:border-amber-500/40 dark:border-white/[0.06] dark:hover:border-amber-500/40 text-[11px] text-slate-700 dark:text-neutral-300 hover:text-amber-700 dark:hover:text-amber-300 transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight"
+                className="min-h-[46px] py-1.5 px-2 rounded-xl liquid-glass-input-pill hover:bg-white/65 dark:hover:bg-white/15 text-[11px] transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight cursor-pointer"
                 title="Login Cepat sebagai Admin Operasional (PIN: 999888)"
               >
-                <span className="font-semibold text-slate-900 dark:text-white text-[10px]">🏢 Admin</span>
-                <span className="font-mono text-[9px] text-amber-600 dark:text-amber-400">999888</span>
+                <span className="font-bold text-slate-900 dark:text-white text-[10px]">🏢 Admin</span>
+                <span className="font-mono text-[9px] text-slate-700 dark:text-amber-300 font-semibold">999888</span>
               </button>
             </div>
           </div>
         </div>
 
         {/* Security & Offline-First Footer */}
-        <div className="flex flex-col items-center gap-1.5 text-center mt-1">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.06] text-[11px] text-neutral-400">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+        <div className="flex flex-col items-center gap-1 text-center mt-0.5">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full liquid-glass-input-pill text-[11px] text-slate-800 dark:text-neutral-300 font-medium">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>Mode Offline Siap di Lantai Gym • Enkripsi Lokal</span>
           </div>
-          <p className="text-[11px] text-neutral-500">
+          <p className="text-[11px] text-slate-800/80 dark:text-neutral-400 font-medium">
             PelatihKu PRO • Lead Coach: {coach.name || 'Panji Akbar Syamsi, S.Or.'}
           </p>
         </div>
