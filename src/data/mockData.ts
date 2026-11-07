@@ -1,3 +1,7 @@
+import type { ExerciseCategory, CatalogExercise } from './exerciseCatalogGenerated';
+export type { ExerciseCategory, CatalogExercise };
+export { EXERCISE_CATALOG } from './exerciseCatalogGenerated';
+
 export interface SetLog {
   id: string;
   setNumber: number;
@@ -13,7 +17,7 @@ export interface SetLog {
 export interface ExerciseLog {
   id: string;
   name: string;
-  category: 'Free Weights' | 'Kabel/Mesin' | 'Kalistenik';
+  category: ExerciseCategory;
   tempo: string;
   restSeconds: number;
   historicalBestKg: number;
@@ -45,7 +49,7 @@ export interface SessionRecord {
 export interface PRRecord {
   id: string;
   exerciseName: string;
-  category: 'Free Weights' | 'Kabel/Mesin' | 'Kalistenik';
+  category: ExerciseCategory;
   weightKg: number;
   reps: number;
   est1RM: number;
@@ -245,35 +249,6 @@ export interface CoachProfileData {
   certifications: CoachCertification[];
   coachPin?: string;
 }
-
-export interface CatalogExercise {
-  id: string;
-  name: string;
-  category: 'Free Weights' | 'Kabel/Mesin' | 'Kalistenik';
-  primaryMuscle: string;
-  defaultTempo: string;
-  defaultRestSeconds: number;
-  defaultBestKg: number;
-}
-
-export const EXERCISE_CATALOG: CatalogExercise[] = [
-  { id: 'ex-01', name: 'Barbell Back Squat', category: 'Free Weights', primaryMuscle: 'Quadriceps & Glutes', defaultTempo: '3-1-X-1', defaultRestSeconds: 150, defaultBestKg: 110 },
-  { id: 'ex-02', name: 'Romanian Deadlift (RDL)', category: 'Free Weights', primaryMuscle: 'Hamstrings & Posterior Chain', defaultTempo: '3-1-1-1', defaultRestSeconds: 120, defaultBestKg: 95 },
-  { id: 'ex-03', name: 'Conventional Deadlift', category: 'Free Weights', primaryMuscle: 'Posterior Chain & Back', defaultTempo: '2-1-X-1', defaultRestSeconds: 180, defaultBestKg: 140 },
-  { id: 'ex-04', name: 'Barbell Bench Press', category: 'Free Weights', primaryMuscle: 'Pectoralis Major & Triceps', defaultTempo: '2-1-X-1', defaultRestSeconds: 120, defaultBestKg: 82.5 },
-  { id: 'ex-05', name: 'Overhead Barbell Press (OHP)', category: 'Free Weights', primaryMuscle: 'Anterior Deltoid & Core', defaultTempo: '2-0-X-1', defaultRestSeconds: 120, defaultBestKg: 52.5 },
-  { id: 'ex-06', name: 'Incline Dumbbell Press', category: 'Free Weights', primaryMuscle: 'Upper Pectorals', defaultTempo: '3-1-1-0', defaultRestSeconds: 90, defaultBestKg: 34 },
-  { id: 'ex-07', name: 'Bulgarian Split Squat', category: 'Free Weights', primaryMuscle: 'Unilateral Quads & Glutes', defaultTempo: '3-1-1-0', defaultRestSeconds: 90, defaultBestKg: 28 },
-  { id: 'ex-08', name: 'Lat Pulldown (Wide Neutral Grip)', category: 'Kabel/Mesin', primaryMuscle: 'Latissimus Dorsi', defaultTempo: '2-1-2-0', defaultRestSeconds: 90, defaultBestKg: 75 },
-  { id: 'ex-09', name: 'Seated Cable Row (V-Bar)', category: 'Kabel/Mesin', primaryMuscle: 'Mid-Back & Rhomboids', defaultTempo: '2-1-2-1', defaultRestSeconds: 90, defaultBestKg: 70 },
-  { id: 'ex-10', name: 'Hack Squat Machine', category: 'Kabel/Mesin', primaryMuscle: 'Quadriceps Sweep', defaultTempo: '3-1-1-0', defaultRestSeconds: 120, defaultBestKg: 130 },
-  { id: 'ex-11', name: 'Cable Face Pull & External Rotation', category: 'Kabel/Mesin', primaryMuscle: 'Rear Delts & Rotator Cuff', defaultTempo: '2-2-1-0', defaultRestSeconds: 60, defaultBestKg: 27.5 },
-  { id: 'ex-12', name: 'Lying Leg Curl Machine', category: 'Kabel/Mesin', primaryMuscle: 'Hamstrings Isolation', defaultTempo: '2-1-3-0', defaultRestSeconds: 75, defaultBestKg: 55 },
-  { id: 'ex-13', name: 'Weighted Pull-Up', category: 'Kalistenik', primaryMuscle: 'Lats & Upper Back', defaultTempo: '2-1-X-1', defaultRestSeconds: 120, defaultBestKg: 20 },
-  { id: 'ex-14', name: 'Weighted Parallel Bar Dips', category: 'Kalistenik', primaryMuscle: 'Lower Chest & Triceps', defaultTempo: '3-0-X-1', defaultRestSeconds: 90, defaultBestKg: 25 },
-  { id: 'ex-15', name: 'Hanging Leg Raise (Strict)', category: 'Kalistenik', primaryMuscle: 'Core & Hip Flexors', defaultTempo: '2-1-2-0', defaultRestSeconds: 60, defaultBestKg: 0 },
-  { id: 'ex-16', name: 'Nordic Hamstring Curl', category: 'Kalistenik', primaryMuscle: 'Eccentric Hamstrings', defaultTempo: '4-0-1-0', defaultRestSeconds: 90, defaultBestKg: 0 }
-];
 
 export interface GymLocationItem {
   id: string;

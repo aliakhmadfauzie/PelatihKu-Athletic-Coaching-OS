@@ -154,11 +154,14 @@ describe('PelatihKu PRO — Core Domain & Calculations Audit', () => {
   });
 
   it('10. Verifies Exercise Catalog completeness & parameters', () => {
-    assert.ok(EXERCISE_CATALOG.length >= 16, 'Exercise catalog must have at least 16 compound/isolation exercises');
+    assert.ok(EXERCISE_CATALOG.length >= 69, 'Exercise catalog must contain all 69+ comprehensive gym exercises');
     for (const ex of EXERCISE_CATALOG) {
       assert.ok(ex.id && ex.name, 'Every catalog exercise must have ID and Name');
       assert.ok(ex.defaultRestSeconds >= 30, 'Every exercise must have minimum 30s rest interval');
-      assert.ok(['Free Weights', 'Kabel/Mesin', 'Kalistenik'].includes(ex.category));
+      assert.ok(
+        ['Free Weights', 'Kabel/Mesin', 'Kalistenik', 'Kardio/Fungsional'].includes(ex.category),
+        `Exercise ${ex.name} must belong to a recognized category, got: ${ex.category}`
+      );
     }
   });
 });

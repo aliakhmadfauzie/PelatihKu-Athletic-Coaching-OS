@@ -94,7 +94,7 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
   // Exercise Catalog State
   const [currentCatalog, setCurrentCatalog] = useState<CatalogExercise[]>(exerciseCatalog);
   const [catalogSearch, setCatalogSearch] = useState('');
-  const [catalogCategory, setCatalogCategory] = useState<'Semua' | 'Free Weights' | 'Kabel/Mesin' | 'Kalistenik'>('Semua');
+  const [catalogCategory, setCatalogCategory] = useState<'Semua' | 'Free Weights' | 'Kabel/Mesin' | 'Kalistenik' | 'Kardio/Fungsional'>('Semua');
   const [editingExercise, setEditingExercise] = useState<CatalogExercise | null>(null);
   const [showExerciseModal, setShowExerciseModal] = useState(false);
   const [exerciseToDelete, setExerciseToDelete] = useState<CatalogExercise | null>(null);
@@ -1014,8 +1014,8 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
                 />
               </div>
 
-              <div className="grid grid-cols-4 gap-1 p-1 bg-[#0b101b] rounded-xl border border-white/[0.06]">
-                {(['Semua', 'Free Weights', 'Kabel/Mesin', 'Kalistenik'] as const).map((cat) => (
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-1 p-1 bg-[#0b101b] rounded-xl border border-white/[0.06]">
+                {(['Semua', 'Free Weights', 'Kabel/Mesin', 'Kalistenik', 'Kardio/Fungsional'] as const).map((cat) => (
                   <button
                     key={cat}
                     type="button"
@@ -1052,7 +1052,9 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
                             ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
                             : ex.category === 'Kabel/Mesin'
                             ? 'bg-blue-500/15 text-blue-300 border-blue-500/30'
-                            : 'bg-purple-500/15 text-purple-300 border-purple-500/30'
+                            : ex.category === 'Kalistenik'
+                            ? 'bg-purple-500/15 text-purple-300 border-purple-500/30'
+                            : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
                         }`}
                       >
                         {ex.category}
@@ -1554,7 +1556,7 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
                     onChange={(e) =>
                       setEditingExercise({
                         ...editingExercise,
-                        category: e.target.value as 'Free Weights' | 'Kabel/Mesin' | 'Kalistenik'
+                        category: e.target.value as 'Free Weights' | 'Kabel/Mesin' | 'Kalistenik' | 'Kardio/Fungsional'
                       })
                     }
                     className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:border-emerald-500"
@@ -1562,6 +1564,7 @@ export const CoachProfileView: React.FC<CoachProfileViewProps> = ({
                     <option value="Free Weights">Free Weights</option>
                     <option value="Kabel/Mesin">Kabel/Mesin</option>
                     <option value="Kalistenik">Kalistenik</option>
+                    <option value="Kardio/Fungsional">Kardio/Fungsional</option>
                   </select>
                 </div>
 

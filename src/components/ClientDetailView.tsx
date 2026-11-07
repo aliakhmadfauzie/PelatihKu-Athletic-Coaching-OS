@@ -50,7 +50,7 @@ import {
   ScreeningResult,
   ReportResult
 } from '../services/geminiService';
-import { ClientProfile, PRRecord, RescheduleRequest } from '../data/mockData';
+import { ClientProfile, PRRecord, RescheduleRequest, EXERCISE_CATALOG } from '../data/mockData';
 import { calculateEpley1RM } from '../services/sportsScienceDomain';
 import { optimizeAvatarImage } from '../utils/avatarImageOptimizer';
 import {
@@ -468,7 +468,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
 
   // Add PR Form state
   const [prExercise, setPrExercise] = useState('Barbell Back Squat');
-  const [prCategory, setPrCategory] = useState<'Free Weights' | 'Kabel/Mesin' | 'Kalistenik'>(
+  const [prCategory, setPrCategory] = useState<'Free Weights' | 'Kabel/Mesin' | 'Kalistenik' | 'Kardio/Fungsional'>(
     'Free Weights'
   );
   const [prWeight, setPrWeight] = useState('115');
@@ -2505,10 +2505,42 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
                 <input
                   type="text"
                   required
+                  list="exercise-catalog-suggestions"
                   value={prExercise}
-                  onChange={(e) => setPrExercise(e.target.value)}
-                  className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-xs text-white"
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setPrExercise(val);
+                    const match = EXERCISE_CATALOG.find(
+                      (item) => item.name.toLowerCase() === val.toLowerCase()
+                    );
+                    if (match) {
+                      setPrCategory(match.category);
+                    }
+                  }}
+                  placeholder="Ketik atau pilih dari 70 master gerakan..."
+                  className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
                 />
+                <datalist id="exercise-catalog-suggestions">
+                  {EXERCISE_CATALOG.map((item) => (
+                    <option key={item.id} value={item.name}>
+                      {item.nameMs ? `${item.nameMs} · ${item.category}` : item.category}
+                    </option>
+                  ))}
+                </datalist>
+              </div>
+
+              <div>
+                <label className="block text-xs text-[#bbcabf] mb-1">Kategori Alat</label>
+                <select
+                  value={prCategory}
+                  onChange={(e) => setPrCategory(e.target.value as any)}
+                  className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.12] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                >
+                  <option value="Free Weights">Free Weights</option>
+                  <option value="Kabel/Mesin">Kabel/Mesin</option>
+                  <option value="Kalistenik">Kalistenik</option>
+                  <option value="Kardio/Fungsional">Kardio/Fungsional</option>
+                </select>
               </div>
 
               <div className="grid grid-cols-3 gap-2.5">

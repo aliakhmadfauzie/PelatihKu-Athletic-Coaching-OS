@@ -237,7 +237,7 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
   // Catalog filter states
   const [catalogSearch, setCatalogSearch] = useState('');
   const [catalogCategory, setCatalogCategory] = useState<
-    'Semua' | 'Free Weights' | 'Kabel/Mesin' | 'Kalistenik'
+    'Semua' | 'Free Weights' | 'Kabel/Mesin' | 'Kalistenik' | 'Kardio/Fungsional'
   >('Semua');
 
   // Gym-Floor Modals State
@@ -733,8 +733,8 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
                 />
               </div>
 
-              <div className="grid grid-cols-4 gap-1 p-1 bg-[#070e1d] rounded-xl border border-white/[0.06]">
-                {(['Semua', 'Free Weights', 'Kabel/Mesin', 'Kalistenik'] as const).map((cat) => (
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-1 p-1 bg-[#070e1d] rounded-xl border border-white/[0.06]">
+                {(['Semua', 'Free Weights', 'Kabel/Mesin', 'Kalistenik', 'Kardio/Fungsional'] as const).map((cat) => (
                   <button
                     key={cat}
                     type="button"

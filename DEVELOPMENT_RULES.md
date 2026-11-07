@@ -1,7 +1,7 @@
 # Pedoman & Aturan Pengembangan (Development Rules) — PelatihKu PRO
 **Aturan Baku untuk Pengembang Perangkat Lunak dan Asisten AI (AI Studio Agents)**  
 **Target Aplikasi:** Fitness Center & Personal Training Management OS  
-**Versi:** 2.7.0  
+**Versi:** 2.7.1  
 
 ---
 

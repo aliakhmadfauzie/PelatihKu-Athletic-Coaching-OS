@@ -1,7 +1,7 @@
 # Dokumen Spesifikasi Kebutuhan Aplikasi (PRD) — PelatihKu PRO
 **Sistem Operasi Manajemen Member & Personal Training (PT) Fitness Center**  
 **Lead Coach:** Panji Akbar Syamsi, S.Or. (Master Fitness Trainer)  
-**Versi Dokumen:** 2.7.0  
+**Versi Dokumen:** 2.7.1  
 **Status:** Aktif & Terverifikasi
 
 ---

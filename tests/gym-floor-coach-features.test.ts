@@ -7,7 +7,7 @@ import {
   EXERCISE_SUBSTITUTION_MAP,
   OLYMPIC_PLATES_CATALOG
 } from '../src/services/sportsScienceDomain';
-import { ClientProfile, INITIAL_CLIENTS } from '../src/data/mockData';
+import { ClientProfile, INITIAL_CLIENTS, EXERCISE_CATALOG } from '../src/data/mockData';
 
 describe('PelatihKu PRO — Gym Floor & Strength Coach Features Audit', () => {
   describe('1. Barbell Plate & Collar Math Engine', () => {
@@ -224,6 +224,41 @@ describe('PelatihKu PRO — Gym Floor & Strength Coach Features Audit', () => {
       assert.strictEqual('ghost' in sanitized, false);
       assert.strictEqual(sanitized.weightKg, 100);
       assert.strictEqual(sanitized.completed, true);
+    });
+  });
+
+  describe('5. Comprehensive 70-Exercise Gym Database Parity', () => {
+    it('verifies exact total count and category distribution across the master catalog', () => {
+      assert.strictEqual(EXERCISE_CATALOG.length, 70);
+
+      const categories = EXERCISE_CATALOG.map((e) => e.category);
+      assert.ok(categories.includes('Free Weights'), 'Must have Free Weights');
+      assert.ok(categories.includes('Kabel/Mesin'), 'Must have Kabel/Mesin');
+      assert.ok(categories.includes('Kalistenik'), 'Must have Kalistenik');
+      assert.ok(categories.includes('Kardio/Fungsional'), 'Must have Kardio/Fungsional');
+    });
+
+    it('verifies all major muscle groups and movement patterns are represented', () => {
+      const patterns = new Set(EXERCISE_CATALOG.map((e) => e.movementPattern).filter(Boolean));
+      assert.ok(patterns.has('squat'), 'Must include squat pattern');
+      assert.ok(patterns.has('hinge'), 'Must include hinge pattern');
+      assert.ok(patterns.has('horizontal_push'), 'Must include horizontal push');
+      assert.ok(patterns.has('horizontal_pull'), 'Must include horizontal pull');
+      assert.ok(patterns.has('vertical_push'), 'Must include vertical push');
+      assert.ok(patterns.has('vertical_pull'), 'Must include vertical pull');
+      assert.ok(patterns.has('isolation'), 'Must include isolation pattern');
+      assert.ok(patterns.has('conditioning'), 'Must include conditioning pattern');
+      assert.ok(patterns.has('dynamic'), 'Must include dynamic pattern');
+    });
+
+    it('verifies bilingual names and valid visual guide URLs', () => {
+      EXERCISE_CATALOG.forEach((e) => {
+        assert.ok(e.name && e.name.length > 2, `Exercise ${e.id} must have a valid English name`);
+        assert.ok(e.primaryMuscle && e.primaryMuscle.length > 2, `Exercise ${e.id} must specify target muscle`);
+        if (e.visualGuideUrl) {
+          assert.ok(e.visualGuideUrl.startsWith('https://'), `Exercise ${e.name} visualGuideUrl must be HTTPS`);
+        }
+      });
     });
   });
 });
