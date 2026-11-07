@@ -2155,20 +2155,20 @@ export default function App() {
                   type="button"
                   onClick={handleToggleTheme}
                   aria-label={theme === 'dark' ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'}
-                  className="w-full min-h-[44px] flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-800 dark:text-white bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] border border-slate-200 dark:border-white/[0.06] font-medium text-xs transition active:scale-[0.98] cursor-pointer"
+                  className="w-full min-h-[44px] flex items-center justify-between px-3.5 py-3 rounded-xl font-medium text-xs transition active:scale-[0.98] cursor-pointer text-amber-300 bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 dark:text-amber-300 dark:bg-amber-500/10 dark:border-amber-500/30 dark:hover:bg-amber-500/20"
                 >
                   <div className="flex items-center gap-3">
                     {theme === 'dark' ? (
                       <Sun className="w-4 h-4 text-amber-400" />
                     ) : (
-                      <Moon className="w-4 h-4 text-emerald-400" />
+                      <Moon className="w-4 h-4 text-amber-400" />
                     )}
-                    <span className="font-semibold">
+                    <span className="font-semibold text-amber-200">
                       {theme === 'dark' ? 'Mode Terang (Daylight)' : 'Mode Gelap (OLED)'}
                     </span>
                   </div>
-                  <span className="px-2.5 py-1 rounded-lg bg-white dark:bg-white/[0.1] border border-slate-300 dark:border-white/[0.1] text-[10px] font-bold text-slate-700 dark:text-emerald-300">
-                    {theme === 'dark' ? '☀️ Aktifkan Terang' : '🌙 Aktifkan Gelap'}
+                  <span className="px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/40 text-[10px] font-bold text-amber-300">
+                    {theme === 'dark' ? '☀️ ON' : '🌙 ON'}
                   </span>
                 </button>
               </nav>
@@ -2239,9 +2239,9 @@ export default function App() {
                     type="button"
                     title={theme === 'dark' ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'}
                     onClick={handleToggleTheme}
-                    className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-amber-400 dark:text-emerald-400 flex items-center justify-center transition active:scale-95"
+                    className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 flex items-center justify-center transition active:scale-95"
                   >
-                    {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-emerald-400" />}
+                    {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-amber-400" />}
                   </button>
                   <button
                     type="button"
@@ -3337,19 +3337,19 @@ export default function App() {
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowAddClientModal(false);
           }}
-          className="fixed inset-0 z-50 bg-[#070e1d]/85 backdrop-blur-md flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-slate-900/60 dark:bg-[#070e1d]/85 backdrop-blur-md flex items-center justify-center p-4"
         >
-          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-[#111726]/95 backdrop-blur-2xl border border-white/[0.12] rounded-3xl p-6 shadow-[0_25px_60px_rgba(0,0,0,0.6)] space-y-4">
-            <div className="flex items-center justify-between pb-3.5 border-b border-white/[0.08]">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-white dark:bg-[#111726]/95 backdrop-blur-2xl border border-slate-200 dark:border-white/[0.12] rounded-3xl p-6 shadow-[0_25px_60px_rgba(0,0,0,0.6)] space-y-4">
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-200 dark:border-white/[0.08]">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-sm">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-sm">
                   <UserPlus className="w-5 h-5 stroke-[2.2]" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white tracking-tight">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight">
                     Tambah Member Baru
                   </h3>
-                  <p className="text-[11px] text-neutral-400">
+                  <p className="text-[11px] text-slate-500 dark:text-neutral-400">
                     Registrasi member fitness center, paket sesi PT &amp; baseline awal
                   </p>
                 </div>
@@ -3358,7 +3358,7 @@ export default function App() {
                 type="button"
                 onClick={() => setShowAddClientModal(false)}
                 aria-label="Tutup form member"
-                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl text-neutral-400 hover:text-white flex items-center justify-center hover:bg-white/[0.06] transition active:scale-95"
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl text-slate-500 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center hover:bg-slate-100 dark:hover:bg-white/[0.06] transition active:scale-95"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -3368,14 +3368,14 @@ export default function App() {
               {/* Section 1: Data Diri & Kontak */}
               <div className="space-y-3">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-400">
                     1. Identitas &amp; Aktivitas Member
                   </span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2.5">
                   <div className="col-span-2">
-                    <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                    <label className="block text-[11px] font-medium text-slate-600 dark:text-neutral-300 mb-1">
                       Nama Lengkap *
                     </label>
                     <input
@@ -3384,11 +3384,11 @@ export default function App() {
                       value={newClientName}
                       onChange={(e) => setNewClientName(e.target.value)}
                       placeholder="Contoh: Randy Saputra"
-                      className="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition"
+                      className="w-full bg-slate-100 dark:bg-[#0B0F17] border border-slate-300 dark:border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                    <label className="block text-[11px] font-medium text-slate-600 dark:text-neutral-300 mb-1">
                       Usia (Thn) *
                     </label>
                     <input
@@ -3399,14 +3399,14 @@ export default function App() {
                       value={newClientAge}
                       onChange={(e) => setNewClientAge(e.target.value)}
                       placeholder="28"
-                      className="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition font-mono"
+                      className="w-full bg-slate-100 dark:bg-[#0B0F17] border border-slate-300 dark:border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition font-mono"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2.5">
                   <div>
-                    <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                    <label className="block text-[11px] font-medium text-slate-600 dark:text-neutral-300 mb-1">
                       Jenis Kelamin
                     </label>
                     <select
@@ -3414,14 +3414,14 @@ export default function App() {
                       onChange={(e) =>
                         setNewClientGender(e.target.value as 'Pria' | 'Wanita')
                       }
-                      className="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition"
+                      className="w-full bg-slate-100 dark:bg-[#0B0F17] border border-slate-300 dark:border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition"
                     >
                       <option value="Pria">Pria</option>
                       <option value="Wanita">Wanita</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                    <label className="block text-[11px] font-medium text-slate-600 dark:text-neutral-300 mb-1">
                       No. WhatsApp *
                     </label>
                     <input
@@ -3430,19 +3430,19 @@ export default function App() {
                       value={newClientPhone}
                       onChange={(e) => setNewClientPhone(e.target.value)}
                       placeholder="081234567890"
-                      className="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition font-mono"
+                      className="w-full bg-slate-100 dark:bg-[#0B0F17] border border-slate-300 dark:border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition font-mono"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                  <label className="block text-[11px] font-medium text-slate-600 dark:text-neutral-300 mb-1">
                     Pekerjaan &amp; Tingkat Aktivitas Harian
                   </label>
                   <select
                     value={newClientOccupation}
                     onChange={(e) => setNewClientOccupation(e.target.value)}
-                    className="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition"
+                    className="w-full bg-slate-100 dark:bg-[#0B0F17] border border-slate-300 dark:border-white/[0.1] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition"
                   >
                     <option value="Eksekutif / Sedentari">Eksekutif / Kantor (Sedentari)</option>
                     <option value="SWE / Remote Worker">Tech / Remote Worker (Duduk Lama)</option>
@@ -3454,15 +3454,15 @@ export default function App() {
               </div>
 
               {/* Section 2: Paket Sesi & Program Kepelatihan */}
-              <div className="pt-3 border-t border-white/[0.08] space-y-3">
+              <div className="pt-3 border-t border-slate-200 dark:border-white/[0.08] space-y-3">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-400">
                     2. Paket Sesi &amp; Program Latihan
                   </span>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium text-neutral-300 mb-1.5">
+                  <label className="block text-[11px] font-medium text-slate-600 dark:text-neutral-300 mb-1.5">
                     Jumlah Sesi Paket Latihan (No. of Sessions) *
                   </label>
                   <div className="grid grid-cols-5 gap-1.5">
@@ -3473,8 +3473,8 @@ export default function App() {
                         onClick={() => setNewClientSessions(preset)}
                         className={`py-2 rounded-xl text-xs font-mono font-semibold border transition ${
                           newClientSessions === preset
-                            ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 shadow-sm'
-                            : 'bg-[#0B0F17] border-white/[0.08] text-neutral-400 hover:text-white'
+                            ? 'bg-emerald-500/20 border-emerald-500 text-emerald-600 dark:text-emerald-300 shadow-sm'
+                            : 'bg-slate-100 dark:bg-[#0B0F17] border-slate-300 dark:border-white/[0.08] text-slate-500 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white'
                         }`}
                       >
                         {preset}x
@@ -3489,20 +3489,20 @@ export default function App() {
                       onChange={(e) => setNewClientSessions(e.target.value)}
                       placeholder="Jml"
                       aria-label="Jumlah sesi kustom"
-                      className="w-full bg-[#0B0F17] border border-white/[0.12] rounded-xl px-2 py-2 text-center text-xs text-white font-mono focus:outline-none focus:border-emerald-500 transition"
+                      className="w-full bg-slate-100 dark:bg-[#0B0F17] border border-slate-300 dark:border-white/[0.12] rounded-xl px-2 py-2 text-center text-xs text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 transition"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2.5">
                   <div>
-                    <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                    <label className="block text-[11px] font-medium text-slate-600 dark:text-neutral-300 mb-1">
                       Target Utama Program
                     </label>
                     <select
                       value={newClientTarget}
                       onChange={(e) => setNewClientTarget(e.target.value)}
-                      className="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition"
+                      className="w-full bg-slate-100 dark:bg-[#0B0F17] border border-slate-300 dark:border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition"
                     >
                       <option value="Fat Loss">Fat Loss &amp; Rekomposisi</option>
                       <option value="Hipertrofi">Hipertrofi / Lean Bulk</option>
@@ -3510,7 +3510,7 @@ export default function App() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                    <label className="block text-[11px] font-medium text-slate-600 dark:text-neutral-300 mb-1">
                       Lokasi Gym Utama
                     </label>
                     <select
@@ -3523,7 +3523,7 @@ export default function App() {
                             | 'SCBD District 8'
                         )
                       }
-                      className="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition"
+                      className="w-full bg-slate-100 dark:bg-[#0B0F17] border border-slate-300 dark:border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition"
                     >
                       <option value="Gym Utama Senayan">Gym Utama Senayan</option>
                       <option value="SCBD District 8">SCBD District 8</option>
@@ -3534,41 +3534,41 @@ export default function App() {
 
                 <div className="grid grid-cols-2 gap-2.5">
                   <div>
-                    <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                    <label className="block text-[11px] font-medium text-slate-600 dark:text-neutral-300 mb-1">
                       Tgl Sesi Assessment
                     </label>
                     <input
                       type="date"
                       value={newClientFirstSessionDate}
                       onChange={(e) => setNewClientFirstSessionDate(e.target.value)}
-                      className="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-emerald-500 transition"
+                      className="w-full bg-slate-100 dark:bg-[#0B0F17] border border-slate-300 dark:border-white/[0.1] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 transition"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                    <label className="block text-[11px] font-medium text-slate-600 dark:text-neutral-300 mb-1">
                       Jam Sesi Perdana
                     </label>
                     <input
                       type="time"
                       value={newClientFirstSessionTime}
                       onChange={(e) => setNewClientFirstSessionTime(e.target.value)}
-                      className="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-emerald-500 transition"
+                      className="w-full bg-slate-100 dark:bg-[#0B0F17] border border-slate-300 dark:border-white/[0.1] rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 transition"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Section 3: Baseline Biometrik & Catatan Pelatih */}
-              <div className="pt-3 border-t border-white/[0.08] space-y-3">
+              <div className="pt-3 border-t border-slate-200 dark:border-white/[0.08] space-y-3">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-400">
                     3. Baseline Fisik &amp; Riwayat Cedera
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2.5">
                   <div>
-                    <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                    <label className="block text-[11px] font-medium text-slate-600 dark:text-neutral-300 mb-1">
                       Berat Awal (kg) *
                     </label>
                     <input
@@ -3578,11 +3578,11 @@ export default function App() {
                       value={newClientWeight}
                       onChange={(e) => setNewClientWeight(e.target.value)}
                       placeholder="78.5"
-                      className="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition font-mono"
+                      className="w-full bg-slate-100 dark:bg-[#0B0F17] border border-slate-300 dark:border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition font-mono"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                    <label className="block text-[11px] font-medium text-slate-600 dark:text-neutral-300 mb-1">
                       Target Berat (kg)
                     </label>
                     <input
@@ -3591,14 +3591,14 @@ export default function App() {
                       value={newClientTargetWeight}
                       onChange={(e) => setNewClientTargetWeight(e.target.value)}
                       placeholder="72.0 (Opsional)"
-                      className="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition font-mono"
+                      className="w-full bg-slate-100 dark:bg-[#0B0F17] border border-slate-300 dark:border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition font-mono"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2.5">
                   <div>
-                    <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                    <label className="block text-[11px] font-medium text-slate-600 dark:text-neutral-300 mb-1">
                       Estimasi Body Fat (%)
                     </label>
                     <input
@@ -3607,11 +3607,11 @@ export default function App() {
                       value={newClientBodyFat}
                       onChange={(e) => setNewClientBodyFat(e.target.value)}
                       placeholder="20.0 (Opsional)"
-                      className="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition font-mono"
+                      className="w-full bg-slate-100 dark:bg-[#0B0F17] border border-slate-300 dark:border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition font-mono"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                    <label className="block text-[11px] font-medium text-slate-600 dark:text-neutral-300 mb-1">
                       Lingkar Perut (cm)
                     </label>
                     <input
@@ -3620,13 +3620,13 @@ export default function App() {
                       value={newClientWaist}
                       onChange={(e) => setNewClientWaist(e.target.value)}
                       placeholder="84.0 (Opsional)"
-                      className="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition font-mono"
+                      className="w-full bg-slate-100 dark:bg-[#0B0F17] border border-slate-300 dark:border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition font-mono"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium text-neutral-300 mb-1">
+                  <label className="block text-[11px] font-medium text-slate-600 dark:text-neutral-300 mb-1">
                     Riwayat Cedera / Catatan Medis Penting (PAR-Q)
                   </label>
                   <textarea
@@ -3634,16 +3634,16 @@ export default function App() {
                     value={newClientMedicalNote}
                     onChange={(e) => setNewClientMedicalNote(e.target.value)}
                     placeholder="Contoh: Riwayat nyeri bahu kanan saat overhead press, mobilitas ankle terbatas, atau tidak ada cedera..."
-                    className="w-full bg-[#0B0F17] border border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition resize-none"
+                    className="w-full bg-slate-100 dark:bg-[#0B0F17] border border-slate-300 dark:border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition resize-none"
                   />
                 </div>
               </div>
 
-              <div className="pt-3.5 flex items-center justify-between gap-2.5 border-t border-white/[0.08]">
+              <div className="pt-3.5 flex items-center justify-between gap-2.5 border-t border-slate-200 dark:border-white/[0.08]">
                 <button
                   type="button"
                   onClick={() => setShowAddClientModal(false)}
-                  className="min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold text-neutral-300 border border-white/[0.10] hover:bg-white/[0.06] transition active:scale-95"
+                  className="min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-neutral-300 border border-slate-300 dark:border-white/[0.10] hover:bg-slate-100 dark:hover:bg-white/[0.06] transition active:scale-95"
                 >
                   Batal
                 </button>
