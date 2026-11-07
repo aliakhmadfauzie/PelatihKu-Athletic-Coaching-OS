@@ -392,37 +392,92 @@ html.light body {
   color: #0f172a;
 }
 
+/* ── Canvas / Page background (Surface 0) ───────────────────────────────── */
 html.light .bg-\[\#0B0F17\],
 html.light .bg-\[\#0b0f17\],
-html.light .bg-\[\#070e1d\] {
-  background-color: #f8fafc !important;
+html.light .bg-\[\#070e1d\],
+html.light .bg-\[\#090f1d\],
+html.light .bg-\[\#0a0f1d\],
+html.light .bg-\[\#0a101d\],
+html.light .bg-\[\#0b1220\],
+html.light .bg-\[\#0b101c\],
+html.light .bg-\[\#0b101b\],
+html.light .bg-\[\#0b0f19\],
+html.light .bg-\[\#0c1220\],
+html.light .bg-\[\#0c1322\] {
+  background-color: #f1f5f9 !important;
 }
 
+/* ── Card / Modal body (Surface 1) ──────────────────────────────────────── */
 html.light .bg-\[\#111726\],
 html.light .bg-\[\#141b2b\],
 html.light .bg-\[\#141c2b\],
-html.light .bg-\[\#0b101b\],
-html.light .bg-\[\#0d1424\] {
+html.light .bg-\[\#141b28\],
+html.light .bg-\[\#101726\],
+html.light .bg-\[\#0d1424\],
+html.light .bg-\[\#0e1626\],
+html.light .bg-\[\#141d30\],
+html.light .bg-\[\#101827\],
+html.light .bg-\[\#121a2c\],
+html.light .bg-\[\#121c2e\],
+html.light .bg-\[\#111927\],
+html.light .bg-\[\#121928\],
+html.light .bg-\[\#0c1629\],
+html.light .bg-\[\#111827\] {
   background-color: #ffffff !important;
 }
 
+/* ── Elevated modals / drawers (Surface 1 opacity variants) ─────────────── */
 html.light .bg-\[\#111726\]\/85,
 html.light .bg-\[\#111726\]\/90,
 html.light .bg-\[\#111726\]\/95,
 html.light .bg-\[\#0B0F17\]\/80,
-html.light .bg-\[\#0B0F17\]\/90 {
-  background-color: rgba(255, 255, 255, 0.92) !important;
+html.light .bg-\[\#0B0F17\]\/90,
+html.light .bg-\[\#0b0f17\]\/80,
+html.light .bg-\[\#0b0f17\]\/90 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
 }
 
+/* ── Modal overlay backdrops ─────────────────────────────────────────────── */
+html.light .bg-\[\#070e1d\]\/85 {
+  background-color: rgba(15, 23, 42, 0.5) !important;
+}
+
+/* ── Elevated panels / secondary cards (Surface 2) ──────────────────────── */
 html.light .bg-\[\#1e2638\],
 html.light .bg-\[\#191f2f\],
-html.light .bg-\[\#232a3a\],
-html.light .bg-\[\#283248\] {
+html.light .bg-\[\#182338\],
+html.light .bg-\[\#141f33\],
+html.light .bg-\[\#172138\],
+html.light .bg-\[\#141e33\],
+html.light .bg-\[\#162032\],
+html.light .bg-\[\#162035\],
+html.light .bg-\[\#1a2336\],
+html.light .bg-\[\#111e38\],
+html.light .bg-\[\#141f36\],
+html.light .bg-\[\#182030\],
+html.light .bg-\[\#17223b\] {
   background-color: #f1f5f9 !important;
 }
 
+/* ── Overlay / popover backgrounds (Surface 3) ───────────────────────────── */
+html.light .bg-\[\#232a3a\],
+html.light .bg-\[\#1f2937\],
+html.light .bg-\[\#202d44\],
+html.light .bg-\[\#1f293d\],
+html.light .bg-\[\#283248\],
+html.light .bg-\[\#28354f\],
+html.light .bg-\[\#232f48\],
+html.light .bg-\[\#2e3545\],
+html.light .bg-\[\#323949\] {
+  background-color: #e2e8f0 !important;
+}
+
+/* ── White/rgba overlay tints (used for ghost cards, drawers) ────────────── */
 html.light .bg-white\/\[0\.02\],
+html.light .bg-white\/\[0\.03\],
 html.light .bg-white\/\[0\.04\],
+html.light .bg-white\/\[0\.05\],
 html.light .bg-white\/\[0\.06\],
 html.light .bg-white\/5 {
   background-color: rgba(15, 23, 42, 0.04) !important;
@@ -430,14 +485,17 @@ html.light .bg-white\/5 {
 
 html.light .bg-white\/\[0\.08\],
 html.light .bg-white\/\[0\.1\],
+html.light .bg-white\/\[0\.14\],
 html.light .bg-white\/10 {
   background-color: rgba(15, 23, 42, 0.07) !important;
 }
 
+/* ── Borders ─────────────────────────────────────────────────────────────── */
 html.light [class*="border-white\/"] {
-  border-color: rgba(15, 23, 42, 0.08) !important;
+  border-color: rgba(15, 23, 42, 0.10) !important;
 }
 
+/* ── Text overrides ──────────────────────────────────────────────────────── */
 html.light .text-white:not([class*="bg-emerald"]):not([class*="bg-teal"]):not([class*="bg-blue"]):not([class*="bg-indigo"]):not([class*="bg-rose"]):not([class*="bg-amber"]):not([class*="bg-red"]):not([class*="from-"]):not([class*="rounded-full"]) {
   color: #0f172a !important;
 }
@@ -452,14 +510,53 @@ html.light .text-neutral-400 {
   color: #64748b !important;
 }
 
+html.light .text-neutral-500 {
+  color: #94a3b8 !important;
+}
+
+/* ── Form inputs, selects, textareas ─────────────────────────────────────── */
 html.light input:not([type="checkbox"]):not([type="radio"]),
 html.light select,
 html.light textarea {
+  background-color: #f8fafc !important;
   color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light select option {
+  background-color: #ffffff;
+  color: #0f172a;
 }
 
 html.light input::placeholder,
 html.light textarea::placeholder {
   color: #94a3b8 !important;
+}
+
+/* ── Drawer sidebar ──────────────────────────────────────────────────────── */
+html.light [class*="bg-\[#0B0F17\]"],
+html.light [class*="bg-\[#111726\]"] {
+  background-color: #ffffff;
+}
+
+/* ── Section headers / dividers inside modals ───────────────────────────── */
+html.light .border-white\/\[0\.08\],
+html.light .border-white\/\[0\.06\],
+html.light .border-white\/\[0\.04\],
+html.light .border-white\/\[0\.12\] {
+  border-color: #e2e8f0 !important;
+}
+
+/* ── Coach / Client drawer bottom area ───────────────────────────────────── */
+html.light .bg-white\/\[0\.03\] {
+  background-color: rgba(15, 23, 42, 0.03) !important;
+}
+
+/* ── Session quick-pill "confirmed" / schedule bands ─────────────────────── */
+html.light .bg-white\/\[0\.02\] {
+  background-color: #f8fafc !important;
+}
+html.light .border-white\/\[0\.04\] {
+  border-color: #e2e8f0 !important;
 }
 
