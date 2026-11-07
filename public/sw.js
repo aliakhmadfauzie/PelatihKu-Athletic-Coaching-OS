@@ -1,11 +1,11 @@
 /**
  * PelatihKu PRO — PWA Offline Engine Service Worker
- * Version: 2.7.2
- * Cache Bucket: pelatihku-v2.7.2
+ * Version: 2.7.3
+ * Cache Bucket: pelatihku-v2.7.3
  * Implementation follows Antigravity PWA Offline Engine & SemVer 2.0.0
  */
 
-const CACHE_NAME = 'pelatihku-v2.7.2';
+const CACHE_NAME = 'pelatihku-v2.7.3';
 
 const PRECACHE_ASSETS = [
   '/',
