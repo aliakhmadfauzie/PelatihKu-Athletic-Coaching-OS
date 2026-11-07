@@ -17,7 +17,9 @@ import {
   Loader2,
   KeyRound,
   User,
-  Shield
+  Shield,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { ClientProfile, CoachProfileData } from '../data/mockData';
 import { usePwaInstall } from '../hooks/usePwaInstall';
@@ -31,18 +33,35 @@ import {
   getClientPin
 } from '../services/authGatekeeperService';
 import { authenticatePinUniversally } from '../services/firestoreService';
+import { ThemeMode, getInitialTheme, applyThemeToDOM } from '../services/themeService';
 
 interface LoginScreenProps {
   coach: CoachProfileData;
   clients?: ClientProfile[];
   onLoginSuccess: (method: string, role?: UserRole, clientId?: string) => void;
+  theme?: ThemeMode;
+  onToggleTheme?: () => void;
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({
   coach,
   clients = [],
-  onLoginSuccess
+  onLoginSuccess,
+  theme: propTheme,
+  onToggleTheme
 }) => {
+  const [internalTheme, setInternalTheme] = useState<ThemeMode>(() => propTheme || getInitialTheme());
+  const currentTheme = propTheme || internalTheme;
+
+  const handleToggleTheme = () => {
+    if (onToggleTheme) {
+      onToggleTheme();
+    } else {
+      const next: ThemeMode = currentTheme === 'dark' ? 'light' : 'dark';
+      setInternalTheme(next);
+      applyThemeToDOM(next);
+    }
+  };
   const [showLogoutToast, setShowLogoutToast] = useState(() => {
     try {
       const loggedOut = sessionStorage.getItem('pelatihku_just_logged_out');
@@ -299,24 +318,53 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   };
 
   return (
-    <div className="bg-[#0B0F17] text-neutral-200 font-sans antialiased min-h-[100dvh] pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] px-4 flex flex-col justify-center items-center selection:bg-emerald-500/20 selection:text-emerald-300 relative overflow-x-hidden">
+    <div className="bg-slate-50 text-slate-900 dark:bg-[#0B0F17] dark:text-neutral-200 font-sans antialiased min-h-[100dvh] pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] px-4 flex flex-col justify-center items-center selection:bg-emerald-500/20 selection:text-emerald-400 relative overflow-x-hidden transition-colors duration-200">
       {/* iOS Refined Translucent Ambient Mesh */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-96 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.12),transparent_70%)]" />
         <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-[radial-gradient(ellipse_at_bottom,rgba(59,130,246,0.06),transparent_70%)]" />
       </div>
 
-      <div className="w-full max-w-sm flex flex-col gap-4 relative z-10">
+      <div className="w-full max-w-sm flex flex-col gap-3.5 relative z-10">
+        {/* Top Control Bar: Brand Status & Theme Switcher */}
+        <div className="flex items-center justify-between px-1">
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-neutral-400 font-medium">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Athletic OS • v2.7.1</span>
+          </div>
+
+          {/* Theme Toggle Button */}
+          <button
+            type="button"
+            onClick={handleToggleTheme}
+            aria-label={currentTheme === 'dark' ? 'Ganti ke Mode Terang' : 'Ganti ke Mode Gelap'}
+            className="min-h-[44px] min-w-[44px] px-3 py-1.5 rounded-xl bg-white/80 dark:bg-white/[0.05] hover:bg-white dark:hover:bg-white/[0.1] active:bg-slate-100 dark:active:bg-white/[0.15] border border-slate-200/90 dark:border-white/[0.08] text-amber-500 dark:text-emerald-400 text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm"
+            title={currentTheme === 'dark' ? 'Mode Terang (Daylight Mode)' : 'Mode Gelap (OLED Dark Mode)'}
+          >
+            {currentTheme === 'dark' ? (
+              <>
+                <Sun className="w-4 h-4 text-amber-400" />
+                <span className="text-white text-[11px] font-medium">Terang</span>
+              </>
+            ) : (
+              <>
+                <Moon className="w-4 h-4 text-slate-700" />
+                <span className="text-slate-800 text-[11px] font-medium">Gelap</span>
+              </>
+            )}
+          </button>
+        </div>
+
         {/* PWA Install Banner */}
         {isInstallable && (
-          <div className="bg-[#141B28]/90 backdrop-blur-xl border border-emerald-500/30 rounded-2xl p-3.5 flex items-center justify-between gap-3 text-xs shadow-lg shadow-black/50">
+          <div className="bg-white/90 dark:bg-[#141B28]/90 backdrop-blur-xl border border-emerald-500/30 rounded-2xl p-3.5 flex items-center justify-between gap-3 text-xs shadow-lg shadow-black/10 dark:shadow-black/50">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
                 <Download className="w-4 h-4" />
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="font-semibold text-white truncate">Install PelatihKu PRO</span>
-                <span className="text-neutral-400 text-[11px] truncate">Akses instan di lantai gym</span>
+                <span className="font-semibold text-slate-900 dark:text-white truncate">Install PelatihKu PRO</span>
+                <span className="text-slate-500 dark:text-neutral-400 text-[11px] truncate">Akses instan di lantai gym</span>
               </div>
             </div>
             <button
@@ -329,8 +377,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           </div>
         )}
 
-        {/* Main Login Card with iOS RGBA Glassmorphism */}
-        <div className="bg-[#111726]/80 backdrop-blur-2xl border border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-[0_20px_50px_rgba(0,0,0,0.6),inset_0_1px_0_0_rgba(255,255,255,0.08)] flex flex-col gap-5">
+        {/* Main Login Card with Adaptive RGBA Glassmorphism */}
+        <div className="bg-white/90 dark:bg-[#111726]/80 backdrop-blur-2xl border border-slate-200/90 dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex flex-col gap-5">
           {/* Brand Header */}
           <div className="flex flex-col items-center text-center gap-2.5">
             <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-[0_8px_20px_-4px_rgba(16,185,129,0.4)] text-slate-950">
@@ -338,14 +386,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             </div>
             <div>
               <div className="flex items-center justify-center gap-1.5">
-                <h1 className="text-xl font-bold text-white tracking-tight">
-                  Pelatih<span className="text-emerald-400">Ku</span>
+                <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                  Pelatih<span className="text-emerald-500 dark:text-emerald-400">Ku</span>
                 </h1>
-                <span className="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                <span className="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30">
                   PRO
                 </span>
               </div>
-              <p className="text-xs text-neutral-400 mt-1 font-medium">
+              <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1 font-medium">
                 Athletic Coaching &amp; Personal Training OS
               </p>
             </div>

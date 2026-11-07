@@ -41,9 +41,12 @@ import {
   Pencil,
   Bell,
   Scale,
-  Layers
+  Layers,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { usePwaInstall } from './hooks/usePwaInstall';
+import { ThemeMode, getInitialTheme, applyThemeToDOM } from './services/themeService';
 import {
   subscribeToClients,
   subscribeToCoachProfile,
@@ -372,6 +375,20 @@ export default function App() {
   } | null>(null);
   const [showDashboardPin, setShowDashboardPin] = useState<boolean>(false);
   const [childOverlayActive, setChildOverlayActive] = useState<boolean>(false);
+
+  // Theme State (Light & Dark OLED Mode)
+  const [theme, setTheme] = useState<ThemeMode>(() => getInitialTheme());
+
+  const handleToggleTheme = () => {
+    const nextTheme: ThemeMode = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    applyThemeToDOM(nextTheme);
+    showToast(
+      nextTheme === 'dark'
+        ? 'Mode Gelap (OLED Dark) diaktifkan'
+        : 'Mode Terang (Daylight Mode) diaktifkan'
+    );
+  };
 
   // Directory Filter State
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -1292,6 +1309,8 @@ export default function App() {
       <LoginScreen
         coach={coach}
         clients={clients}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
         onLoginSuccess={(method, role, clientId) => {
           const effectiveRole = role || 'coach';
           setCurrentUserRole(effectiveRole);
@@ -1551,18 +1570,18 @@ export default function App() {
   ).replace(/\D/g, '');
 
   return (
-    <div className="bg-[#0B0F17] text-neutral-200 font-sans antialiased min-h-screen selection:bg-emerald-500/20 selection:text-emerald-300">
+    <div className="bg-slate-50 text-slate-900 dark:bg-[#0B0F17] dark:text-neutral-200 font-sans antialiased min-h-screen selection:bg-emerald-500/20 selection:text-emerald-400 transition-colors duration-200">
       {/* Offline Gym Floor Status Indicator */}
       {!isOnline && (
-        <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-2 text-center text-xs text-amber-300 flex items-center justify-center gap-2 sticky top-0 z-50 backdrop-blur-md">
+        <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-2 text-center text-xs text-amber-600 dark:text-amber-300 flex items-center justify-center gap-2 sticky top-0 z-50 backdrop-blur-md">
           <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
           <span className="font-semibold">Mode Offline Aktif</span>
-          <span className="text-amber-200/80 hidden sm:inline">— PelatihKu beroperasi dengan cache lokal &amp; Sports Science engine mandiri di lantai gym.</span>
+          <span className="text-amber-700 dark:text-amber-200/80 hidden sm:inline">— PelatihKu beroperasi dengan cache lokal &amp; Sports Science engine mandiri di lantai gym.</span>
         </div>
       )}
 
       {/* Mobile Top Bar & Header Navigation */}
-      <header className="sticky top-0 z-40 bg-[#0B0F17]/90 backdrop-blur-xl border-b border-white/[0.08]">
+      <header className="sticky top-0 z-40 bg-white/90 border-slate-200/90 dark:bg-[#0B0F17]/90 dark:border-white/[0.08] backdrop-blur-xl border-b transition-colors">
         <div className="px-4 py-3 flex items-center justify-between max-w-xl mx-auto gap-2">
           {/* Left: Hamburger Button & Brand Logo */}
           <div className="flex items-center gap-2.5 min-w-0">
@@ -1570,7 +1589,7 @@ export default function App() {
               type="button"
               onClick={() => setDrawerOpen(true)}
               aria-label="Buka Menu Samping Kiri"
-              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-white/[0.05] hover:bg-white/[0.1] active:bg-white/[0.15] border border-white/[0.08] text-neutral-300 hover:text-white flex items-center justify-center transition active:scale-95 shrink-0"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 border border-slate-200 dark:bg-white/[0.05] dark:hover:bg-white/[0.1] dark:active:bg-white/[0.15] dark:border-white/[0.08] text-slate-700 dark:text-neutral-300 hover:text-slate-950 dark:hover:text-white flex items-center justify-center transition active:scale-95 shrink-0"
               title="Buka Navigasi Utama"
             >
               <Menu className="w-5 h-5" />
@@ -1589,27 +1608,27 @@ export default function App() {
               </div>
               <div className="min-w-0 truncate">
                 <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-base text-white tracking-tight">
-                    Pelatih<span className="text-emerald-400">Ku</span>
+                  <span className="font-bold text-base text-slate-900 dark:text-white tracking-tight">
+                    Pelatih<span className="text-emerald-500 dark:text-emerald-400">Ku</span>
                   </span>
-                  <span className="text-[10px] uppercase font-semibold tracking-wider px-1.5 py-0.5 rounded-full bg-white/[0.06] text-neutral-400 border border-white/[0.06]">
+                  <span className="text-[10px] uppercase font-semibold tracking-wider px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 dark:bg-white/[0.06] dark:text-neutral-400 dark:border-white/[0.06]">
                     Pro
                   </span>
                 </div>
-                <p className="text-[11px] text-neutral-400 font-medium truncate">
+                <p className="text-[11px] text-slate-500 dark:text-neutral-400 font-medium truncate">
                   {gymSettings?.gymName || 'Fitness Center'} · {gymSettings?.tagline || 'Athletic Coaching OS'}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Header Action Buttons: PWA Install, Quick +Member, Coach Avatar */}
+          {/* Header Action Buttons: PWA Install, Theme Toggle, Notification Bell, Quick +Member, Coach Avatar */}
           <div className="flex items-center gap-2">
             {isInstallable && (
               <button
                 type="button"
                 onClick={() => triggerInstall()}
-                className="flex items-center gap-1.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95 shadow-sm"
+                className="flex items-center gap-1.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95 shadow-sm"
                 title="Install PelatihKu PRO PWA"
               >
                 <Download className="w-3.5 h-3.5" />
@@ -1617,15 +1636,30 @@ export default function App() {
               </button>
             )}
 
+            {/* Dark / Light Mode Toggle Button */}
+            <button
+              type="button"
+              onClick={handleToggleTheme}
+              aria-label={theme === 'dark' ? 'Beralih ke Mode Terang (Light Mode)' : 'Beralih ke Mode Gelap (Dark Mode)'}
+              className="min-w-[44px] min-h-[44px] p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200/90 text-amber-500 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] dark:border-white/[0.06] dark:text-emerald-400 flex items-center justify-center transition active:scale-95 shadow-2xs"
+              title={theme === 'dark' ? 'Mode Terang (Daylight Mode)' : 'Mode Gelap (OLED Dark Mode)'}
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-slate-700" />
+              )}
+            </button>
+
             {/* Pusat Notifikasi Push Trigger */}
             <button
               type="button"
               onClick={() => setShowNotificationCenter(true)}
               aria-label="Buka Pusat Notifikasi Push"
-              className="relative min-w-[44px] min-h-[44px] p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-neutral-300 hover:text-white flex items-center justify-center transition active:scale-95"
+              className="relative min-w-[44px] min-h-[44px] p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200/90 text-slate-700 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] dark:border-white/[0.06] dark:text-neutral-300 hover:text-slate-950 dark:hover:text-white flex items-center justify-center transition active:scale-95"
               title="Pusat Notifikasi Push"
             >
-              <Bell className="w-4 h-4 text-neutral-300" />
+              <Bell className="w-4 h-4" />
               {unreadNotificationCount > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center shadow-md animate-pulse">
                   {unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}
@@ -1637,7 +1671,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setShowAddClientModal(true)}
-                className="min-h-[44px] min-w-[44px] flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 text-xs font-semibold whitespace-nowrap transition active:scale-95 shadow-sm"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 text-xs font-semibold whitespace-nowrap transition active:scale-95 shadow-sm"
               >
                 <UserPlus className="w-4 h-4 shrink-0" />
                 <span className="hidden sm:inline">+ Member</span>
@@ -1705,7 +1739,7 @@ export default function App() {
                         setSelectedClientId(null);
                         setActiveNav('profile');
                       }}
-                      className="text-white font-semibold cursor-pointer hover:text-emerald-400 transition-colors"
+                      className="text-slate-900 dark:text-white font-semibold cursor-pointer hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
                     >
                       {coach.name || 'Coach Panji Akbar Syamsi'}
                     </strong>
@@ -1713,17 +1747,17 @@ export default function App() {
                 ) : currentUserRole === 'client' ? (
                   <>
                     {timeGreeting},{' '}
-                    <strong className="text-white font-semibold">
+                    <strong className="text-slate-900 dark:text-white font-semibold">
                       {currentUserSession?.role === 'client'
                         ? currentUserSession.displayName
                         : currentClient?.nama_lengkap || 'Budi Santoso'}
                     </strong>{' '}
-                    <span className="text-blue-400 font-medium">(Member PT)</span>
+                    <span className="text-blue-500 dark:text-blue-400 font-medium">(Member PT)</span>
                   </>
                 ) : (
                   <>
                     Floor Ops &amp; Quota Audit,{' '}
-                    <strong className="text-white font-semibold">
+                    <strong className="text-slate-900 dark:text-white font-semibold">
                       Supervisor
                     </strong>
                   </>
@@ -1745,17 +1779,17 @@ export default function App() {
                     showToast('Beralih ke tampilan Head Coach (Panji Akbar Syamsi)');
                   }
                 }}
-                className="min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] active:bg-white/[0.15] border border-white/[0.08] text-[11px] text-neutral-300 hover:text-white flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm font-semibold shrink-0 whitespace-nowrap"
+                className="min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-full bg-slate-100 hover:bg-slate-200 active:bg-slate-300 border border-slate-200 text-slate-700 hover:text-slate-950 dark:bg-white/[0.05] dark:hover:bg-white/[0.1] dark:active:bg-white/[0.15] dark:border-white/[0.08] text-[11px] dark:text-neutral-300 dark:hover:text-white flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm font-semibold shrink-0 whitespace-nowrap"
                 title="Beralih perspektif Coach ↔ Member PT"
               >
                 <span>{currentUserRole === 'coach' ? '👁️ Mode Member' : '👁️ Mode Coach'}</span>
               </button>
 
-              <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-neutral-400 whitespace-nowrap pl-2 bg-white/[0.02] px-2.5 py-1 rounded-full border border-white/[0.05]">
-                <Clock className="w-3.5 h-3.5 text-emerald-400 shrink-0 animate-pulse" />
+              <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-neutral-400 whitespace-nowrap pl-2 bg-slate-100/60 dark:bg-white/[0.02] px-2.5 py-1 rounded-full border border-slate-200 dark:border-white/[0.05]">
+                <Clock className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0 animate-pulse" />
                 <span>{formattedLiveDate}</span>
-                <span className="text-neutral-600">·</span>
-                <span className="font-mono text-neutral-200 font-semibold">{formattedLiveTime} WIB</span>
+                <span className="text-neutral-400 dark:text-neutral-600">·</span>
+                <span className="font-mono text-slate-800 dark:text-neutral-200 font-semibold">{formattedLiveTime} WIB</span>
               </div>
             </div>
           </div>
@@ -1770,7 +1804,7 @@ export default function App() {
           }}
           className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md transition-opacity duration-200"
         >
-          <div className="absolute left-0 top-0 bottom-0 w-[85%] max-w-xs sm:max-w-sm bg-[#111726]/95 backdrop-blur-2xl border-r border-white/[0.1] p-5 flex flex-col justify-between shadow-2xl overflow-y-auto pt-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+          <div className="absolute left-0 top-0 bottom-0 w-[85%] max-w-xs sm:max-w-sm bg-white dark:bg-[#111726]/95 backdrop-blur-2xl border-r border-slate-200 dark:border-white/[0.1] p-5 flex flex-col justify-between shadow-2xl overflow-y-auto pt-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] text-slate-900 dark:text-white">
             <div className="space-y-4">
               {/* Drawer Header */}
               <div className="flex items-center justify-between pb-3.5 border-b border-white/[0.08]">
@@ -1896,6 +1930,31 @@ export default function App() {
                     🏢 Admin
                   </button>
                 </div>
+              </div>
+
+              {/* Theme Mode Selector Card (Light & Dark OLED Mode) */}
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-100/80 dark:bg-white/[0.03] border border-slate-200/90 dark:border-white/[0.06]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-amber-500/15 dark:bg-emerald-500/15 flex items-center justify-center text-amber-500 dark:text-emerald-400">
+                    {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-slate-800 dark:text-white block">
+                      Tema Tampilan
+                    </span>
+                    <span className="text-[10px] text-slate-500 dark:text-neutral-400">
+                      {theme === 'dark' ? 'Mode Gelap (OLED)' : 'Mode Terang (Daylight)'}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleToggleTheme}
+                  aria-label="Ganti Tema Tampilan"
+                  className="min-h-[44px] min-w-[44px] px-3.5 py-1.5 rounded-xl bg-slate-200/80 dark:bg-white/[0.06] hover:bg-slate-300 dark:hover:bg-white/[0.1] text-slate-800 dark:text-white border border-slate-300/80 dark:border-white/[0.08] text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95"
+                >
+                  {theme === 'dark' ? '☀️ Terang' : '🌙 Gelap'}
+                </button>
               </div>
 
               {/* Navigation Links (Rich Action Group) */}
@@ -2179,7 +2238,7 @@ export default function App() {
          ─────────────────────────────────────────────────────────────── */}
       <nav
         aria-label="Navigasi Utama PelatihKu"
-        className={`fixed inset-x-0 bottom-0 z-40 select-none bg-[#0B0F17]/80 backdrop-blur-2xl border-t border-white/[0.08] shadow-[0_-8px_32px_-12px_rgba(0,0,0,0.7)] pb-[env(safe-area-inset-bottom,0px)] transition-all duration-300 ${
+        className={`fixed inset-x-0 bottom-0 z-40 select-none bg-white/90 dark:bg-[#0B0F17]/80 backdrop-blur-2xl border-t border-slate-200/90 dark:border-white/[0.08] shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-8px_32px_-12px_rgba(0,0,0,0.7)] pb-[env(safe-area-inset-bottom,0px)] transition-all duration-300 ${
           isAnyOverlayOpen ? 'opacity-0 translate-y-full pointer-events-none' : 'opacity-100 translate-y-0'
         }`}
       >
@@ -2197,19 +2256,19 @@ export default function App() {
               >
                 <span
                   className={`relative flex items-center justify-center w-14 h-8 rounded-full transition-colors duration-200 ${
-                    tab.isActive ? 'bg-emerald-500/15 text-emerald-400' : 'text-neutral-400'
+                    tab.isActive ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-neutral-400'
                   }`}
                 >
                   <Icon className={`w-5 h-5 ${tab.isActive ? 'stroke-[2.4]' : 'stroke-2'}`} />
                   {tab.badge > 0 && (
-                    <span className="absolute top-0 right-2.5 min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-slate-950 text-[9px] font-bold flex items-center justify-center ring-2 ring-[#0B0F17]">
+                    <span className="absolute top-0 right-2.5 min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-slate-950 text-[9px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-[#0B0F17]">
                       {tab.badge > 9 ? '9+' : tab.badge}
                     </span>
                   )}
                 </span>
                 <span
                   className={`text-[10px] leading-none tracking-tight ${
-                    tab.isActive ? 'text-emerald-400 font-semibold' : 'text-neutral-400 font-medium'
+                    tab.isActive ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-slate-500 dark:text-neutral-400 font-medium'
                   }`}
                 >
                   {tab.label}
@@ -2684,15 +2743,15 @@ export default function App() {
                         </div>
                       </div>
                       <div className="flex items-baseline gap-1.5">
-                        <span className="text-2xl font-bold text-white tracking-tightest">
+                        <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tightest">
                           {currentClient.dietCompliancePct}%
                         </span>
-                        <span className="text-xs text-emerald-400 font-medium font-mono">Tercapai</span>
+                        <span className="text-xs text-emerald-500 dark:text-emerald-400 font-medium font-mono">Tercapai</span>
                       </div>
-                      <div className="mt-2 text-[10px] text-neutral-400 flex items-center gap-1.5 truncate">
-                        <span className="text-neutral-300 font-mono font-medium">{currentClient.kaloriTarget} kkal</span>
+                      <div className="mt-2 text-[10px] text-slate-500 dark:text-neutral-400 flex items-center gap-1.5 truncate">
+                        <span className="text-slate-700 dark:text-neutral-300 font-mono font-medium">{currentClient.kaloriTarget} kkal</span>
                         <span>•</span>
-                        <span className="text-emerald-400 font-mono font-medium">{currentClient.proteinTarget}g Protein</span>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-mono font-medium">{currentClient.proteinTarget}g Protein</span>
                       </div>
                     </div>
 
@@ -2709,24 +2768,24 @@ export default function App() {
                           className="card-glass hairline-border rounded-2xl p-3.5 relative overflow-hidden group hover:border-emerald-500/30 transition cursor-pointer"
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-[11px] font-medium text-neutral-400">
+                            <span className="text-[11px] font-medium text-slate-500 dark:text-neutral-400">
                               Top PR Teruji
                             </span>
-                            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
                               <Award className="w-3.5 h-3.5" />
                             </div>
                           </div>
                           <div className="flex items-baseline gap-1.5">
-                            <span className="text-2xl font-bold text-emerald-400 tracking-tightest font-mono">
+                            <span className="text-2xl font-bold text-emerald-500 dark:text-emerald-400 tracking-tightest font-mono">
                               {topPR ? topPR.weightKg : '-'}
                             </span>
-                            {topPR && <span className="text-xs text-neutral-400 font-medium">kg</span>}
+                            {topPR && <span className="text-xs text-slate-500 dark:text-neutral-400 font-medium">kg</span>}
                           </div>
-                          <div className="mt-2 text-[10px] text-neutral-400 truncate">
-                            <span className="text-white font-medium truncate block">
+                          <div className="mt-2 text-[10px] text-slate-500 dark:text-neutral-400 truncate">
+                            <span className="text-slate-900 dark:text-white font-medium truncate block">
                               {topPR ? topPR.exerciseName : 'Belum Ada Rekor PR'}
                             </span>
-                            <span className="text-emerald-400/80 font-mono">
+                            <span className="text-emerald-600 dark:text-emerald-400/80 font-mono">
                               {topPR ? `1RM: ${topPR.est1RM} kg` : 'Catat di Kokpit Latihan'}
                             </span>
                           </div>
@@ -2739,24 +2798,24 @@ export default function App() {
                     {/* Bento 1: Total Member Aktif */}
                     <div className="card-glass hairline-border rounded-2xl p-3.5 relative overflow-hidden group hover:border-emerald-500/30 transition">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[11px] font-medium text-neutral-400">
+                        <span className="text-[11px] font-medium text-slate-500 dark:text-neutral-400">
                           Total Member Aktif
                         </span>
-                        <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                        <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
                           <UserCheck className="w-3.5 h-3.5" />
                         </div>
                       </div>
                       <div className="flex items-baseline gap-1.5">
-                        <span className="text-2xl font-bold text-white tracking-tightest">
+                        <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tightest">
                           {activeMembersCount}
                         </span>
-                        <span className="text-xs text-neutral-400 font-medium">Member</span>
+                        <span className="text-xs text-slate-500 dark:text-neutral-400 font-medium">Member</span>
                       </div>
-                      <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-emerald-400 min-w-0">
+                      <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 min-w-0">
                         <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 font-medium font-mono text-[10px] shrink-0 whitespace-nowrap tabular-nums">
                           {activeMembersCount} Aktif
                         </span>
-                        <span className="text-neutral-400 truncate">dari {clients.length} total member</span>
+                        <span className="text-slate-500 dark:text-neutral-400 truncate">dari {clients.length} total member</span>
                       </div>
                     </div>
 
@@ -2781,28 +2840,28 @@ export default function App() {
                       className="card-glass hairline-border bg-amber-500/[0.03] rounded-2xl p-3.5 relative overflow-hidden group hover:border-amber-400/50 hover:bg-white/[0.04] active:scale-[0.98] transition-all cursor-pointer select-none"
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[11px] font-medium text-neutral-400 group-hover:text-amber-300 transition-colors flex items-center gap-1">
+                        <span className="text-[11px] font-medium text-slate-500 dark:text-neutral-400 group-hover:text-amber-500 dark:group-hover:text-amber-300 transition-colors flex items-center gap-1">
                           <span>Sesi Minggu Ini</span>
-                          <ChevronRight className="w-3 h-3 text-amber-400 opacity-80 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                          <ChevronRight className="w-3 h-3 text-amber-500 dark:text-amber-400 opacity-80 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
                         </span>
-                        <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20 group-hover:bg-amber-500/25 transition-colors">
+                        <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-500 dark:text-amber-400 flex items-center justify-center border border-amber-500/20 group-hover:bg-amber-500/25 transition-colors">
                           <CalendarCheck className="w-3.5 h-3.5" />
                         </div>
                       </div>
                       <div className="flex items-baseline gap-1.5">
-                        <span className="text-2xl font-bold text-white tracking-tightest group-hover:text-amber-200 transition-colors">
+                        <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tightest group-hover:text-amber-500 dark:group-hover:text-amber-200 transition-colors">
                           {weeklySessionsSummary.total}
                         </span>
-                        <span className="text-xs text-neutral-400 font-medium">Sesi</span>
+                        <span className="text-xs text-slate-500 dark:text-neutral-400 font-medium">Sesi</span>
                       </div>
                       <div className="mt-2.5">
-                        <div className="flex justify-between text-[10px] text-neutral-400 mb-1">
+                        <div className="flex justify-between text-[10px] text-slate-500 dark:text-neutral-400 mb-1">
                           <span>Progres Sesi</span>
-                          <span className="text-amber-400 font-medium font-mono">
+                          <span className="text-amber-500 dark:text-amber-400 font-medium font-mono">
                             {weeklySessionsSummary.completed} / {weeklySessionsSummary.total}
                           </span>
                         </div>
-                        <div className="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                        <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-white/[0.06] overflow-hidden">
                           <div
                             className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-all duration-500"
                             style={{ width: `${weeklySessionsSummary.pct}%` }}
@@ -2814,21 +2873,21 @@ export default function App() {
                     {/* Bento 3: Target Member Tercapai */}
                     <div className="card-glass hairline-border rounded-2xl p-3.5 relative overflow-hidden group hover:border-emerald-500/30 transition">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[11px] font-medium text-neutral-400">
+                        <span className="text-[11px] font-medium text-slate-500 dark:text-neutral-400">
                           Target Tercapai
                         </span>
-                        <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                        <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
                           <Target className="w-3.5 h-3.5" />
                         </div>
                       </div>
                       <div className="flex items-baseline gap-1.5">
-                        <span className="text-2xl font-bold text-white tracking-tightest">
+                        <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tightest">
                           {targetAchievedCount}
                         </span>
-                        <span className="text-xs text-neutral-400 font-medium">Member</span>
+                        <span className="text-xs text-slate-500 dark:text-neutral-400 font-medium">Member</span>
                       </div>
-                      <div className="mt-2 flex items-center gap-1 text-[11px] text-neutral-400">
-                        <Flame className="w-3 h-3 text-amber-400 shrink-0" />
+                      <div className="mt-2 flex items-center gap-1 text-[11px] text-slate-500 dark:text-neutral-400">
+                        <Flame className="w-3 h-3 text-amber-500 dark:text-amber-400 shrink-0" />
                         <span className="truncate text-[10px]">Fat loss &gt;3kg / surplus massa otot</span>
                       </div>
                     </div>
@@ -2836,7 +2895,7 @@ export default function App() {
                     {/* Bento 4: Rata-rata Kepatuhan Sesi */}
                     <div className="card-glass hairline-border rounded-2xl p-3.5 relative overflow-hidden group hover:border-emerald-500/30 transition">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[11px] font-medium text-neutral-400">
+                        <span className="text-[11px] font-medium text-slate-500 dark:text-neutral-400">
                           Kepatuhan Sesi
                         </span>
                         <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
@@ -2944,14 +3003,14 @@ export default function App() {
               <section id="memberSection" className="space-y-3.5 pt-2">
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0">
-                    <h2 className="text-base font-bold text-white tracking-tight truncate">
+                    <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight truncate">
                       Direktori Member Fitness Center
                     </h2>
-                    <p className="text-xs text-neutral-400 truncate mt-0.5">
+                    <p className="text-xs text-slate-500 dark:text-neutral-400 truncate mt-0.5">
                       Kelola dan pantau progres latihan &amp; sesi PT member
                     </p>
                   </div>
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-white/[0.06] text-neutral-300 border border-white/[0.08] font-mono shrink-0 whitespace-nowrap tabular-nums">
+                  <span className="text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 dark:bg-white/[0.06] dark:text-neutral-300 dark:border-white/[0.08] font-mono shrink-0 whitespace-nowrap tabular-nums">
                     {visibleClients.length} Member Ditampilkan
                   </span>
                 </div>
@@ -2959,53 +3018,53 @@ export default function App() {
                 {/* Unified Filter Bar: Search (with ⌘K), Status, Target */}
                 <div className="card-glass hairline-border rounded-2xl p-3.5 space-y-2.5">
                   <div className="relative">
-                    <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <Search className="w-4 h-4 text-slate-400 dark:text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
                       ref={tableSearchInputRef}
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Cari member, target PT, sesi (contoh: Budi, Siti)..."
-                      className="w-full min-h-[44px] bg-[#0B0F17]/90 border border-white/[0.08] rounded-xl pl-10 pr-14 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition"
+                      className="w-full min-h-[44px] bg-slate-100/90 dark:bg-[#0B0F17]/90 border border-slate-300 dark:border-white/[0.08] rounded-xl pl-10 pr-14 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-500 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition"
                     />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-neutral-400 bg-white/[0.06] border border-white/[0.08] px-1.5 py-0.5 rounded pointer-events-none">
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-500 dark:text-neutral-400 bg-slate-200/70 dark:bg-white/[0.06] border border-slate-300 dark:border-white/[0.08] px-1.5 py-0.5 rounded pointer-events-none">
                       ⌘K
                     </span>
                   </div>
 
                   <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 text-xs">
                     {/* Status Dropdown Filter */}
-                    <div className="flex items-center gap-1.5 text-[11px] text-neutral-400 flex-1 min-w-[138px]">
+                    <div className="flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-neutral-400 flex-1 min-w-[138px]">
                       <span className="shrink-0">Status:</span>
                       <div className="relative flex items-center flex-1">
                         <select
                           value={statusFilter}
                           onChange={(e) => setStatusFilter(e.target.value)}
-                          className="w-full min-h-[44px] bg-[#0B0F17] border border-white/[0.08] rounded-xl pl-2.5 pr-7 py-2 text-neutral-200 text-xs focus:outline-none focus:border-emerald-500/50 appearance-none cursor-pointer"
+                          className="w-full min-h-[44px] bg-slate-100 dark:bg-[#0B0F17] border border-slate-300 dark:border-white/[0.08] rounded-xl pl-2.5 pr-7 py-2 text-slate-800 dark:text-neutral-200 text-xs focus:outline-none focus:border-emerald-500/50 appearance-none cursor-pointer"
                         >
                           <option value="Semua">Semua Status</option>
                           <option value="Aktif">Aktif</option>
                           <option value="Cuti">Cuti</option>
                         </select>
-                        <ChevronDown className="w-3.5 h-3.5 text-neutral-400 absolute right-2 pointer-events-none" />
+                        <ChevronDown className="w-3.5 h-3.5 text-slate-400 dark:text-neutral-400 absolute right-2 pointer-events-none" />
                       </div>
                     </div>
 
                     {/* Target Dropdown Filter */}
-                    <div className="flex items-center gap-1.5 text-[11px] text-neutral-400 flex-1 min-w-[138px]">
+                    <div className="flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-neutral-400 flex-1 min-w-[138px]">
                       <span className="shrink-0">Target:</span>
                       <div className="relative flex items-center flex-1">
                         <select
                           value={targetFilter}
                           onChange={(e) => setTargetFilter(e.target.value)}
-                          className="w-full min-h-[44px] bg-[#0B0F17] border border-white/[0.08] rounded-xl pl-2.5 pr-7 py-2 text-neutral-200 text-xs focus:outline-none focus:border-emerald-500/50 appearance-none cursor-pointer"
+                          className="w-full min-h-[44px] bg-slate-100 dark:bg-[#0B0F17] border border-slate-300 dark:border-white/[0.08] rounded-xl pl-2.5 pr-7 py-2 text-slate-800 dark:text-neutral-200 text-xs focus:outline-none focus:border-emerald-500/50 appearance-none cursor-pointer"
                         >
                           <option value="Semua">Semua Target</option>
                           <option value="Fat Loss">Fat Loss</option>
                           <option value="Hipertrofi">Hipertrofi</option>
                           <option value="Powerlifting">Powerlifting</option>
                         </select>
-                        <ChevronDown className="w-3.5 h-3.5 text-neutral-400 absolute right-2 pointer-events-none" />
+                        <ChevronDown className="w-3.5 h-3.5 text-slate-400 dark:text-neutral-400 absolute right-2 pointer-events-none" />
                       </div>
                     </div>
 
@@ -3016,7 +3075,7 @@ export default function App() {
                         setStatusFilter('Semua');
                         setTargetFilter('Semua');
                       }}
-                      className="min-h-[44px] px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-semibold text-neutral-300 hover:text-emerald-400 transition shrink-0 whitespace-nowrap ml-auto"
+                      className="min-h-[44px] px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 hover:text-emerald-600 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] dark:border-white/[0.08] text-xs font-semibold dark:text-neutral-300 dark:hover:text-emerald-400 transition shrink-0 whitespace-nowrap ml-auto"
                     >
                       Reset Filter
                     </button>
@@ -3091,18 +3150,18 @@ export default function App() {
                               </div>
                               <div className="truncate">
                                 <div className="flex items-center gap-2">
-                                  <h4 className="text-sm sm:text-base font-bold text-white tracking-tight truncate">
+                                  <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight truncate">
                                     {client.nama_lengkap}
                                   </h4>
-                                  <span className="text-[11px] font-medium text-neutral-400 shrink-0">
+                                  <span className="text-[11px] font-medium text-slate-500 dark:text-neutral-400 shrink-0">
                                     ({client.usia} thn)
                                   </span>
                                 </div>
-                                <p className="text-xs text-neutral-400 flex items-center gap-1.5 mt-0.5">
+                                <p className="text-xs text-slate-500 dark:text-neutral-400 flex items-center gap-1.5 mt-0.5">
                                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500/60" />
                                   <span>{client.gender}</span>
-                                  <span className="text-neutral-600">•</span>
-                                  <span className="font-mono text-[11px] text-neutral-400">{client.code}</span>
+                                  <span className="text-neutral-400 dark:text-neutral-600">•</span>
+                                  <span className="font-mono text-[11px] text-slate-500 dark:text-neutral-400">{client.code}</span>
                                 </p>
                               </div>
                             </div>
@@ -3117,25 +3176,25 @@ export default function App() {
                           {/* Target & Metrics Grid */}
                           <div
                             onClick={() => handleSelectClient(client.id)}
-                            className="bg-black/30 rounded-xl p-3 hairline-border-subtle grid grid-cols-2 gap-3 text-xs mb-2.5 cursor-pointer"
+                            className="bg-slate-100/80 dark:bg-black/30 rounded-xl p-3 hairline-border-subtle grid grid-cols-2 gap-3 text-xs mb-2.5 cursor-pointer"
                           >
                             <div>
-                              <span className="text-[11px] text-neutral-400 block mb-0.5">
+                              <span className="text-[11px] text-slate-500 dark:text-neutral-400 block mb-0.5">
                                 Target Program
                               </span>
-                              <span className="text-xs sm:text-sm font-semibold text-white truncate block">
+                              <span className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate block">
                                 {client.target_utama}
                               </span>
                             </div>
 
                             <div>
-                              <span className="text-[11px] text-neutral-400 block mb-0.5">
+                              <span className="text-[11px] text-slate-500 dark:text-neutral-400 block mb-0.5">
                                 Metrik Berat
                               </span>
                               <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="text-white font-mono font-bold text-sm tabular-nums">
+                                <span className="text-slate-900 dark:text-white font-mono font-bold text-sm tabular-nums">
                                   {client.berat_terkini_kg}{' '}
-                                  <span className="text-[11px] font-normal text-neutral-400">kg</span>
+                                  <span className="text-[11px] font-normal text-slate-500 dark:text-neutral-400">kg</span>
                                 </span>
                                 <span
                                   className={`text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded border tabular-nums ${diffBadgeClass}`}

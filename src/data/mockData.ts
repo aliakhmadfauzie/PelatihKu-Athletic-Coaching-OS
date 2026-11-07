@@ -412,8 +412,8 @@ export const INITIAL_CLIENTS: ClientProfile[] = [
     nutritionCoachNote: 'Kamis defisit agak longgar (+120 kcal saat meeting lembur), namun diimbangi intake protein tinggi. Rekomendasi dipertahankan.',
     nextSession: {
       date: '2026-11-05',
-      time: '16:30',
-      focus: 'Lower Body Strength & Hypertrophy',
+      time: '18:00 - 19:00',
+      focus: 'Personal Training (PT) - Gym',
       location: 'Gym Utama Senayan',
       confirmed: true
     },
@@ -421,21 +421,11 @@ export const INITIAL_CLIENTS: ClientProfile[] = [
       {
         id: 'sched-k01-1',
         date: '2026-11-05',
-        time: '16:30',
-        durationMinutes: 75,
+        time: '18:00 - 19:00',
+        durationMinutes: 60,
         location: 'Gym Utama Senayan',
-        focus: 'Lower Body Strength & Hypertrophy',
+        focus: 'Personal Training (PT) - Gym',
         sessionNumber: 17,
-        status: 'Terkonfirmasi'
-      },
-      {
-        id: 'sched-k01-2',
-        date: '2026-11-07',
-        time: '10:30',
-        durationMinutes: 75,
-        location: 'Gym Utama Senayan',
-        focus: 'Upper Body Push & Pull Specialization',
-        sessionNumber: 18,
         status: 'Terkonfirmasi'
       }
     ],
