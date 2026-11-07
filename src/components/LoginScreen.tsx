@@ -619,7 +619,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 type="button"
                 onClick={() => handleQuickFill('123456')}
                 disabled={isVerifyingDb}
-                className="min-h-[44px] py-1.5 px-2 rounded-xl bg-white/[0.03] hover:bg-emerald-500/15 border border-white/[0.06] hover:border-emerald-500/40 text-[11px] text-neutral-300 hover:text-emerald-300 transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight"
+                className="min-h-[48px] py-2 px-2 rounded-xl bg-white/[0.03] hover:bg-emerald-500/15 border border-white/[0.06] hover:border-emerald-500/40 text-[11px] text-neutral-300 hover:text-emerald-300 transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight"
                 title="Login Cepat sebagai Head Coach Panji (PIN: 123456)"
               >
                 <span className="font-semibold text-white text-[10px]">🏋️ Coach</span>
@@ -629,7 +629,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 type="button"
                 onClick={() => handleQuickFill('34567801')}
                 disabled={isVerifyingDb}
-                className="min-h-[44px] py-1.5 px-2 rounded-xl bg-white/[0.03] hover:bg-blue-500/15 border border-white/[0.06] hover:border-blue-500/40 text-[11px] text-neutral-300 hover:text-blue-300 transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight"
+                className="min-h-[48px] py-2 px-2 rounded-xl bg-white/[0.03] hover:bg-blue-500/15 border border-white/[0.06] hover:border-blue-500/40 text-[11px] text-neutral-300 hover:text-blue-300 transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight"
                 title="Login Cepat sebagai Member Budi Santoso (PIN: 34567801)"
               >
                 <span className="font-semibold text-white text-[10px]">🏃 Member</span>
@@ -639,7 +639,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 type="button"
                 onClick={() => handleQuickFill('999888')}
                 disabled={isVerifyingDb}
-                className="min-h-[44px] py-1.5 px-2 rounded-xl bg-white/[0.03] hover:bg-amber-500/15 border border-white/[0.06] hover:border-amber-500/40 text-[11px] text-neutral-300 hover:text-amber-300 transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight"
+                className="min-h-[48px] py-2 px-2 rounded-xl bg-white/[0.03] hover:bg-amber-500/15 border border-white/[0.06] hover:border-amber-500/40 text-[11px] text-neutral-300 hover:text-amber-300 transition active:scale-95 flex flex-col items-center justify-center text-center leading-tight"
                 title="Login Cepat sebagai Admin Operasional (PIN: 999888)"
               >
                 <span className="font-semibold text-white text-[10px]">🏢 Admin</span>
@@ -669,7 +669,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           <button
             type="button"
             onClick={() => setShowLogoutToast(false)}
-            className="text-slate-950/70 hover:text-slate-950 ml-1 p-1 min-w-[32px] min-h-[32px] flex items-center justify-center"
+            className="text-slate-950/70 hover:text-slate-950 ml-1 p-1 min-w-[44px] min-h-[44px] flex items-center justify-center transition active:scale-90"
             aria-label="Tutup notifikasi"
           >
             <X className="w-4 h-4" />

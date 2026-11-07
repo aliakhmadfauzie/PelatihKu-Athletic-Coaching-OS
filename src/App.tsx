@@ -1570,7 +1570,7 @@ export default function App() {
               type="button"
               onClick={() => setDrawerOpen(true)}
               aria-label="Buka Menu Samping Kiri"
-              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-white/[0.05] hover:bg-white/[0.1] active:bg-white/[0.15] border border-white/[0.08] text-neutral-300 hover:text-white flex items-center justify-center transition active:scale-95 shrink-0"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-white/[0.05] hover:bg-white/[0.1] active:bg-white/[0.15] border border-white/[0.08] text-neutral-300 hover:text-white flex items-center justify-center transition active:scale-95 shrink-0"
               title="Buka Navigasi Utama"
             >
               <Menu className="w-5 h-5" />
@@ -1745,7 +1745,7 @@ export default function App() {
                     showToast('Beralih ke tampilan Head Coach (Panji Akbar Syamsi)');
                   }
                 }}
-                className="min-h-[36px] px-3 py-1.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] active:bg-white/[0.15] border border-white/[0.08] text-[11px] text-neutral-300 hover:text-white flex items-center gap-1.5 transition active:scale-95 shadow-sm font-semibold shrink-0 whitespace-nowrap"
+                className="min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] active:bg-white/[0.15] border border-white/[0.08] text-[11px] text-neutral-300 hover:text-white flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm font-semibold shrink-0 whitespace-nowrap"
                 title="Beralih perspektif Coach ↔ Member PT"
               >
                 <span>{currentUserRole === 'coach' ? '👁️ Mode Member' : '👁️ Mode Coach'}</span>
@@ -1791,7 +1791,7 @@ export default function App() {
                   type="button"
                   onClick={() => setDrawerOpen(false)}
                   aria-label="Tutup navigasi samping"
-                  className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-white/[0.04] hover:bg-white/[0.08] active:scale-95 text-neutral-400 hover:text-white border border-white/[0.06] flex items-center justify-center transition"
+                  className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-white/[0.04] hover:bg-white/[0.08] active:scale-95 text-neutral-400 hover:text-white border border-white/[0.06] flex items-center justify-center transition"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -2161,7 +2161,7 @@ export default function App() {
                     setDrawerOpen(false);
                     setIsLocked(true);
                   }}
-                  className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-white/[0.04] hover:bg-rose-500/20 text-neutral-400 hover:text-rose-400 flex items-center justify-center transition active:scale-95 shrink-0 ml-2"
+                  className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-white/[0.04] hover:bg-rose-500/20 text-neutral-400 hover:text-rose-400 flex items-center justify-center transition active:scale-95 shrink-0 ml-2"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -3267,7 +3267,7 @@ export default function App() {
                 type="button"
                 onClick={() => setShowAddClientModal(false)}
                 aria-label="Tutup form member"
-                className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl text-neutral-400 hover:text-white flex items-center justify-center hover:bg-white/[0.06] transition active:scale-95"
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl text-neutral-400 hover:text-white flex items-center justify-center hover:bg-white/[0.06] transition active:scale-95"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -3720,9 +3720,9 @@ export default function App() {
         />
       )}
 
-      {/* Toast Notification */}
+      {/* Toast Notification (Floated above bottom dock navigation) */}
       {toastMessage && (
-        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 text-slate-950 text-xs font-semibold shadow-xl shadow-emerald-500/20 transition-all duration-300">
+        <div className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 text-slate-950 text-xs font-semibold shadow-xl shadow-emerald-500/20 transition-all duration-300">
           <CheckCircle2 className="w-4 h-4 stroke-[2.4]" />
           <span>{toastMessage}</span>
         </div>

@@ -140,7 +140,7 @@ export const ChangePinModal: React.FC<ChangePinModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Tutup modal PIN"
-            className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl text-neutral-400 hover:text-white hover:bg-white/[0.06] flex items-center justify-center transition active:scale-95"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl text-neutral-400 hover:text-white hover:bg-white/[0.06] flex items-center justify-center transition active:scale-95"
           >
             <X className="w-5 h-5" />
           </button>

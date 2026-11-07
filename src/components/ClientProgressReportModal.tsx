@@ -121,7 +121,7 @@ _Diverifikasi oleh ${coach.name || 'Coach Panji Akbar Syamsi'}, Head Coach Pelat
             <button
               type="button"
               onClick={handleCopyWhatsApp}
-              className="min-h-[40px] px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-neutral-300 flex items-center gap-1.5 transition"
+              className="min-h-[44px] min-w-[44px] px-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-neutral-300 flex items-center justify-center gap-1.5 transition active:scale-95"
               title="Salin teks laporan untuk WhatsApp"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
@@ -130,7 +130,7 @@ _Diverifikasi oleh ${coach.name || 'Coach Panji Akbar Syamsi'}, Head Coach Pelat
             <button
               type="button"
               onClick={handlePrint}
-              className="min-h-[40px] px-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold flex items-center gap-1.5 transition shadow-sm"
+              className="min-h-[44px] min-w-[44px] px-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-sm active:scale-95"
               title="Cetak atau simpan sebagai file PDF"
             >
               <Printer className="w-3.5 h-3.5 stroke-[2.2]" />

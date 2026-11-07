@@ -174,7 +174,7 @@ export const ClientProfileView: React.FC<ClientProfileViewProps> = ({
         <button
           type="button"
           onClick={onBackToDashboard}
-          className="min-h-[40px] text-xs font-semibold text-emerald-400 hover:underline flex items-center gap-1.5 transition active:scale-95 cursor-pointer"
+          className="min-h-[44px] text-xs font-semibold text-emerald-400 hover:underline flex items-center gap-1.5 transition active:scale-95 cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Kembali ke Dashboard Latihan</span>
@@ -394,7 +394,7 @@ export const ClientProfileView: React.FC<ClientProfileViewProps> = ({
             <button
               type="button"
               onClick={onOpenRescheduleHistory}
-              className="min-h-[42px] px-3.5 rounded-xl bg-[#1f293d] hover:bg-[#28354f] text-white border border-white/[0.08] text-xs font-semibold flex items-center gap-1.5 transition active:scale-95"
+              className="min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-xl bg-[#1f293d] hover:bg-[#28354f] text-white border border-white/[0.08] text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95"
             >
               <CalendarClock className="w-4 h-4 text-amber-400" />
               <span>Lihat Riwayat Semua Pengajuan</span>
@@ -404,7 +404,7 @@ export const ClientProfileView: React.FC<ClientProfileViewProps> = ({
             <button
               type="button"
               onClick={onOpenRescheduleModal}
-              className="min-h-[42px] px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold flex items-center gap-1.5 transition active:scale-95 shadow-md shadow-emerald-500/20"
+              className="min-h-[44px] min-w-[44px] px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md shadow-emerald-500/20"
             >
               <span>+ Ajukan Ganti Jadwal</span>
             </button>
@@ -585,7 +585,7 @@ export const ClientProfileView: React.FC<ClientProfileViewProps> = ({
         <button
           type="button"
           onClick={() => setShowLogoutModal(true)}
-          className="min-h-[40px] px-3.5 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95"
+          className="min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95"
         >
           <LogOut className="w-3.5 h-3.5" />
           <span>Keluar</span>
@@ -612,14 +612,14 @@ export const ClientProfileView: React.FC<ClientProfileViewProps> = ({
               <button
                 type="button"
                 onClick={() => setShowLogoutModal(false)}
-                className="min-h-[40px] px-3.5 py-2 rounded-xl bg-white/[0.06] text-neutral-300 hover:text-white text-xs font-semibold"
+                className="min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-xl bg-white/[0.06] text-neutral-300 hover:text-white text-xs font-semibold flex items-center justify-center"
               >
                 Batal
               </button>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="min-h-[40px] px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow-md shadow-rose-500/20 active:scale-95 transition"
+                className="min-h-[44px] min-w-[44px] px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow-md shadow-rose-500/20 active:scale-95 transition flex items-center justify-center"
               >
                 Ya, Keluar
               </button>

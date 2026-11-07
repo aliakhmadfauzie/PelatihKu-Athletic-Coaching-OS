@@ -115,7 +115,7 @@ export const PushNotificationPromptModal: React.FC<PushNotificationPromptModalPr
             type="button"
             onClick={onClose}
             aria-label="Tutup Modal"
-            className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-neutral-400 hover:text-white transition"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-neutral-400 hover:text-white transition active:scale-95"
           >
             <X className="w-4 h-4" />
           </button>

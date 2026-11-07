@@ -433,7 +433,7 @@ Progres sangat konsisten dengan tingkat kepatuhan nutrisi ${client.dietComplianc
                 <button
                   type="button"
                   onClick={handleCopyDraft}
-                  className="min-h-[36px] px-2.5 py-1 rounded-lg bg-[#232a3a] hover:bg-[#323949] text-xs text-[#4edea3] font-medium flex items-center gap-1.5 transition-colors"
+                  className="min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-xl bg-[#232a3a] hover:bg-[#323949] text-xs text-[#4edea3] font-medium flex items-center justify-center gap-1.5 transition-colors active:scale-95"
                 >
                   <Copy className="w-3.5 h-3.5" />
                   <span>{copied ? 'Tersalin!' : 'Salin Teks'}</span>

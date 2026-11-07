@@ -995,7 +995,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowSupervisorPin(!showSupervisorPin)}
-                    className="min-h-[36px] px-2.5 py-1 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-xs font-medium text-neutral-300 hover:text-white transition whitespace-nowrap"
+                    className="min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-xs font-medium text-neutral-300 hover:text-white transition whitespace-nowrap flex items-center justify-center"
                   >
                     {showSupervisorPin ? 'Sembunyikan' : 'Tampilkan'}
                   </button>
@@ -1533,7 +1533,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
                           <button
                             type="button"
                             onClick={() => copyToClipboard(aiScreening.analysis, 'screening')}
-                            className="min-h-[36px] px-3 py-1.5 rounded-xl bg-[#191f2f] text-xs text-white hover:text-emerald-400 flex items-center gap-1.5 transition active:scale-95"
+                            className="min-h-[44px] px-3.5 py-2 rounded-xl bg-[#191f2f] text-xs text-white hover:text-emerald-400 flex items-center gap-1.5 transition active:scale-95"
                           >
                             <Copy className="w-3.5 h-3.5" />
                             <span>{copiedTextType === 'screening' ? 'Tersalin!' : 'Salin'}</span>
@@ -1561,7 +1561,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
                           <button
                             type="button"
                             onClick={() => copyToClipboard(aiPeriodization.content, 'periodization')}
-                            className="min-h-[36px] px-3 py-1.5 rounded-xl bg-[#191f2f] text-xs text-white hover:text-amber-400 flex items-center gap-1.5 transition active:scale-95"
+                            className="min-h-[44px] px-3.5 py-2 rounded-xl bg-[#191f2f] text-xs text-white hover:text-amber-400 flex items-center gap-1.5 transition active:scale-95"
                           >
                             <Copy className="w-3.5 h-3.5" />
                             <span>{copiedTextType === 'periodization' ? 'Tersalin!' : 'Salin'}</span>
@@ -2670,7 +2670,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
                     type="button"
                     onClick={() => avatarFileInputRef.current?.click()}
                     disabled={isOptimizingAvatar}
-                    className="min-h-[38px] px-3 py-1.5 rounded-xl bg-[#10b981]/15 hover:bg-[#10b981]/25 border border-[#10b981]/30 text-[#4edea3] text-xs font-semibold flex items-center gap-1.5 transition active:scale-95"
+                    className="min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-xl bg-[#10b981]/15 hover:bg-[#10b981]/25 border border-[#10b981]/30 text-[#4edea3] text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95"
                   >
                     <Camera className="w-3.5 h-3.5" />
                     <span>{isOptimizingAvatar ? 'Proses...' : client.avatarUrl ? 'Ganti' : 'Upload'}</span>
@@ -2679,7 +2679,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
                     <button
                       type="button"
                       onClick={handleRemoveAvatar}
-                      className="min-h-[38px] px-2.5 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center justify-center transition active:scale-95"
+                      className="min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center justify-center transition active:scale-95"
                       title="Hapus Foto Profil"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

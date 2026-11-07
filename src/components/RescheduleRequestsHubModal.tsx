@@ -289,7 +289,7 @@ export const RescheduleRequestsHubModal: React.FC<RescheduleRequestsHubModalProp
                 placeholder="Cari nama member, telepon, atau alasan..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full min-h-[42px] bg-[#070e1d] border border-white/[0.08] rounded-xl pl-10 pr-3.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500/60"
+                className="w-full min-h-[44px] bg-[#070e1d] border border-white/[0.08] rounded-xl pl-10 pr-3.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500/60"
               />
             </div>
           )}
@@ -303,7 +303,7 @@ export const RescheduleRequestsHubModal: React.FC<RescheduleRequestsHubModalProp
               <p className="text-sm font-semibold text-neutral-300">
                 Tidak Ada Pengajuan Reschedule
               </p>
-              <p className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto">
+              <p className="text-xs text-neutral-500 mt-1 max-w-md mx-auto">
                 {filterStatus !== 'all'
                   ? `Tidak ada pengajuan dengan status "${filterStatus}".`
                   : isClient
@@ -414,7 +414,7 @@ export const RescheduleRequestsHubModal: React.FC<RescheduleRequestsHubModalProp
                         onReviewRequest(client.id, request);
                         onClose();
                       }}
-                      className="min-h-[42px] px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-950 text-xs font-bold flex items-center gap-1.5 shadow-md transition active:scale-95"
+                      className="min-h-[44px] px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-950 text-xs font-bold flex items-center gap-1.5 shadow-md transition active:scale-95"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5 text-slate-950" />
                       <span>Tinjau &amp; Putuskan</span>
@@ -425,7 +425,7 @@ export const RescheduleRequestsHubModal: React.FC<RescheduleRequestsHubModalProp
                     <button
                       type="button"
                       onClick={() => onCancelRequest(request)}
-                      className="min-h-[42px] px-4 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95"
+                      className="min-h-[44px] px-4 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95"
                     >
                       <XCircle className="w-3.5 h-3.5" />
                       <span>Batalkan Pengajuan Ini</span>
@@ -436,7 +436,7 @@ export const RescheduleRequestsHubModal: React.FC<RescheduleRequestsHubModalProp
                     <button
                       type="button"
                       disabled
-                      className="min-h-[40px] px-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-neutral-500 text-xs font-mono font-medium flex items-center gap-1.5 cursor-not-allowed shadow-none"
+                      className="min-h-[44px] px-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-neutral-500 text-xs font-mono font-medium flex items-center gap-1.5 cursor-not-allowed shadow-none"
                     >
                       <Lock className="w-3.5 h-3.5 text-neutral-500" />
                       <span>Sudah Diproses ({request.status.toUpperCase()})</span>

@@ -1447,7 +1447,7 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
                                   }
                                   title="Hitung kepingan plate barbel"
                                   aria-label="Kalkulator keping plate"
-                                  className="min-h-[48px] min-w-[40px] px-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 flex items-center justify-center transition active:scale-95"
+                                  className="min-h-[48px] min-w-[44px] px-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 flex items-center justify-center transition active:scale-95"
                                 >
                                   <Dumbbell className="w-4 h-4" />
                                 </button>
@@ -1508,7 +1508,7 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
                                   onClick={() => handleRemoveSet(ex.id, s.id)}
                                   disabled={ex.sets.length <= 1}
                                   aria-label="Hapus set"
-                                  className="min-w-[40px] min-h-[48px] rounded-xl text-neutral-500 hover:text-rose-400 disabled:opacity-20 flex items-center justify-center transition"
+                                  className="min-w-[44px] min-h-[48px] rounded-xl text-neutral-500 hover:text-rose-400 disabled:opacity-20 flex items-center justify-center transition"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
@@ -1518,52 +1518,52 @@ export const LogSessionModal: React.FC<LogSessionModalProps> = ({
                             {/* Stepper Quick-Chips (Zero Keyboard Typing in Chalked Conditions) */}
                             <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-white/5 text-xs">
                               {/* Weight Increments */}
-                              <div className="flex items-center gap-1">
+                              <div className="flex items-center gap-1.5 flex-wrap">
                                 <span className="text-[10px] text-neutral-400 font-mono">Beban:</span>
                                 <button
                                   type="button"
                                   onClick={() => handleAdjustWeight(ex.id, s.id, -2.5)}
-                                  className="min-h-[38px] px-2.5 rounded-lg bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 font-mono text-[11px] text-neutral-300 transition"
+                                  className="min-h-[44px] min-w-[44px] px-3 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 font-mono text-[11px] text-neutral-300 transition flex items-center justify-center"
                                 >
                                   -2.5
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleAdjustWeight(ex.id, s.id, 2.5)}
-                                  className="min-h-[38px] px-2.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-95 border border-emerald-500/30 font-mono text-[11px] text-emerald-300 font-bold transition"
+                                  className="min-h-[44px] min-w-[44px] px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-95 border border-emerald-500/30 font-mono text-[11px] text-emerald-300 font-bold transition flex items-center justify-center"
                                 >
                                   +2.5
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleAdjustWeight(ex.id, s.id, 5)}
-                                  className="min-h-[38px] px-2.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-95 border border-emerald-500/30 font-mono text-[11px] text-emerald-300 font-bold transition"
+                                  className="min-h-[44px] min-w-[44px] px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-95 border border-emerald-500/30 font-mono text-[11px] text-emerald-300 font-bold transition flex items-center justify-center"
                                 >
                                   +5
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleAdjustWeight(ex.id, s.id, 10)}
-                                  className="min-h-[38px] px-2.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-95 border border-emerald-500/30 font-mono text-[11px] text-emerald-300 font-bold transition"
+                                  className="min-h-[44px] min-w-[44px] px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-95 border border-emerald-500/30 font-mono text-[11px] text-emerald-300 font-bold transition flex items-center justify-center"
                                 >
                                   +10
                                 </button>
                               </div>
 
                               {/* Rep Increments */}
-                              <div className="flex items-center gap-1">
+                              <div className="flex items-center gap-1.5 flex-wrap">
                                 <span className="text-[10px] text-neutral-400 font-mono">Reps:</span>
                                 <button
                                   type="button"
                                   onClick={() => handleAdjustReps(ex.id, s.id, -1)}
-                                  className="min-h-[38px] px-2.5 rounded-lg bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 font-mono text-[11px] text-neutral-300 transition"
+                                  className="min-h-[44px] min-w-[44px] px-3 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 font-mono text-[11px] text-neutral-300 transition flex items-center justify-center"
                                 >
                                   -1
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleAdjustReps(ex.id, s.id, 1)}
-                                  className="min-h-[38px] px-2.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 active:scale-95 border border-cyan-500/30 font-mono text-[11px] text-cyan-300 font-bold transition"
+                                  className="min-h-[44px] min-w-[44px] px-3 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 active:scale-95 border border-cyan-500/30 font-mono text-[11px] text-cyan-300 font-bold transition flex items-center justify-center"
                                 >
                                   +1
                                 </button>

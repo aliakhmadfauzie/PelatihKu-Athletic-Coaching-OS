@@ -188,7 +188,7 @@ export const RescheduleApprovalBanner: React.FC<RescheduleApprovalBannerProps> =
             <button
               type="button"
               onClick={() => setShowRejectInput(false)}
-              className="min-h-[38px] px-3 py-1.5 rounded-lg bg-neutral-800 text-neutral-300 text-xs font-semibold"
+              className="min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-xl bg-neutral-800 text-neutral-300 text-xs font-semibold flex items-center justify-center transition active:scale-95"
             >
               Batal
             </button>
@@ -196,7 +196,7 @@ export const RescheduleApprovalBanner: React.FC<RescheduleApprovalBannerProps> =
               type="button"
               disabled={!rejectReason.trim() || isSubmitting}
               onClick={handleConfirmReject}
-              className="min-h-[38px] px-3.5 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-400 text-white text-xs font-bold transition disabled:opacity-50"
+              className="min-h-[44px] min-w-[44px] px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-white text-xs font-bold transition disabled:opacity-50 flex items-center justify-center active:scale-95"
             >
               Konfirmasi Tolak
             </button>

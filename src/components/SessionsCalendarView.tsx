@@ -289,11 +289,11 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
   }, [weekDaysList]);
 
   useEffect(() => {
-    onOverlayChange?.(showQuickScheduleModal);
+    onOverlayChange?.(Boolean(showQuickScheduleModal || activeMonthPopupDate));
     return () => {
       onOverlayChange?.(false);
     };
-  }, [showQuickScheduleModal, onOverlayChange]);
+  }, [showQuickScheduleModal, activeMonthPopupDate, onOverlayChange]);
 
   // Quick schedule modal form state
   const [formClientId, setFormClientId] = useState<string>(clients[0]?.id || '');
@@ -1254,7 +1254,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setActiveMonthPopupDate(null)}
-                      className="p-1 text-neutral-400 hover:text-white transition active:scale-90"
+                      className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-neutral-400 hover:text-white flex items-center justify-center transition active:scale-95"
                       aria-label="Tutup detail sesi tanggal ini"
                     >
                       <X className="w-5 h-5" />
@@ -1309,7 +1309,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                           targetEl.scrollIntoView({ behavior: 'smooth' });
                         }
                       }}
-                      className="w-full min-h-[46px] py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-bold text-sm flex items-center justify-center shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition"
+                      className="w-full min-h-[48px] py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-bold text-sm flex items-center justify-center shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition"
                     >
                       {popupSessions.length <= 1 ? 'Lihat Detail' : 'Lihat Semua Detail'}
                     </button>
@@ -1317,7 +1317,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setActiveMonthPopupDate(null)}
-                      className="w-full min-h-[44px] py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-xs font-semibold text-neutral-300 hover:text-white transition"
+                      className="w-full min-h-[48px] py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-xs font-semibold text-neutral-300 hover:text-white transition"
                     >
                       Tutup
                     </button>
@@ -1408,7 +1408,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
             </div>
             <div>
               <p className="text-sm font-semibold text-white">Tidak ada jadwal sesi pada filter ini</p>
-              <p className="text-xs text-[#bbcabf] mt-1 max-w-sm mx-auto">
+              <p className="text-xs text-[#bbcabf] mt-1 max-w-md mx-auto">
                 {currentUserRole === 'client'
                   ? 'Belum ada sesi latihan terjadwal untuk filter ini. Hubungi Coach Panji jika ingin mengajukan jadwal latihan baru.'
                   : 'Pilih hari lain atau klik tombol di bawah untuk menjadwalkan sesi baru bagi member.'}
