@@ -351,19 +351,19 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         <div className="flex items-center justify-between px-1 gap-2">
           <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-neutral-400 font-medium">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Athletic OS • v2.7.2</span>
+            <span>Athletic OS • v2.7.4</span>
           </div>
 
           <button
             type="button"
             onClick={handleToggleTheme}
             aria-label={currentTheme === 'dark' ? 'Ganti ke Mode Terang' : 'Ganti ke Mode Gelap'}
-            className="min-h-[44px] px-3.5 py-1.5 rounded-xl bg-slate-200/90 hover:bg-slate-300 dark:bg-white/[0.08] dark:hover:bg-white/[0.14] border border-slate-300 dark:border-white/[0.1] text-xs font-semibold flex items-center gap-2 transition active:scale-95 shadow-xs cursor-pointer"
+            className="min-h-[44px] px-3.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-xs font-semibold flex items-center gap-2 transition active:scale-95 shadow-xs cursor-pointer"
           >
             {currentTheme === 'dark' ? (
               <>
                 <Sun className="w-4 h-4 text-amber-400" />
-                <span className="text-white text-xs font-semibold">Mode Terang</span>
+                <span className="text-amber-300 text-xs font-semibold">Mode Terang</span>
               </>
             ) : (
               <>
@@ -713,6 +713,28 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 <span className="font-mono text-[9px] text-amber-600 dark:text-amber-400">999888</span>
               </button>
             </div>
+
+            {/* In-Card Full-Width Theme Mode Toggle Button */}
+            <button
+              type="button"
+              onClick={handleToggleTheme}
+              aria-label={currentTheme === 'dark' ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'}
+              className="mt-2 w-full min-h-[44px] px-3.5 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-xs font-semibold flex items-center justify-between transition active:scale-[0.98] cursor-pointer"
+            >
+              <div className="flex items-center gap-2.5">
+                {currentTheme === 'dark' ? (
+                  <Sun className="w-4 h-4 text-amber-400" />
+                ) : (
+                  <Moon className="w-4 h-4 text-amber-600" />
+                )}
+                <span className="text-slate-800 dark:text-amber-200 font-semibold">
+                  {currentTheme === 'dark' ? 'Mode Terang (Daylight)' : 'Mode Gelap (OLED)'}
+                </span>
+              </div>
+              <span className="px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/40 text-[10px] font-bold text-amber-700 dark:text-amber-300">
+                {currentTheme === 'dark' ? '☀️ Aktifkan' : '🌙 Aktifkan'}
+              </span>
+            </button>
           </div>
         </div>
 
