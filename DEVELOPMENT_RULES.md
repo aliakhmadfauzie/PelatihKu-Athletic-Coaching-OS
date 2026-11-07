@@ -1,7 +1,7 @@
 # Pedoman & Aturan Pengembangan (Development Rules) — PelatihKu PRO
 **Aturan Baku untuk Pengembang Perangkat Lunak dan Asisten AI (AI Studio Agents)**  
 **Target Aplikasi:** Fitness Center & Personal Training Management OS  
-**Versi:** 2.7.4  
+**Versi:** 2.7.5  
 
 ---
 
@@ -176,3 +176,15 @@ Saat menaikkan nomor versi aplikasi, SELURUH referensi berikut **wajib diperbaru
 2. **Pre-Release Verification Gate**:
    - Wajib memastikan 0 error tipe pada `tsc --noEmit`.
    - Wajib memastikan `npm run build` selesai tanpa kegagalan bundle sebelum melakukan *firebase deploy*.
+
+
+### 7.6 Konfigurasi Akun Firebase & Target Deployment Resmi
+1. **Akun Google / Firebase Resmi**: `fauziealiakhmad@gmail.com`
+2. **Project ID & Hosting Site**:
+   - **Project ID**: `pelatihku-pro` (alias `default` pada `.firebaserc`)
+   - **Hosting Site**: `pelatihku-pro`
+   - **URL Produksi Resmi**: `https://pelatihku-pro.web.app/`
+   - **DILARANG KERAS** melakukan deployment kode repositori ini ke project lain pada akun yang sama (seperti `jastip-cb-manager-2026` atau `resume-al-2026`).
+3. **Verifikasi Environment Sebelum Deploy (`firebase-mcp-server` / Firebase CLI)**:
+   - Pastikan selalu memeriksa `firebase_get_environment` sebelum memanggil `firebase_deploy`.
+   - Pastikan `Project Directory` mengarah ke `c:\Users\AL_AAF\Project\Pelatihku\PelatihKu-Athletic-Coaching-OS` dan `Active Project ID` adalah `pelatihku-pro`.

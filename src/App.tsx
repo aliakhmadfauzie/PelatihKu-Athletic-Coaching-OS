@@ -1932,31 +1932,6 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Theme Mode Selector Card (Light & Dark OLED Mode) */}
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-100/80 dark:bg-white/[0.03] border border-slate-200/90 dark:border-white/[0.06]">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-amber-500/15 dark:bg-emerald-500/15 flex items-center justify-center text-amber-500 dark:text-emerald-400">
-                    {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-                  </div>
-                  <div>
-                    <span className="text-xs font-bold text-slate-800 dark:text-white block">
-                      Tema Tampilan
-                    </span>
-                    <span className="text-[10px] text-slate-500 dark:text-neutral-400">
-                      {theme === 'dark' ? 'Mode Gelap (OLED)' : 'Mode Terang (Daylight)'}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleToggleTheme}
-                  aria-label="Ganti Tema Tampilan"
-                  className="min-h-[44px] min-w-[44px] px-3.5 py-1.5 rounded-xl bg-slate-200/80 dark:bg-white/[0.06] hover:bg-slate-300 dark:hover:bg-white/[0.1] text-slate-800 dark:text-white border border-slate-300/80 dark:border-white/[0.08] text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95"
-                >
-                  {theme === 'dark' ? '☀️ Terang' : '🌙 Gelap'}
-                </button>
-              </div>
-
               {/* Navigation Links (Rich Action Group) */}
               <nav className="space-y-1">
                 <button
@@ -2235,14 +2210,6 @@ export default function App() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                  <button
-                    type="button"
-                    title={theme === 'dark' ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'}
-                    onClick={handleToggleTheme}
-                    className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 flex items-center justify-center transition active:scale-95"
-                  >
-                    {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-amber-400" />}
-                  </button>
                   <button
                     type="button"
                     title="Kunci Sesi / Keluar Akun"

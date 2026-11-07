@@ -319,27 +319,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
   return (
     <div className="bg-slate-50 text-slate-900 dark:bg-[#0B0F17] dark:text-neutral-200 font-sans antialiased min-h-[100dvh] pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] px-4 flex flex-col justify-center items-center selection:bg-emerald-500/20 selection:text-emerald-400 relative overflow-x-hidden transition-colors duration-200">
-      {/* Floating Theme Toggle (Top Right Corner - Safe Area Aware & High Elevation z-50) */}
-      <button
-        type="button"
-        onClick={handleToggleTheme}
-        aria-label={currentTheme === 'dark' ? 'Ganti ke Mode Terang' : 'Ganti ke Mode Gelap'}
-        className="fixed top-[max(0.75rem,calc(env(safe-area-inset-top)+0.5rem))] right-4 sm:top-6 sm:right-6 z-50 min-w-[44px] min-h-[44px] px-3.5 py-2 rounded-2xl bg-white/95 dark:bg-[#141b2b]/95 hover:bg-white dark:hover:bg-[#191f2f] active:bg-slate-100 dark:active:bg-[#232a3a] backdrop-blur-xl border border-slate-300 dark:border-white/[0.15] text-amber-600 dark:text-emerald-400 text-xs font-semibold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-black/10 dark:shadow-black/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 cursor-pointer"
-        title={currentTheme === 'dark' ? 'Mode Terang (Daylight Mode)' : 'Mode Gelap (OLED Dark Mode)'}
-      >
-        {currentTheme === 'dark' ? (
-          <>
-            <Sun className="w-4 h-4 text-amber-400 stroke-[2.3]" />
-            <span className="text-white text-xs font-bold">Mode Terang</span>
-          </>
-        ) : (
-          <>
-            <Moon className="w-4 h-4 text-slate-800 stroke-[2.3]" />
-            <span className="text-slate-900 text-xs font-bold">Mode Gelap</span>
-          </>
-        )}
-      </button>
-
       {/* iOS Refined Translucent Ambient Mesh */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-96 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.12),transparent_70%)]" />
@@ -347,11 +326,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       </div>
 
       <div className="w-full max-w-sm flex flex-col gap-3.5 relative z-10">
-        {/* Top Control Bar: Brand Status & Prominent In-Flow Theme Switcher */}
+        {/* Top Control Bar: Brand Status & Theme Switcher */}
         <div className="flex items-center justify-between px-1 gap-2">
           <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-neutral-400 font-medium">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Athletic OS • v2.7.4</span>
+            <span>Athletic OS • v2.7.5</span>
           </div>
 
           <button
@@ -713,28 +692,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 <span className="font-mono text-[9px] text-amber-600 dark:text-amber-400">999888</span>
               </button>
             </div>
-
-            {/* In-Card Full-Width Theme Mode Toggle Button */}
-            <button
-              type="button"
-              onClick={handleToggleTheme}
-              aria-label={currentTheme === 'dark' ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'}
-              className="mt-2 w-full min-h-[44px] px-3.5 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-xs font-semibold flex items-center justify-between transition active:scale-[0.98] cursor-pointer"
-            >
-              <div className="flex items-center gap-2.5">
-                {currentTheme === 'dark' ? (
-                  <Sun className="w-4 h-4 text-amber-400" />
-                ) : (
-                  <Moon className="w-4 h-4 text-amber-600" />
-                )}
-                <span className="text-slate-800 dark:text-amber-200 font-semibold">
-                  {currentTheme === 'dark' ? 'Mode Terang (Daylight)' : 'Mode Gelap (OLED)'}
-                </span>
-              </div>
-              <span className="px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/40 text-[10px] font-bold text-amber-700 dark:text-amber-300">
-                {currentTheme === 'dark' ? '☀️ Aktifkan' : '🌙 Aktifkan'}
-              </span>
-            </button>
           </div>
         </div>
 

@@ -119,7 +119,27 @@ When generating, logging, or validating workout data, adhere strictly to these s
 
 ---
 
-## 8. Verification & Execution Commands
+## 8. Firebase Account & Hosting Deployment Governance (Strictly Enforced)
+
+Whenever deploying or interacting with Firebase via CLI or the `firebase-mcp-server`, you MUST verify and enforce the following target environment:
+
+1. **Authenticated Firebase Account**: `fauziealiakhmad@gmail.com`
+2. **Firebase Project ID**: `pelatihku-pro` (alias: `default` in `.firebaserc`)
+3. **Firebase Hosting Site & Production URL**:
+   - Hosting Site ID: `pelatihku-pro`
+   - Live Production URL: `https://pelatihku-pro.web.app/` (and `https://pelatihku-pro.firebaseapp.com/`)
+   - **FORBIDDEN TARGETS**: Never deploy this repository to `jastip-cb-manager-2026` or `resume-al-2026`.
+4. **Workspace Project Directory**: `c:\Users\AL_AAF\Project\Pelatihku\PelatihKu-Athletic-Coaching-OS`
+5. **Mandatory Pre-Deploy Check (`firebase-mcp-server`)**:
+   - Before calling `firebase_deploy`, ALWAYS call `firebase_get_environment` first.
+   - If `Project Directory` is not `c:\Users\AL_AAF\Project\Pelatihku\PelatihKu-Athletic-Coaching-OS` or `Active Project ID` is not `pelatihku-pro`, you MUST call `firebase_update_environment`:
+     1. First set `project_dir: "c:\\Users\\AL_AAF\\Project\\Pelatihku\\PelatihKu-Athletic-Coaching-OS"`
+     2. Then set `active_project: "pelatihku-pro"` and `active_user_account: "fauziealiakhmad@gmail.com"`
+   - Always run `npm run build` immediately before `firebase_deploy` so `dist/` contains the latest compiled assets and `sw.js`.
+
+---
+
+## 9. Verification & Execution Commands
 
 Always run these commands to verify your changes:
 
