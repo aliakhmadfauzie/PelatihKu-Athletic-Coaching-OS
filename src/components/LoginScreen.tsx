@@ -330,7 +330,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         <div className="flex items-center justify-between px-2 gap-2">
           <div className="flex items-center gap-2 text-xs text-slate-800/85 dark:text-neutral-300 font-semibold drop-shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
-            <span>PelatihKu PRO • v2.7.6</span>
+            <span>PelatihKu PRO • v2.7.7</span>
           </div>
 
           <button
