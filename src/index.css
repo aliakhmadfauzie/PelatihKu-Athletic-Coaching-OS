@@ -1,41 +1,159 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ==========================================================================
+   PRODUCTION-GRADE OKLCH DESIGN TOKEN SYSTEM (60-30-10 & LAYERED ELEVATION)
+   ========================================================================== */
+@theme {
+  --color-canvas-deep: var(--bg-canvas-deep);
+  --color-canvas: var(--bg-canvas);
+  --color-surface: var(--bg-surface);
+  --color-surface-elevated: var(--bg-surface-elevated);
+  --color-surface-overlay: var(--bg-surface-overlay);
+  --color-surface-subtle: var(--bg-surface-subtle);
+
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-border-hairline: var(--border-hairline);
+
+  --color-primary-text: var(--text-primary);
+  --color-secondary-text: var(--text-secondary);
+  --color-muted-text: var(--text-muted);
+
+  --color-interactive-primary: var(--interactive-primary);
+  --color-interactive-primary-hover: var(--interactive-primary-hover);
+  --color-interactive-primary-fg: var(--interactive-primary-fg);
+
+  --color-status-success-bg: var(--status-success-bg);
+  --color-status-success-border: var(--status-success-border);
+  --color-status-success-text: var(--status-success-text);
+
+  --color-status-warning-bg: var(--status-warning-bg);
+  --color-status-warning-border: var(--status-warning-border);
+  --color-status-warning-text: var(--status-warning-text);
+
+  --color-status-danger-bg: var(--status-danger-bg);
+  --color-status-danger-border: var(--status-danger-border);
+  --color-status-danger-text: var(--status-danger-text);
+
+  --color-status-info-bg: var(--status-info-bg);
+  --color-status-info-border: var(--status-info-border);
+  --color-status-info-text: var(--status-info-text);
+}
+
 @layer base {
   :root {
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
 
-    /* Theme Tokens - Clean Light Mode */
-    --color-bg-base: #F8FAFC;
-    --color-bg-elevated: #FFFFFF;
-    --color-bg-surface: #F1F5F9;
-    --color-primary: #059669;
-    --color-primary-hover: #047857;
-    --color-primary-text: #FFFFFF;
-    --color-border-hairline: rgba(0, 0, 0, 0.08);
-    --color-border-subtle: rgba(0, 0, 0, 0.04);
-    --color-text-main: #0F172A;
-    --color-text-muted: #475569;
-    --color-text-subtle: #64748B;
+    /* 60% Neutral Foundation (Light Mode) */
+    --bg-canvas-deep: oklch(0.985 0.005 240);      /* #F8FAFC */
+    --bg-canvas: oklch(0.985 0.005 240);           /* #F8FAFC */
+    --bg-surface: oklch(1 0 0);                     /* #FFFFFF */
+    --bg-surface-elevated: oklch(0.965 0.008 240);  /* #F1F5F9 */
+    --bg-surface-overlay: oklch(1 0 0);             /* #FFFFFF */
+    --bg-surface-subtle: oklch(0.965 0.008 240);   /* #F1F5F9 */
+
+    /* 30% Structural Support (Light Mode) */
+    --border-hairline: rgba(15, 23, 42, 0.08);
+    --border-subtle: oklch(0.920 0.012 240);       /* #E2E8F0 */
+    --border-strong: oklch(0.860 0.015 240);       /* #CBD5E1 */
+
+    --text-primary: oklch(0.180 0.018 240);        /* #0F172A - 17.85:1 vs White */
+    --text-secondary: oklch(0.350 0.025 240);      /* #334155 - 10.35:1 vs White */
+    --text-muted: oklch(0.550 0.025 240);          /* #64748B - 4.76:1 vs White */
+
+    /* 10% Primary Action Driver (CTA - Light Mode) */
+    --interactive-primary: oklch(0.560 0.150 155);       /* #059669 */
+    --interactive-primary-hover: oklch(0.480 0.140 155); /* #047857 */
+    --interactive-primary-fg: oklch(1 0 0);              /* #FFFFFF - 5.48:1 */
+
+    /* Semantic Status (Light Mode) */
+    --status-success-bg: oklch(0.970 0.030 155);     /* #ECFDF5 */
+    --status-success-border: oklch(0.900 0.080 155); /* #A7F3D0 */
+    --status-success-text: oklch(0.480 0.140 155);   /* #047857 - 5.48:1 */
+
+    --status-warning-bg: oklch(0.980 0.040 85);      /* #FFFBEB */
+    --status-warning-border: oklch(0.920 0.100 85);  /* #FDE68A */
+    --status-warning-text: oklch(0.500 0.160 75);    /* #B45309 - 4.60:1 */
+
+    --status-danger-bg: oklch(0.975 0.030 25);       /* #FEF2F2 */
+    --status-danger-border: oklch(0.900 0.080 25);   /* #FECACA */
+    --status-danger-text: oklch(0.500 0.190 25);     /* #B91C1C - 5.10:1 */
+
+    --status-info-bg: oklch(0.975 0.030 235);        /* #F0F9FF */
+    --status-info-border: oklch(0.900 0.080 235);    /* #BAE6FD */
+    --status-info-text: oklch(0.480 0.150 235);      /* #0369A1 - 5.20:1 */
+
+    /* Legacy Token Aliases */
+    --color-bg-base: var(--bg-canvas);
+    --color-bg-elevated: var(--bg-surface);
+    --color-bg-surface: var(--bg-surface-elevated);
+    --color-primary: var(--interactive-primary);
+    --color-primary-hover: var(--interactive-primary-hover);
+    --color-primary-text: var(--interactive-primary-fg);
+    --color-border-hairline: var(--border-hairline);
+    --color-border-subtle: var(--border-subtle);
+    --color-text-main: var(--text-primary);
+    --color-text-muted: var(--text-secondary);
+    --color-text-subtle: var(--text-muted);
 
     /* Ergonomics */
     --touch-target-min: 48px;
   }
 
   .dark {
-    /* Theme Tokens - OLED Dark Mode */
-    --color-bg-base: #0B0F17;
-    --color-bg-elevated: #111726;
-    --color-bg-surface: #141B28;
-    --color-primary: #10B981;
-    --color-primary-hover: #059669;
-    --color-primary-text: #002113;
-    --color-border-hairline: rgba(255, 255, 255, 0.08);
-    --color-border-subtle: rgba(255, 255, 255, 0.05);
-    --color-text-main: #FFFFFF;
-    --color-text-muted: #CBD5E1;
-    --color-text-subtle: #94A3B8;
+    /* 60% Neutral Foundation (OLED Layered Depth) */
+    --bg-canvas-deep: oklch(0.120 0.012 240);        /* Surface 0 Base: #0A0A0C / #0B0F17 */
+    --bg-canvas: oklch(0.120 0.012 240);             /* Surface 0 Base: #0B0F17 */
+    --bg-surface: oklch(0.180 0.018 240);            /* Surface 1 Cards: #111827 / #111726 */
+    --bg-surface-elevated: oklch(0.230 0.020 240);   /* Surface 2 Elevated: #191F2F / #1A1D27 */
+    --bg-surface-overlay: oklch(0.280 0.022 240);    /* Surface 3 Popovers: #232A3A / #222634 */
+    --bg-surface-subtle: oklch(0.150 0.015 240);     /* Surface Inset / Input: #0D1424 */
+
+    /* 30% Structural Support (Dark Mode) */
+    --border-hairline: rgba(255, 255, 255, 0.08);
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.16);
+
+    --text-primary: oklch(0.985 0.005 240);          /* #F8FAFC - 18.9:1 vs Base */
+    --text-secondary: oklch(0.850 0.015 155);        /* #BBCABF - 11.6:1 vs Base */
+    --text-muted: oklch(0.700 0.020 240);            /* #94A3B8 - 7.71:1 vs Base */
+
+    /* 10% Primary Action Driver (CTA - Calibrated Dark Mode Saturation) */
+    --interactive-primary: oklch(0.750 0.160 155);       /* #4EDEA3 - 11.59:1 */
+    --interactive-primary-hover: oklch(0.680 0.150 155); /* #10B981 */
+    --interactive-primary-fg: oklch(0.120 0.020 155);    /* #022C22 - 7.8:1 */
+
+    /* Semantic Status (Dark Mode) */
+    --status-success-bg: rgba(78, 222, 163, 0.12);
+    --status-success-border: rgba(78, 222, 163, 0.28);
+    --status-success-text: oklch(0.750 0.160 155);   /* #4EDEA3 */
+
+    --status-warning-bg: rgba(255, 185, 95, 0.12);
+    --status-warning-border: rgba(255, 185, 95, 0.28);
+    --status-warning-text: oklch(0.820 0.150 75);    /* #FFB95F */
+
+    --status-danger-bg: rgba(248, 113, 113, 0.12);
+    --status-danger-border: rgba(248, 113, 113, 0.28);
+    --status-danger-text: oklch(0.750 0.180 25);     /* #F87171 */
+
+    --status-info-bg: rgba(56, 189, 248, 0.12);
+    --status-info-border: rgba(56, 189, 248, 0.28);
+    --status-info-text: oklch(0.780 0.140 235);      /* #38BDF8 */
+
+    /* Legacy Token Aliases */
+    --color-bg-base: var(--bg-canvas);
+    --color-bg-elevated: var(--bg-surface);
+    --color-bg-surface: var(--bg-surface-elevated);
+    --color-primary: var(--interactive-primary);
+    --color-primary-hover: var(--interactive-primary-hover);
+    --color-primary-text: var(--interactive-primary-fg);
+    --color-border-hairline: var(--border-hairline);
+    --color-border-subtle: var(--border-subtle);
+    --color-text-main: var(--text-primary);
+    --color-text-muted: var(--text-secondary);
+    --color-text-subtle: var(--text-muted);
   }
 
   html {
@@ -52,11 +170,93 @@
 
   body {
     font-family: var(--font-sans);
-    background-color: var(--color-bg-base);
-    color: var(--color-text-main);
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
     overflow-x: hidden;
     transition: background-color 0.2s ease, color 0.2s ease;
   }
+}
+
+/* ==========================================================================
+   LEGACY CLUSTER HARMONIZATION
+   Connects unmapped legacy hexes directly into the OKLCH token architecture.
+   ========================================================================== */
+.bg-\[\#070e1d\],
+.bg-\[\#0b0f17\],
+.bg-\[\#0b101b\],
+.bg-\[\#0b101c\],
+.bg-\[\#0c1322\],
+.bg-\[\#0a101d\],
+.bg-\[\#0b1220\],
+.bg-\[\#0c1220\],
+.bg-\[\#0a0f1d\],
+.bg-\[\#0b0f19\],
+.bg-\[\#090f1d\] {
+  background-color: var(--bg-canvas-deep);
+}
+
+.bg-\[\#111726\],
+.bg-\[\#141b2b\],
+.bg-\[\#141c2b\],
+.bg-\[\#111827\],
+.bg-\[\#141b28\],
+.bg-\[\#101726\],
+.bg-\[\#0d1424\],
+.bg-\[\#0e1626\],
+.bg-\[\#141d30\],
+.bg-\[\#101827\],
+.bg-\[\#121a2c\],
+.bg-\[\#121c2e\],
+.bg-\[\#111927\],
+.bg-\[\#121928\],
+.bg-\[\#0c1629\] {
+  background-color: var(--bg-surface);
+}
+
+.bg-\[\#191f2f\],
+.bg-\[\#1e2638\],
+.bg-\[\#182338\],
+.bg-\[\#141f33\],
+.bg-\[\#172138\],
+.bg-\[\#141e33\],
+.bg-\[\#162032\],
+.bg-\[\#162035\],
+.bg-\[\#1a2336\],
+.bg-\[\#111e38\],
+.bg-\[\#141f36\],
+.bg-\[\#182030\],
+.bg-\[\#17223b\] {
+  background-color: var(--bg-surface-elevated);
+}
+
+.bg-\[\#232a3a\],
+.bg-\[\#1f2937\],
+.bg-\[\#202d44\],
+.bg-\[\#1f293d\],
+.bg-\[\#283248\],
+.bg-\[\#28354f\],
+.bg-\[\#232f48\],
+.bg-\[\#2e3545\],
+.bg-\[\#323949\] {
+  background-color: var(--bg-surface-overlay);
+}
+
+.text-\[\#bbcabf\] {
+  color: var(--text-secondary);
+}
+
+.text-\[\#86948a\],
+.text-\[\#8b9890\] {
+  color: var(--text-muted);
+}
+
+.text-\[\#4edea3\] {
+  color: var(--interactive-primary);
+}
+
+.text-\[\#ffb95f\],
+.text-\[\#ee9800\] {
+  color: var(--status-warning-text);
 }
 
 /* Typography Utilities */
