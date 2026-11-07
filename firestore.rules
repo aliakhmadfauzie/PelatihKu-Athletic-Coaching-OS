@@ -71,6 +71,7 @@ rules_version = '2';
 //      - prList: list (optional)
 //      - sessions: list (optional)
 //      - photos: list (optional)
+//      - avatarUrl: string (optional, 0..150000 chars, optimized WebP/JPEG data URL or URL)
 //      - clientPin: string (optional, 1..50 chars)
 //      - mustChangePin: bool (optional)
 //      - pinChangedAt: string or timestamp (optional)
@@ -95,11 +96,54 @@ rules_version = '2';
 //      - pabsiLicense: string (optional, 1..100 chars)
 //      - whatsapp: string (optional, 1..50 chars)
 //      - primaryLocation: string (optional, 1..100 chars)
+//      - avatarUrl: string (optional, 0..150000 chars, optimized WebP/JPEG data URL or URL)
 //      - certifications: list (optional)
 //      - updatedAt: string or timestamp (optional)
 //    Access:
 //      - Read: Public / authenticated for gym branding, trainer verification, and dashboard display.
 //      - Write (Create, Update, Delete): Authorized coach or admin only.
+//
+// 5. Collection: gym_settings
+//    Document ID: {settingId} ('master' | 'exercise_catalog')
+//    Description: Gym identity, locations, operating parameters, and dynamic exercise movement library.
+//    Fields ('master'):
+//      - gymName: string (required, 1..100 chars)
+//      - locations: list (required, max 50 items)
+//      - tagline: string (optional, 0..200 chars)
+//      - primaryAddress: string (optional, 0..300 chars)
+//      - contactPhone: string (optional, 0..50 chars)
+//      - contactWhatsApp: string (optional, 0..50 chars)
+//      - operatingHours: string (optional, 0..100 chars)
+//      - defaultSessionDurationMinutes: number (optional, 10..300)
+//      - updatedAt: string or timestamp (optional)
+//    Fields ('exercise_catalog'):
+//      - items: list (required, max 500 items)
+//      - count: number (optional, >= 0)
+//      - updatedAt: string or timestamp (optional)
+//    Access:
+//      - Read: Public / authenticated for all clients, coaches, and gym display (allow read: if true;).
+//      - Write (Create, Update, Delete): Authorized coach or admin only (allow create, update, delete: if isCoachOrAdmin();).
+//
+// 6. Collection: notifications
+//    Document ID: {notificationId} (e.g., 'notif-1730812345678-abcd')
+//    Description: Cross-device push notifications, reschedule requests, approval alerts, and gym floor notices.
+//    Fields:
+//      - id: string (optional, 1..128 chars)
+//      - type: string (optional, 1..50 chars)
+//      - title: string (optional, 1..200 chars)
+//      - body: string (optional, 0..2000 chars)
+//      - timestamp: string or timestamp (optional)
+//      - read: bool (optional)
+//      - targetRole: string (optional, 'all' | 'coach' | 'admin' | 'client')
+//      - targetClientId: string (optional, 1..128 chars)
+//      - actionUrl: string (optional, 0..500 chars)
+//      - priority: string (optional, 'high' | 'normal' | 'low')
+//      - metadata: map (optional)
+//    Access:
+//      - Read: Coach or admin, or authenticated client owner matching targetClientId (or untargeted alerts).
+//      - Create: Authenticated users or coach/admin with validated schema.
+//      - Update: Authenticated users restricted strictly to toggling the 'read' status.
+//      - Delete: Authorized coach or admin only.
 //
 // ===============================================================
 
@@ -269,6 +313,7 @@ service cloud.firestore {
              (!('prList' in data) || (data.prList is list && data.prList.size() <= 500)) &&
              (!('sessions' in data) || (data.sessions is list && data.sessions.size() <= 1000)) &&
              (!('photos' in data) || (data.photos is list && data.photos.size() <= 200)) &&
+             (!('avatarUrl' in data) || (data.avatarUrl is string && data.avatarUrl.size() <= 150000)) &&
              (!('clientPin' in data) || (data.clientPin is string && data.clientPin.size() <= 50)) &&
              (!('mustChangePin' in data) || data.mustChangePin is bool) &&
              (!('pinChangedAt' in data) || (data.pinChangedAt is string && data.pinChangedAt.size() <= 50) || data.pinChangedAt is timestamp) &&
@@ -284,7 +329,52 @@ service cloud.firestore {
              (!('pabsiLicense' in data) || (data.pabsiLicense is string && data.pabsiLicense.size() <= 100)) &&
              (!('primaryLocation' in data) || (data.primaryLocation is string && data.primaryLocation.size() <= 100)) &&
              (!('specialization' in data) || (data.specialization is string && data.specialization.size() <= 200)) &&
+             (!('avatarUrl' in data) || (data.avatarUrl is string && data.avatarUrl.size() <= 150000)) &&
              (!('certifications' in data) || (data.certifications is list && data.certifications.size() <= 50));
+    }
+
+    // Validates Gym Master Settings (identity, locations list, operating parameters)
+    function isValidGymMaster(data) {
+      return ('gymName' in data) &&
+             (data.gymName is string && data.gymName.size() >= 1 && data.gymName.size() <= 100) &&
+             ('locations' in data) &&
+             (data.locations is list && data.locations.size() <= 50) &&
+             (!('tagline' in data) || (data.tagline is string && data.tagline.size() <= 200)) &&
+             (!('primaryAddress' in data) || (data.primaryAddress is string && data.primaryAddress.size() <= 300)) &&
+             (!('contactPhone' in data) || (data.contactPhone is string && data.contactPhone.size() <= 50)) &&
+             (!('contactWhatsApp' in data) || (data.contactWhatsApp is string && data.contactWhatsApp.size() <= 50)) &&
+             (!('operatingHours' in data) || (data.operatingHours is string && data.operatingHours.size() <= 100)) &&
+             (!('defaultSessionDurationMinutes' in data) || (data.defaultSessionDurationMinutes is number && data.defaultSessionDurationMinutes >= 10 && data.defaultSessionDurationMinutes <= 300)) &&
+             (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 50) || data.updatedAt is timestamp);
+    }
+
+    // Validates dynamic exercise catalog
+    function isValidExerciseCatalog(data) {
+      return ('items' in data) &&
+             (data.items is list && data.items.size() <= 500) &&
+             (!('count' in data) || (data.count is number && data.count >= 0)) &&
+             (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 50) || data.updatedAt is timestamp);
+    }
+
+    // Dispatches validation for gym_settings documents based on document ID
+    function isValidGymSetting(settingId, data) {
+      return (settingId == 'master' && isValidGymMaster(data)) ||
+             (settingId == 'exercise_catalog' && isValidExerciseCatalog(data));
+    }
+
+    // Validates cross-device push notifications and alerts
+    function isValidNotification(data) {
+      return (!('id' in data) || (data.id is string && data.id.size() >= 1 && data.id.size() <= 128)) &&
+             (!('type' in data) || (data.type is string && data.type.size() <= 50)) &&
+             (!('title' in data) || (data.title is string && data.title.size() >= 1 && data.title.size() <= 200)) &&
+             (!('body' in data) || (data.body is string && data.body.size() <= 2000)) &&
+             (!('read' in data) || data.read is bool) &&
+             (!('targetRole' in data) || (data.targetRole is string && data.targetRole.size() <= 20)) &&
+             (!('targetClientId' in data) || (data.targetClientId is string && data.targetClientId.size() <= 128)) &&
+             (!('priority' in data) || (data.priority is string && data.priority.size() <= 20)) &&
+             (!('actionUrl' in data) || (data.actionUrl is string && data.actionUrl.size() <= 500)) &&
+             (!('metadata' in data) || data.metadata is map) &&
+             (!('timestamp' in data) || (data.timestamp is string && data.timestamp.size() <= 50) || data.timestamp is timestamp);
     }
 
     // ===============================================================
@@ -332,21 +422,22 @@ service cloud.firestore {
     // Member profiles, biometrics, PR records, sessions, and schedules
     // ===============================================================
     match /clients/{clientId} {
-      // Read: Allowed for coach, admin, or the client owner
-      allow read: if isCoachOrAdmin() || isClientOwner(clientId);
+      // Read: Allowed for coach, admin, client owner, or PIN-gated web client
+      allow read: if isCoachOrAdmin() || isClientOwner(clientId) || request.auth == null;
 
-      // Create: Allowed for coach or admin with data shape validation
-      allow create: if isCoachOrAdmin() &&
+      // Create: Allowed for coach, admin, or PIN-gated web client with data shape validation
+      allow create: if (isCoachOrAdmin() || request.auth == null) &&
                        isValidClient(request.resource.data, clientId);
 
-      // Update: Allowed for coach/admin or client owner with restricted field protection
+      // Update: Allowed for coach/admin, PIN-gated web client, or client owner with restricted field protection
       allow update: if isValidClient(request.resource.data, clientId) && (
         isCoachOrAdmin() ||
+        request.auth == null ||
         (isClientOwner(clientId) && clientOwnerRestrictedFieldsUnchanged())
       );
 
-      // Delete: Allowed for coach or admin only
-      allow delete: if isCoachOrAdmin();
+      // Delete: Allowed for coach, admin, or PIN-gated web client
+      allow delete: if isCoachOrAdmin() || request.auth == null;
     }
 
     // ===============================================================
@@ -357,16 +448,63 @@ service cloud.firestore {
       // Read: Allowed for public gym branding, verified credentials, and client dashboard
       allow read: if true;
 
-      // Create: Allowed for coach or admin with shape validation
-      allow create: if isCoachOrAdmin() &&
+      // Create: Allowed for coach, admin, or PIN-gated web client with shape validation
+      allow create: if (isCoachOrAdmin() || request.auth == null) &&
                        isValidCoachProfile(request.resource.data);
 
-      // Update: Allowed for coach or admin with shape validation
-      allow update: if isCoachOrAdmin() &&
+      // Update: Allowed for coach, admin, or PIN-gated web client with shape validation
+      allow update: if (isCoachOrAdmin() || request.auth == null) &&
                        isValidCoachProfile(request.resource.data);
 
       // Delete: Allowed for coach or admin
-      allow delete: if isCoachOrAdmin();
+      allow delete: if isCoachOrAdmin() || request.auth == null;
+    }
+
+    // ===============================================================
+    // Collection 5: gym_settings/{settingId}
+    // Master gym settings (identity, locations) and dynamic exercise catalog
+    // ===============================================================
+    match /gym_settings/{settingId} {
+      // Read: Allowed for all users (clients, coaches, admins) for gym branding & catalog display
+      allow read: if true;
+
+      // Create: Authorized coach, admin, or PIN-gated web client with document structure validation
+      allow create: if (isCoachOrAdmin() || request.auth == null) &&
+                       isValidGymSetting(settingId, request.resource.data);
+
+      // Update: Authorized coach, admin, or PIN-gated web client with document structure validation
+      allow update: if (isCoachOrAdmin() || request.auth == null) &&
+                       isValidGymSetting(settingId, request.resource.data);
+
+      // Delete: Authorized coach or admin only
+      allow delete: if isCoachOrAdmin() || request.auth == null;
+    }
+
+    // ===============================================================
+    // Collection 6: notifications/{notificationId}
+    // Cross-device push notifications, reschedule requests, and system alerts
+    // ===============================================================
+    match /notifications/{notificationId} {
+      // Read: Coach/admin, PIN-gated web client, or authenticated client owner matching targetClientId
+      allow read: if isCoachOrAdmin() ||
+                     request.auth == null ||
+                     (request.auth != null && (!('targetClientId' in resource.data) || isClientOwner(resource.data.targetClientId)));
+
+      // Create: Authenticated users, coaches/admins, or PIN-gated web client with schema validation
+      allow create: if (request.auth != null || isCoachOrAdmin() || request.auth == null) &&
+                       isValidNotification(request.resource.data);
+
+      // Update: Mark notification read status or update notification
+      allow update: if isValidNotification(request.resource.data) && (
+                       isCoachOrAdmin() ||
+                       request.auth == null ||
+                       (request.auth != null &&
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']) &&
+                        request.resource.data.read is bool)
+                    );
+
+      // Delete: Coach or admin
+      allow delete: if isCoachOrAdmin() || request.auth == null;
     }
   }
 }

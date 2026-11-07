@@ -44,6 +44,7 @@ export interface ScheduledSessionItem {
   totalPackage: number;
   status: 'Selesai' | 'Terkonfirmasi' | 'Menunggu';
   coachNotes?: string;
+  coachName?: string;
   pendingReschedule?: RescheduleRequest;
 }
 
@@ -344,6 +345,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
             totalPackage: c.paketTotal,
             status: slot.status,
             coachNotes: slot.coachNotes,
+            coachName: c.leadCoach || INITIAL_COACH_PROFILE.name,
             pendingReschedule: c.pendingReschedule
           });
         });
@@ -376,6 +378,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
             totalPackage: c.paketTotal,
             status: 'Terkonfirmasi',
             coachNotes: c.nextSession.rescheduleReason,
+            coachName: c.leadCoach || INITIAL_COACH_PROFILE.name,
             pendingReschedule: c.pendingReschedule
           });
         }
@@ -407,7 +410,8 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
             sessionNumber: s.sessionNumber,
             totalPackage: c.paketTotal,
             status: 'Selesai',
-            coachNotes: s.coachNotes
+            coachNotes: s.coachNotes,
+            coachName: c.leadCoach || INITIAL_COACH_PROFILE.name
           });
         }
       });
@@ -817,7 +821,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
 
       {/* Top Segmented View Mode Tabs: Hari | Minggu | Bulan */}
       <div className="flex justify-center pt-1 pb-1">
-        <div className="w-full grid grid-cols-3 p-1 bg-[#0d1424] border border-white/[0.08] rounded-2xl shadow-inner">
+        <div className="w-full grid grid-cols-3 p-1 bg-slate-200/80 dark:bg-[#0d1424] border border-slate-300/80 dark:border-white/[0.08] rounded-2xl shadow-inner">
           <button
             type="button"
             onClick={() => {
@@ -826,8 +830,8 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
             }}
             className={`min-h-[44px] py-2 rounded-xl text-xs font-bold transition active:scale-95 flex items-center justify-center ${
               viewMode === 'day'
-                ? 'bg-gradient-to-r from-emerald-400 to-teal-400 text-slate-950 font-bold shadow-md shadow-emerald-500/25'
-                : 'text-neutral-400 hover:text-white font-medium'
+                ? 'bg-gradient-to-r from-emerald-500 to-teal-400 dark:from-emerald-400 dark:to-teal-400 text-slate-950 font-bold shadow-md shadow-emerald-500/25'
+                : 'text-slate-600 hover:text-slate-950 dark:text-neutral-400 dark:hover:text-white font-medium'
             }`}
           >
             Hari
@@ -840,8 +844,8 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
             }}
             className={`min-h-[44px] py-2 rounded-xl text-xs font-bold transition active:scale-95 flex items-center justify-center ${
               viewMode === 'week'
-                ? 'bg-gradient-to-r from-emerald-400 to-teal-400 text-slate-950 font-bold shadow-md shadow-emerald-500/25'
-                : 'text-neutral-400 hover:text-white font-medium'
+                ? 'bg-gradient-to-r from-emerald-500 to-teal-400 dark:from-emerald-400 dark:to-teal-400 text-slate-950 font-bold shadow-md shadow-emerald-500/25'
+                : 'text-slate-600 hover:text-slate-950 dark:text-neutral-400 dark:hover:text-white font-medium'
             }`}
           >
             Minggu
@@ -855,8 +859,8 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
             }}
             className={`min-h-[44px] py-2 rounded-xl text-xs font-bold transition active:scale-95 flex items-center justify-center ${
               viewMode === 'month'
-                ? 'bg-gradient-to-r from-emerald-400 to-teal-400 text-slate-950 font-bold shadow-md shadow-emerald-500/25'
-                : 'text-neutral-400 hover:text-white font-medium'
+                ? 'bg-gradient-to-r from-emerald-500 to-teal-400 dark:from-emerald-400 dark:to-teal-400 text-slate-950 font-bold shadow-md shadow-emerald-500/25'
+                : 'text-slate-600 hover:text-slate-950 dark:text-neutral-400 dark:hover:text-white font-medium'
             }`}
           >
             Bulan
@@ -865,20 +869,20 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
       </div>
 
       {/* 3. Interactive Calendar Section */}
-      <section className="bg-[#111726]/85 backdrop-blur-xl border border-white/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.06)] rounded-3xl p-4 sm:p-5 space-y-4">
+      <section className="bg-white/90 dark:bg-[#111726]/85 backdrop-blur-xl border border-slate-200 dark:border-white/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.06)] rounded-3xl p-4 sm:p-5 space-y-4 text-slate-900 dark:text-white">
         {viewMode !== 'month' && (
-          <div className="flex items-center justify-between flex-wrap gap-3 pb-3 border-b border-white/[0.06]">
+          <div className="flex items-center justify-between flex-wrap gap-3 pb-3 border-b border-slate-200 dark:border-white/[0.06]">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
                 <CalendarIcon className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-xs sm:text-sm font-bold text-white tracking-tight">
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white tracking-tight">
                   {viewMode === 'day'
                     ? 'Tampilan Harian (Day View)'
                     : 'Pita Mingguan (Week View)'}
                 </h3>
-                <p className="text-[11px] text-[#bbcabf]">
+                <p className="text-[11px] text-slate-600 dark:text-[#bbcabf]">
                   {viewMode === 'day'
                     ? 'Fokus slot per jam & breakdown sesi harian'
                     : 'Navigasi cepat 7 hari dengan indikator sesi'}
@@ -891,12 +895,12 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
         {/* View Content 1: DAY VIEW */}
         {viewMode === 'day' && (
           <div className="space-y-3">
-            <div className="flex items-center justify-between gap-2 bg-[#070e1d]/90 border border-white/[0.06] rounded-2xl p-2.5 sm:p-3">
+            <div className="flex items-center justify-between gap-2 bg-slate-50 dark:bg-[#070e1d]/90 border border-slate-200 dark:border-white/[0.06] rounded-2xl p-2.5 sm:p-3">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={handlePrevDay}
-                  className="w-11 h-11 rounded-xl bg-[#141b2b] text-neutral-300 hover:text-white hover:bg-[#191f2f] border border-white/[0.08] flex items-center justify-center transition active:scale-95 shadow-sm"
+                  className="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#141b2b] text-slate-700 dark:text-neutral-300 hover:text-slate-950 dark:hover:text-white dark:hover:bg-[#191f2f] border border-slate-200 dark:border-white/[0.08] flex items-center justify-center transition active:scale-95 shadow-sm"
                   aria-label="Hari sebelumnya"
                 >
                   <ChevronLeft className="w-5 h-5" />
@@ -904,7 +908,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                 <button
                   type="button"
                   onClick={handleNextDay}
-                  className="w-11 h-11 rounded-xl bg-[#141b2b] text-neutral-300 hover:text-white hover:bg-[#191f2f] border border-white/[0.08] flex items-center justify-center transition active:scale-95 shadow-sm"
+                  className="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#141b2b] text-slate-700 dark:text-neutral-300 hover:text-slate-950 dark:hover:text-white dark:hover:bg-[#191f2f] border border-slate-200 dark:border-white/[0.08] flex items-center justify-center transition active:scale-95 shadow-sm"
                   aria-label="Hari berikutnya"
                 >
                   <ChevronRight className="w-5 h-5" />
@@ -912,16 +916,16 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
 
                 <div className="pl-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs sm:text-sm font-bold text-white">
+                    <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                       {activeDayObj.fullDate}
                     </span>
                     {activeDayObj.isToday && (
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/30">
                         Hari Ini
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] text-[#bbcabf]">
+                  <p className="text-[11px] text-slate-600 dark:text-[#bbcabf]">
                     {activeDayCountInfo.total} Sesi ({activeDayCountInfo.completed} Selesai · {activeDayCountInfo.upcoming} Mendatang)
                   </p>
                 </div>
@@ -932,8 +936,8 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                 onClick={handleToday}
                 className={`text-xs min-h-[44px] px-3.5 py-2 rounded-xl border font-bold transition active:scale-95 ${
                   activeDayObj.isToday
-                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-sm'
-                    : 'bg-[#141b2b] text-neutral-300 border-white/[0.08] hover:text-white'
+                    ? 'bg-amber-500/20 text-amber-600 dark:text-amber-300 border-amber-500/40 shadow-sm'
+                    : 'bg-slate-100 text-slate-700 border-slate-200 hover:text-slate-950 dark:bg-[#141b2b] dark:text-neutral-300 dark:border-white/[0.08] dark:hover:text-white'
                 }`}
               >
                 Hari Ini
@@ -942,17 +946,17 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
 
             {/* Quick Time Slots Jump Strip for the Day */}
             <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="bg-[#141b2b] border border-white/[0.06] rounded-2xl p-2.5">
-                <span className="text-[10px] text-neutral-400 uppercase font-medium block whitespace-nowrap">Pagi · 07–12</span>
-                <span className="text-xs font-mono font-bold text-white mt-0.5 block tabular-nums whitespace-nowrap">{morningCount} Sesi PT</span>
+              <div className="bg-slate-50 dark:bg-[#141b2b] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-2.5">
+                <span className="text-[10px] text-slate-500 dark:text-neutral-400 uppercase font-medium block whitespace-nowrap">Pagi · 07–12</span>
+                <span className="text-xs font-mono font-bold text-slate-900 dark:text-white mt-0.5 block tabular-nums whitespace-nowrap">{morningCount} Sesi PT</span>
               </div>
-              <div className="bg-[#141b2b] border border-white/[0.06] rounded-2xl p-2.5">
-                <span className="text-[10px] text-neutral-400 uppercase font-medium block whitespace-nowrap">Siang · 12–16</span>
-                <span className="text-xs font-mono font-bold text-[#ffb95f] mt-0.5 block tabular-nums whitespace-nowrap">{afternoonCount} Sesi PT</span>
+              <div className="bg-slate-50 dark:bg-[#141b2b] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-2.5">
+                <span className="text-[10px] text-slate-500 dark:text-neutral-400 uppercase font-medium block whitespace-nowrap">Siang · 12–16</span>
+                <span className="text-xs font-mono font-bold text-amber-600 dark:text-[#ffb95f] mt-0.5 block tabular-nums whitespace-nowrap">{afternoonCount} Sesi PT</span>
               </div>
-              <div className="bg-[#141b2b] border border-white/[0.06] rounded-2xl p-2.5">
-                <span className="text-[10px] text-neutral-400 uppercase font-medium block whitespace-nowrap">Sore · 16+</span>
-                <span className="text-xs font-mono font-bold text-emerald-400 mt-0.5 block tabular-nums whitespace-nowrap">{eveningCount} Sesi PT</span>
+              <div className="bg-slate-50 dark:bg-[#141b2b] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-2.5">
+                <span className="text-[10px] text-slate-500 dark:text-neutral-400 uppercase font-medium block whitespace-nowrap">Sore · 16+</span>
+                <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 block tabular-nums whitespace-nowrap">{eveningCount} Sesi PT</span>
               </div>
             </div>
           </div>
@@ -961,12 +965,12 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
         {/* View Content 2: WEEK VIEW (Original 7-Day Horizontal Selector Bar) */}
         {viewMode === 'week' && (
           <div className="space-y-3">
-            <div className="flex items-center justify-between text-xs text-[#bbcabf] gap-2">
+            <div className="flex items-center justify-between text-xs text-slate-600 dark:text-[#bbcabf] gap-2">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={handlePrevWeek}
-                  className="w-11 h-11 rounded-2xl bg-[#070e1d] hover:bg-[#191f2f] text-neutral-300 hover:text-white border border-white/[0.08] flex items-center justify-center transition active:scale-95 shadow-sm"
+                  className="w-11 h-11 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-[#070e1d] dark:hover:bg-[#191f2f] text-slate-700 hover:text-slate-950 dark:text-neutral-300 dark:hover:text-white border border-slate-200 dark:border-white/[0.08] flex items-center justify-center transition active:scale-95 shadow-sm"
                   aria-label="Minggu sebelumnya"
                 >
                   <ChevronLeft className="w-5 h-5" />
@@ -974,20 +978,20 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                 <button
                   type="button"
                   onClick={handleNextWeek}
-                  className="w-11 h-11 rounded-2xl bg-[#070e1d] hover:bg-[#191f2f] text-neutral-300 hover:text-white border border-white/[0.08] flex items-center justify-center transition active:scale-95 shadow-sm"
+                  className="w-11 h-11 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-[#070e1d] dark:hover:bg-[#191f2f] text-slate-700 hover:text-slate-950 dark:text-neutral-300 dark:hover:text-white border border-slate-200 dark:border-white/[0.08] flex items-center justify-center transition active:scale-95 shadow-sm"
                   aria-label="Minggu berikutnya"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
-                <span className="font-bold text-white ml-1 text-xs sm:text-sm">{weekLabelText}</span>
+                <span className="font-bold text-slate-900 dark:text-white ml-1 text-xs sm:text-sm">{weekLabelText}</span>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedDayKey('all')}
                 className={`min-h-[44px] text-xs px-3.5 py-2 rounded-xl font-bold transition active:scale-95 ${
                   selectedDayKey === 'all'
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
-                    : 'text-neutral-400 hover:text-white'
+                    ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-900 dark:text-neutral-400 dark:hover:text-white'
                 }`}
               >
                 Lihat Semua ({allWeeklySessions.length} Sesi)
@@ -1005,15 +1009,15 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                     onClick={() => setSelectedDayKey(day.dayKey)}
                     className={`min-h-[72px] flex flex-col items-center justify-between p-2 rounded-2xl text-center transition active:scale-95 border ${
                       isSelected
-                        ? 'bg-gradient-to-b from-emerald-500 to-teal-400 text-slate-950 border-emerald-300 font-bold shadow-md shadow-emerald-500/20'
+                        ? 'bg-gradient-to-b from-emerald-500 to-teal-400 text-slate-950 border-emerald-400 font-bold shadow-md shadow-emerald-500/20'
                         : day.isToday
-                        ? 'bg-[#191f2f] text-white border-amber-500/50 hover:bg-[#232a3a]'
-                        : 'bg-[#070e1d] text-neutral-300 border-white/[0.06] hover:bg-[#191f2f]'
+                        ? 'bg-amber-50/80 text-slate-950 border-amber-500/60 hover:bg-amber-100 dark:bg-[#191f2f] dark:text-white dark:border-amber-500/50 dark:hover:bg-[#232a3a]'
+                        : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 dark:bg-[#070e1d] dark:text-neutral-300 dark:border-white/[0.06] dark:hover:bg-[#191f2f]'
                     }`}
                   >
                     <span
                       className={`text-[10px] font-medium uppercase tracking-wider ${
-                        isSelected ? 'text-slate-950 font-bold' : day.isToday ? 'text-amber-400 font-bold' : 'text-neutral-400'
+                        isSelected ? 'text-slate-950 font-bold' : day.isToday ? 'text-amber-600 dark:text-amber-400 font-bold' : 'text-slate-500 dark:text-neutral-400'
                       }`}
                     >
                       {day.label}
@@ -1021,7 +1025,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
 
                     <span
                       className={`text-base sm:text-lg font-bold font-mono my-0.5 ${
-                        isSelected ? 'text-slate-950' : 'text-white'
+                        isSelected ? 'text-slate-950' : 'text-slate-900 dark:text-white'
                       }`}
                     >
                       {day.dateNum}
@@ -1033,8 +1037,8 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                           isSelected
                             ? 'bg-slate-950/20 text-slate-950 font-bold'
                             : countInfo.upcoming > 0
-                            ? 'bg-amber-500/20 text-amber-300'
-                            : 'bg-emerald-500/20 text-emerald-400'
+                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300'
+                            : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-400'
                         }`}
                       >
                         {countInfo.total}
@@ -1056,7 +1060,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                   <button
                     type="button"
                     onClick={handlePrevMonth}
-                    className="w-10 h-10 rounded-xl bg-[#070e1d] hover:bg-[#191f2f] text-neutral-300 hover:text-white border border-white/[0.08] flex items-center justify-center transition active:scale-95 shadow-sm"
+                    className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#070e1d] dark:hover:bg-[#191f2f] text-slate-700 hover:text-slate-950 dark:text-neutral-300 dark:hover:text-white border border-slate-200 dark:border-white/[0.08] flex items-center justify-center transition active:scale-95 shadow-sm"
                     aria-label="Bulan sebelumnya"
                   >
                     <ChevronLeft className="w-5 h-5" />
@@ -1064,14 +1068,14 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                   <button
                     type="button"
                     onClick={handleNextMonth}
-                    className="w-10 h-10 rounded-xl bg-[#070e1d] hover:bg-[#191f2f] text-neutral-300 hover:text-white border border-white/[0.08] flex items-center justify-center transition active:scale-95 shadow-sm"
+                    className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#070e1d] dark:hover:bg-[#191f2f] text-slate-700 hover:text-slate-950 dark:text-neutral-300 dark:hover:text-white border border-slate-200 dark:border-white/[0.08] flex items-center justify-center transition active:scale-95 shadow-sm"
                     aria-label="Bulan berikutnya"
                   >
                     <ChevronRight className="w-5 h-5" />
                   </button>
                 </div>
-                <span className="font-bold text-white text-base ml-1">{monthGridData.monthTitle}</span>
-                <span className="text-xs font-mono text-[#4edea3] bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                <span className="font-bold text-slate-900 dark:text-white text-base ml-1">{monthGridData.monthTitle}</span>
+                <span className="text-xs font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 dark:text-[#4edea3] dark:bg-emerald-500/10 px-2.5 py-1 rounded-lg dark:border-emerald-500/20">
                   {monthGridData.totalMonthSessions} Sesi Bulan Ini
                 </span>
               </div>
@@ -1083,8 +1087,8 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                 }}
                 className={`text-xs px-2 py-1 font-semibold transition active:scale-95 ${
                   selectedMonthDate === null
-                    ? 'text-emerald-400 font-bold'
-                    : 'text-neutral-400 hover:text-white'
+                    ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+                    : 'text-slate-500 hover:text-slate-900 dark:text-neutral-400 dark:hover:text-white'
                 }`}
               >
                 Semua Sesi Bulan Ini
@@ -1092,20 +1096,20 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
             </div>
 
             {/* 7 Column Headers */}
-            <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-neutral-400 uppercase tracking-wider pb-1 pt-2">
+            <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-500 dark:text-neutral-400 uppercase tracking-wider pb-1 pt-2">
               <span>SEN</span>
               <span>SEL</span>
               <span>RAB</span>
               <span>KAM</span>
               <span>JUM</span>
               <span>SAB</span>
-              <span className="text-[#ffb95f]">MIN</span>
+              <span className="text-amber-500 dark:text-[#ffb95f]">MIN</span>
             </div>
 
             {/* Dynamic Day Matrix with leading empty slots based on firstDayIndex */}
             <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
               {[...Array(monthGridData.firstDayIndex)].map((_, i) => (
-                <div key={`empty-${i}`} className="min-h-[50px] sm:min-h-[56px] rounded-2xl bg-white/[0.01] border border-white/[0.02]" />
+                <div key={`empty-${i}`} className="min-h-[50px] sm:min-h-[56px] rounded-2xl bg-slate-100/50 dark:bg-white/[0.01] border border-slate-200/40 dark:border-white/[0.02]" />
               ))}
 
               {monthGridData.days.map((mDay) => {
@@ -1125,20 +1129,20 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                     }}
                     className={`min-h-[50px] sm:min-h-[56px] rounded-2xl flex flex-col items-center justify-between p-1.5 sm:p-2 transition border text-left active:scale-95 ${
                       isSelected
-                        ? 'bg-gradient-to-b from-emerald-400 to-teal-400 text-slate-950 border-emerald-300 font-bold shadow-lg shadow-emerald-500/30'
+                        ? 'bg-gradient-to-b from-emerald-500 to-teal-400 dark:from-emerald-400 dark:to-teal-400 text-slate-950 border-emerald-400 dark:border-emerald-300 font-bold shadow-lg shadow-emerald-500/30'
                         : mDay.isToday
-                        ? 'bg-[#191f2f] border-amber-500/60 text-white'
+                        ? 'bg-amber-50/80 border-amber-500/60 text-slate-950 dark:bg-[#191f2f] dark:border-amber-500/60 dark:text-white'
                         : mDay.isCurrentWeek
-                        ? 'bg-[#141b2b] border-white/[0.08] text-white hover:border-emerald-500/40'
-                        : 'bg-[#0b101b] border-white/[0.04] text-neutral-400 hover:text-white'
+                        ? 'bg-slate-50 border-slate-200 text-slate-900 hover:border-emerald-500/40 dark:bg-[#141b2b] dark:border-white/[0.08] dark:text-white dark:hover:border-emerald-500/40'
+                        : 'bg-slate-100/70 border-slate-200/80 text-slate-600 hover:text-slate-950 dark:bg-[#0b101b] dark:border-white/[0.04] dark:text-neutral-400 dark:hover:text-white'
                     }`}
                   >
                     <div className="w-full flex items-center justify-between text-[11px] leading-none">
-                      <span className={`font-mono font-bold ${isSelected ? 'text-slate-950' : mDay.isToday ? 'text-amber-400' : 'text-neutral-300'}`}>
+                      <span className={`font-mono font-bold ${isSelected ? 'text-slate-950' : mDay.isToday ? 'text-amber-600 dark:text-amber-400' : 'text-slate-700 dark:text-neutral-300'}`}>
                         {mDay.dayNum}
                       </span>
                       {mDay.isToday && (
-                        <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-amber-950' : 'bg-amber-400 animate-pulse'}`} />
+                        <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-amber-950' : 'bg-amber-500 dark:bg-amber-400 animate-pulse'}`} />
                       )}
                     </div>
 
@@ -1149,8 +1153,8 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                             isSelected
                               ? 'bg-slate-950/25 text-slate-950 font-bold'
                               : mDay.completedCount > 0
-                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                              : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30'
+                              : 'bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30'
                           }`}
                         >
                           {mDay.count}s
@@ -1162,16 +1166,16 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
               })}
             </div>
 
-            <div className="flex items-center justify-between pt-2 px-1 text-xs text-neutral-400">
+            <div className="flex items-center justify-between pt-2 px-1 text-xs text-slate-500 dark:text-neutral-400">
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#ffb95f]" /> Hari Ini
+                  <span className="w-2 h-2 rounded-full bg-amber-500 dark:bg-[#ffb95f]" /> Hari Ini
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400" /> Minggu Aktif
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400" /> Minggu Aktif
                 </span>
               </div>
-              <span className="font-mono text-emerald-400 text-xs">
+              <span className="font-mono text-emerald-600 dark:text-emerald-400 text-xs">
                 {selectedMonthDate ? `Terpilih: ${selectedMonthDate}` : 'Semua Sesi'}
               </span>
             </div>
@@ -1179,25 +1183,25 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
             {/* Interactive Month Session Popover Modal (Apple HIG & Material Design 3) */}
             {activeMonthPopupDate && (
               <div
-                className="fixed inset-0 z-40 bg-black/35 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-100"
+                className="fixed inset-0 z-30 bg-black/15 flex items-center justify-center p-4 animate-in fade-in duration-100"
                 onClick={() => setActiveMonthPopupDate(null)}
               >
                 <div
                   role="dialog"
                   aria-modal="true"
                   aria-labelledby="month-popup-title"
-                  className="w-full max-w-sm bg-[#141c2b] border border-white/[0.12] rounded-3xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.6)] space-y-3.5 animate-in zoom-in-95 duration-100"
+                  className="w-full max-w-sm bg-white dark:bg-[#141c2b] border border-slate-200 dark:border-white/[0.12] rounded-3xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.25)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] space-y-3.5 animate-in zoom-in-95 duration-100 text-slate-900 dark:text-white"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {/* Header: Sesi: 5 Nov 2026 and Clean Close Button */}
                   <div className="flex items-center justify-between">
-                    <h3 id="month-popup-title" className="text-base font-bold text-white tracking-tight">
+                    <h3 id="month-popup-title" className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
                       Sesi: {formatShortDateIndo(activeMonthPopupDate)}
                     </h3>
                     <button
                       type="button"
                       onClick={() => setActiveMonthPopupDate(null)}
-                      className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-neutral-400 hover:text-white flex items-center justify-center transition active:scale-95"
+                      className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] text-slate-500 hover:text-slate-900 dark:text-neutral-400 dark:hover:text-white flex items-center justify-center transition active:scale-95"
                       aria-label="Tutup detail sesi tanggal ini"
                     >
                       <X className="w-5 h-5" />
@@ -1205,7 +1209,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                   </div>
 
                   {/* Subheader: Clean White/Neutral Session Count */}
-                  <div className="text-xs font-semibold text-neutral-300">
+                  <div className="text-xs font-semibold text-slate-600 dark:text-neutral-300">
                     {popupSessions.length === 1
                       ? '1 Sesi'
                       : popupSessions.length > 1
@@ -1216,25 +1220,25 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                   {/* Session Items */}
                   <div className="space-y-3 max-h-[48vh] overflow-y-auto pr-1">
                     {popupSessions.length === 0 ? (
-                      <div className="text-center py-6 text-xs text-neutral-400 space-y-1">
-                        <CalendarIcon className="w-8 h-8 text-neutral-500 mx-auto opacity-40 mb-2" />
-                        <p className="font-semibold text-neutral-300">Belum Ada Sesi</p>
-                        <p className="text-[11px] text-neutral-500">Tidak ada sesi latihan PT terjadwal untuk tanggal ini.</p>
+                      <div className="text-center py-6 text-xs text-slate-500 dark:text-neutral-400 space-y-1">
+                        <CalendarIcon className="w-8 h-8 text-slate-400 dark:text-neutral-500 mx-auto opacity-40 mb-2" />
+                        <p className="font-semibold text-slate-700 dark:text-neutral-300">Belum Ada Sesi</p>
+                        <p className="text-[11px] text-slate-400 dark:text-neutral-500">Tidak ada sesi latihan PT terjadwal untuk tanggal ini.</p>
                       </div>
                     ) : (
                       popupSessions.map((ses, idx) => (
                         <div
                           key={ses.id}
-                          className={`${idx > 0 ? 'pt-3 border-t border-white/[0.08]' : ''} space-y-1`}
+                          className={`${idx > 0 ? 'pt-3 border-t border-slate-200 dark:border-white/[0.08]' : ''} space-y-1`}
                         >
-                          <h4 className="text-sm font-bold text-white tracking-tight">{ses.focus}</h4>
-                          <p className="text-xs font-mono text-neutral-300">
+                          <h4 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight">{ses.focus}</h4>
+                          <p className="text-xs font-mono text-slate-700 dark:text-neutral-300">
                             {ses.time} WIB
                           </p>
-                          <p className="text-xs text-neutral-400">
+                          <p className="text-xs text-slate-500 dark:text-neutral-400">
                             {currentUserRole === 'client'
-                              ? `Coach: ${INITIAL_COACH_PROFILE.name}`
-                              : `Member: ${ses.clientName} · Coach: ${INITIAL_COACH_PROFILE.name}`}
+                              ? `Coach: ${ses.coachName || INITIAL_COACH_PROFILE.name}`
+                              : `Member: ${ses.clientName} · Coach: ${ses.coachName || INITIAL_COACH_PROFILE.name}`}
                           </p>
                         </div>
                       ))
@@ -1252,7 +1256,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                           targetEl.scrollIntoView({ behavior: 'smooth' });
                         }
                       }}
-                      className="w-full min-h-[48px] py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-bold text-sm flex items-center justify-center shadow-lg shadow-emerald-500/25 active:scale-[0.98] transition"
+                      className="w-full min-h-[48px] py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 text-slate-950 font-bold text-sm flex items-center justify-center shadow-lg shadow-emerald-500/25 active:scale-[0.98] transition"
                     >
                       {popupSessions.length <= 1 ? 'Lihat Detail' : 'Lihat Semua Detail'}
                     </button>
@@ -1260,7 +1264,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setActiveMonthPopupDate(null)}
-                      className="w-full min-h-[44px] py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-xs font-semibold text-neutral-300 hover:text-white transition"
+                      className="w-full min-h-[44px] py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-xs font-semibold text-slate-700 dark:text-neutral-300 hover:text-slate-950 dark:hover:text-white transition"
                     >
                       Tutup
                     </button>
@@ -1275,7 +1279,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
       {/* 4. Filter & Search Controls */}
       <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
         <div className="relative flex-1">
-          <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 dark:text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
@@ -1285,7 +1289,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                 ? 'Cari fokus latihan atau lokasi sesi saya...'
                 : 'Cari nama member, kode, fokus latihan, atau lokasi...'
             }
-            className="w-full min-h-[44px] bg-[#111726]/85 border border-white/[0.08] rounded-2xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition shadow-inner"
+            className="w-full min-h-[44px] bg-white dark:bg-[#111726]/85 border border-slate-200 dark:border-white/[0.08] rounded-2xl pl-10 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition shadow-inner"
           />
         </div>
 
@@ -1294,7 +1298,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
             <select
               value={clientFilter}
               onChange={(e) => setClientFilter(e.target.value)}
-              className="min-h-[44px] bg-[#111726]/85 border border-white/[0.08] rounded-2xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition shrink-0"
+              className="min-h-[44px] bg-white dark:bg-[#111726]/85 border border-slate-200 dark:border-white/[0.08] rounded-2xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition shrink-0"
               title="Filter Berdasarkan Member"
             >
               <option value="Semua">Semua Member ({clients.length})</option>
@@ -1308,7 +1312,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
             <select
               value={locationFilter}
               onChange={(e) => setLocationFilter(e.target.value)}
-              className="min-h-[44px] bg-[#111726]/85 border border-white/[0.08] rounded-2xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition shrink-0"
+              className="min-h-[44px] bg-white dark:bg-[#111726]/85 border border-slate-200 dark:border-white/[0.08] rounded-2xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition shrink-0"
             >
               <option value="Semua">Semua Lokasi Gym</option>
               <option value="Gym Utama Senayan">Gym Utama Senayan</option>
@@ -1319,7 +1323,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="min-h-[44px] bg-[#111726]/85 border border-white/[0.08] rounded-2xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition shrink-0"
+              className="min-h-[44px] bg-white dark:bg-[#111726]/85 border border-slate-200 dark:border-white/[0.08] rounded-2xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition shrink-0"
             >
               <option value="Semua">Semua Status</option>
               <option value="Mendatang">Mendatang / Terjadwal</option>
@@ -1331,27 +1335,27 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
 
       {/* 5. Scheduled Session Cards List */}
       <section id="scheduledSessionsList" className="space-y-3 scroll-mt-6">
-        <div className="flex items-center justify-between text-xs text-[#bbcabf] px-1">
-          <span className="font-semibold text-white">
+        <div className="flex items-center justify-between text-xs text-slate-600 dark:text-[#bbcabf] px-1">
+          <span className="font-semibold text-slate-900 dark:text-white">
             {selectedDayKey === 'all'
               ? currentUserRole === 'client'
                 ? 'Daftar Semua Sesi Latihan Saya'
                 : 'Daftar Semua Sesi Minggu Ini'
               : `Jadwal ${weekDaysList.find((d) => d.dayKey === selectedDayKey)?.fullDate || selectedDayKey}`}
           </span>
-          <span className="font-mono text-emerald-400">
+          <span className="font-mono text-emerald-600 dark:text-emerald-400">
             {filteredSessions.length} Sesi Ditampilkan
           </span>
         </div>
 
         {filteredSessions.length === 0 ? (
-          <div className="bg-[#111726]/85 backdrop-blur-xl border border-white/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.06)] rounded-3xl p-8 text-center space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-[#191f2f] text-neutral-400 flex items-center justify-center mx-auto border border-white/[0.06]">
-              <CalendarClock className="w-6 h-6 text-emerald-400" />
+          <div className="bg-white dark:bg-[#111726]/85 backdrop-blur-xl border border-slate-200 dark:border-white/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.06)] rounded-3xl p-8 text-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-[#191f2f] text-slate-500 dark:text-neutral-400 flex items-center justify-center mx-auto border border-slate-200 dark:border-white/[0.06]">
+              <CalendarClock className="w-6 h-6 text-emerald-500 dark:text-emerald-400" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-white">Tidak ada jadwal sesi pada filter ini</p>
-              <p className="text-xs text-[#bbcabf] mt-1 max-w-md mx-auto">
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">Tidak ada jadwal sesi pada filter ini</p>
+              <p className="text-xs text-slate-600 dark:text-[#bbcabf] mt-1 max-w-md mx-auto">
                 {currentUserRole === 'client'
                   ? 'Belum ada sesi latihan terjadwal untuk filter ini. Hubungi Coach Panji jika ingin mengajukan jadwal latihan baru.'
                   : 'Pilih hari lain atau klik tombol di bawah untuk menjadwalkan sesi baru bagi member.'}
@@ -1385,33 +1389,33 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
               return (
                 <div
                   key={ses.id}
-                  className={`bg-[#111726]/85 backdrop-blur-xl border rounded-3xl p-4 sm:p-5 transition space-y-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.06)] hover:border-emerald-500/40 ${
-                    isFinished ? 'border-white/[0.08] opacity-90' : 'border-emerald-500/30 bg-gradient-to-r from-[#111726]/90 to-[#162035]/90'
+                  className={`bg-white dark:bg-[#111726]/85 backdrop-blur-xl border rounded-3xl p-4 sm:p-5 transition space-y-3.5 shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.06)] hover:border-emerald-500/40 ${
+                    isFinished ? 'border-slate-200 dark:border-white/[0.08] opacity-90' : 'border-emerald-500/30 dark:border-emerald-500/30'
                   }`}
                 >
                   {/* Card Header: Time, Status, Location */}
-                  <div className="flex items-start justify-between gap-2 border-b border-white/[0.06] pb-3">
+                  <div className="flex items-start justify-between gap-2 border-b border-slate-100 dark:border-white/[0.06] pb-3">
                     <div className="flex items-center gap-2.5">
                       <div
                         className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-xs font-mono shrink-0 shadow-sm ${
                           isFinished
-                            ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                            : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30'
+                            : 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40'
                         }`}
                       >
                         {ses.dayName}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs sm:text-sm font-bold font-mono text-white flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                          <span className="text-xs sm:text-sm font-bold font-mono text-slate-900 dark:text-white flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                             {ses.time} WIB ({ses.durationMinutes} mnt)
                           </span>
-                          <span className="text-[10px] text-neutral-400 font-mono">
+                          <span className="text-[10px] text-slate-500 dark:text-neutral-400 font-mono">
                             {ses.date}
                           </span>
                         </div>
-                        <p className="text-[11px] text-[#bbcabf] flex items-center gap-1 mt-0.5">
+                        <p className="text-[11px] text-slate-600 dark:text-[#bbcabf] flex items-center gap-1 mt-0.5">
                           <MapPin className="w-3 h-3 text-[#06b6d4]" />
                           <span>{ses.location}</span>
                         </p>
@@ -1421,8 +1425,8 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                     <span
                       className={`text-[10px] font-mono px-3 py-1 rounded-full font-bold border shrink-0 ${
                         isFinished
-                          ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
-                          : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 border-emerald-300 dark:border-emerald-500/30'
+                          : 'bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300 border-amber-300 dark:border-amber-500/30'
                       }`}
                     >
                       {isFinished ? '✓ Selesai' : '⏳ Terjadwal'}
@@ -1442,25 +1446,25 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                         <div className="flex items-center gap-2">
                           <h4
                             onClick={() => onSelectClient(ses.clientId)}
-                            className="text-xs sm:text-sm font-bold text-white hover:text-emerald-400 cursor-pointer transition truncate"
+                            className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white hover:text-emerald-500 dark:hover:text-emerald-400 cursor-pointer transition truncate"
                           >
                             {ses.clientName}
                           </h4>
-                          <span className="text-[10px] font-mono text-neutral-400 shrink-0">
+                          <span className="text-[10px] font-mono text-slate-500 dark:text-neutral-400 shrink-0">
                             {ses.clientCode}
                           </span>
                         </div>
-                        <p className="text-xs text-emerald-300 font-medium truncate mt-0.5">
+                        <p className="text-xs text-emerald-600 dark:text-emerald-300 font-medium truncate mt-0.5">
                           {ses.focus}
                         </p>
                       </div>
                     </div>
 
                     <div className="text-right shrink-0">
-                      <span className="text-xs font-mono font-bold text-white block">
+                      <span className="text-xs font-mono font-bold text-slate-900 dark:text-white block">
                         Sesi #{ses.sessionNumber}/{ses.totalPackage}
                       </span>
-                      <span className="text-[10px] text-neutral-400 font-mono">
+                      <span className="text-[10px] text-slate-500 dark:text-neutral-400 font-mono">
                         Sisa {Math.max(0, ses.totalPackage - ses.sessionNumber)} Sesi
                       </span>
                     </div>
@@ -1468,7 +1472,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
 
                   {/* Coach Notes if present */}
                   {ses.coachNotes && (
-                    <div className="p-3 bg-[#070e1d] rounded-2xl text-xs text-[#bbcabf] italic border border-white/[0.04]">
+                    <div className="p-3 bg-slate-50 dark:bg-[#070e1d] rounded-2xl text-xs text-slate-700 dark:text-[#bbcabf] italic border border-slate-200 dark:border-white/[0.04]">
                       “{ses.coachNotes}”
                     </div>
                   )}
@@ -1487,15 +1491,15 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                   )}
 
                   {/* Action Thumb Bar */}
-                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/[0.06]">
+                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-white/[0.06]">
                     <div className="flex items-center gap-2 flex-1">
                       {isFinished ? (
                         <button
                           type="button"
                           onClick={() => onSelectClient(ses.clientId)}
-                          className="flex-1 min-h-[44px] px-3.5 rounded-xl bg-[#1e2638] hover:bg-[#283248] text-neutral-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm"
+                          className="flex-1 min-h-[44px] px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-[#1e2638] dark:hover:bg-[#283248] dark:text-neutral-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm"
                         >
-                          <User className="w-4 h-4 text-emerald-400" />
+                          <User className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                           <span>Lihat Log &amp; Metrik</span>
                         </button>
                       ) : isCoachOrAdmin(currentUserRole) ? (
@@ -1511,7 +1515,7 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                           <button
                             type="button"
                             onClick={() => onOpenReschedule(ses.clientId)}
-                            className="min-h-[44px] px-3 rounded-xl bg-[#1e2638] hover:bg-[#283248] border border-amber-500/30 text-amber-300 text-xs font-semibold whitespace-nowrap flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm"
+                            className="min-h-[44px] px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1e2638] dark:hover:bg-[#283248] border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-semibold whitespace-nowrap flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm"
                             title="Reschedule sesi ini"
                           >
                             <CalendarClock className="w-4 h-4 shrink-0" />
@@ -1523,15 +1527,15 @@ export const SessionsCalendarView: React.FC<SessionsCalendarViewProps> = ({
                           <button
                             type="button"
                             onClick={() => onSelectClient(ses.clientId)}
-                            className="flex-1 min-h-[44px] px-3.5 rounded-xl bg-[#1e2638] hover:bg-[#283248] text-neutral-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm"
+                            className="flex-1 min-h-[44px] px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-[#1e2638] dark:hover:bg-[#283248] dark:text-neutral-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm"
                           >
-                            <User className="w-4 h-4 text-emerald-400" />
+                            <User className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
                             <span>Detail Latihan</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => onOpenReschedule(ses.clientId)}
-                            className="min-h-[44px] px-3.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm"
+                            className="min-h-[44px] px-3.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-800 dark:bg-amber-500/15 dark:hover:bg-amber-500/25 dark:border-amber-500/30 dark:text-amber-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm"
                             title="Ajukan pindah jadwal sesi ini"
                           >
                             <CalendarClock className="w-4 h-4" />

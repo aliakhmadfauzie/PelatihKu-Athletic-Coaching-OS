@@ -182,3 +182,84 @@
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #374151;
 }
+
+/* ==========================================================================
+   Daylight Light Mode Adaptivity Engine (Apple HIG & Material Design 3)
+   Maps hardcoded OLED dark tokens cleanly to daylight-readable slate/white.
+   ========================================================================== */
+html.light body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+html.light .bg-\[\#0B0F17\],
+html.light .bg-\[\#0b0f17\],
+html.light .bg-\[\#070e1d\] {
+  background-color: #f8fafc !important;
+}
+
+html.light .bg-\[\#111726\],
+html.light .bg-\[\#141b2b\],
+html.light .bg-\[\#141c2b\],
+html.light .bg-\[\#0b101b\],
+html.light .bg-\[\#0d1424\] {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-\[\#111726\]\/85,
+html.light .bg-\[\#111726\]\/90,
+html.light .bg-\[\#111726\]\/95,
+html.light .bg-\[\#0B0F17\]\/80,
+html.light .bg-\[\#0B0F17\]\/90 {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+}
+
+html.light .bg-\[\#1e2638\],
+html.light .bg-\[\#191f2f\],
+html.light .bg-\[\#232a3a\],
+html.light .bg-\[\#283248\] {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .bg-white\/\[0\.02\],
+html.light .bg-white\/\[0\.04\],
+html.light .bg-white\/\[0\.06\],
+html.light .bg-white\/5 {
+  background-color: rgba(15, 23, 42, 0.04) !important;
+}
+
+html.light .bg-white\/\[0\.08\],
+html.light .bg-white\/\[0\.1\],
+html.light .bg-white\/10 {
+  background-color: rgba(15, 23, 42, 0.07) !important;
+}
+
+html.light [class*="border-white\/"] {
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+html.light .text-white:not([class*="bg-emerald"]):not([class*="bg-teal"]):not([class*="bg-blue"]):not([class*="bg-indigo"]):not([class*="bg-rose"]):not([class*="bg-amber"]):not([class*="bg-red"]):not([class*="from-"]):not([class*="rounded-full"]) {
+  color: #0f172a !important;
+}
+
+html.light .text-neutral-200,
+html.light .text-neutral-300,
+html.light .text-\[\#bbcabf\] {
+  color: #334155 !important;
+}
+
+html.light .text-neutral-400 {
+  color: #64748b !important;
+}
+
+html.light input:not([type="checkbox"]):not([type="radio"]),
+html.light select,
+html.light textarea {
+  color: #0f172a !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+

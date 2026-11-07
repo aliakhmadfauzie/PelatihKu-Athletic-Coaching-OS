@@ -1,4 +1,83 @@
 {
-  "indexes": [],
-  "fieldOverrides": []
+  "indexes": [
+    {
+      "collectionGroup": "clients",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "updatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "clients",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "target_category", "order": "ASCENDING" },
+        { "fieldPath": "updatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "targetRole", "order": "ASCENDING" },
+        { "fieldPath": "read", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "targetClientId", "order": "ASCENDING" },
+        { "fieldPath": "read", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "clients",
+      "fieldPath": "avatarUrl",
+      "ttl": false,
+      "indexes": []
+    },
+    {
+      "collectionGroup": "clients",
+      "fieldPath": "baselinePhotoUrl",
+      "ttl": false,
+      "indexes": []
+    },
+    {
+      "collectionGroup": "clients",
+      "fieldPath": "dietDetailNote",
+      "ttl": false,
+      "indexes": []
+    },
+    {
+      "collectionGroup": "clients",
+      "fieldPath": "medicalHistoryNote",
+      "ttl": false,
+      "indexes": []
+    },
+    {
+      "collectionGroup": "clients",
+      "fieldPath": "postureScreeningNote",
+      "ttl": false,
+      "indexes": []
+    },
+    {
+      "collectionGroup": "clients",
+      "fieldPath": "nutritionCoachNote",
+      "ttl": false,
+      "indexes": []
+    },
+    {
+      "collectionGroup": "coach_profile",
+      "fieldPath": "avatarUrl",
+      "ttl": false,
+      "indexes": []
+    }
+  ]
 }
